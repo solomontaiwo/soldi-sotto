@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { updateProfile } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import "./AuthForms.css";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Crea l'istanza del navigatore
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -19,7 +22,8 @@ const Register = () => {
       );
       const user = userCredential.user;
       await updateProfile(user, { displayName: username });
-      // Redirect or handle successful registration here
+      // Reindirizza l'utente alla pagina delle transazioni
+      navigate("/transactions");
     } catch (err) {
       setError(err.message);
     }

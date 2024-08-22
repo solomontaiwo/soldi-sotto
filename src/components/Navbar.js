@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import "./Navbar.css";
 
 const Navbar = () => {
   const { currentUser } = useAuth();
@@ -17,6 +18,7 @@ const Navbar = () => {
 
   return (
     <nav>
+      <div className="logo">SoldiSotto</div>
       <ul>
         <li>
           <Link to="/">Home</Link>

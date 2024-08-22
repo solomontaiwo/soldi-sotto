@@ -1,68 +1,113 @@
 import React, { useState } from "react";
-import { db } from "../firebase";
+import { firestore } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./AuthProvider";
 
-const TransactionForm = () => {
+const AddTransaction = () => {
   const [name, setName] = useState("");
-  const [type, setType] = useState("entrata");
+  const [type, setType] = useState("entrata"); // Entrata o Uscita
+  const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
-  const [method, setMethod] = useState("contanti");
+  const [method, setMethod] = useState("carta");
   const [notes, setNotes] = useState("");
-  const [message, setMessage] = useState("");
+  const [locationType, setLocationType] = useState("online");
+  const [locationDetail, setLocationDetail] = useState("");
+
   const { currentUser } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handleAddTransaction = async (e) => {
     e.preventDefault();
+
     try {
-      await db.collection("transactions").add({
+      await addDoc(collection(firestore, "transactions"), {
+        userId: currentUser.uid,
         name,
         type,
+        amount: parseFloat(amount),
         date,
         method,
         notes,
-        userId: currentUser.uid,
+        locationType,
+        locationDetail,
       });
-      setMessage("Transazione inserita con successo!");
+
+      // Resetta il form dopo l'invio
+      setName("");
+      setType("entrata");
+      setAmount("");
+      setDate("");
+      setMethod("carta");
+      setNotes("");
+      setLocationType("online");
+      setLocationDetail("");
     } catch (err) {
-      setMessage("Errore nell'inserimento della transazione.");
+      console.error("Errore durante l'aggiunta della transazione:", err);
     }
   };
 
   return (
-    <div>
-      <h2>Inserisci una nuova transazione</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nome della transazione"
-          required
-        />
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="entrata">Entrata</option>
-          <option value="uscita">Uscita</option>
-        </select>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-        />
-        <select value={method} onChange={(e) => setMethod(e.target.value)}>
-          <option value="contanti">Contanti</option>
-          <option value="carta di debito">Carta di Debito</option>
-        </select>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Note"
-        />
-        <button type="submit">Inserisci Transazione</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+    <form onSubmit={handleAddTransaction}>
+      <h3>Aggiungi Transazione</h3>
+      <input
+        type="text"
+        placeholder="Nome della transazione"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+      />
+      <select value={type} onChange={(e) => setType(e.target.value)}>
+        <option value="entrata">Entrata</option>
+        <option value="uscita">Uscita</option>
+      </select>
+      <input
+        type="number"
+        placeholder="Importo"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        required
+      />
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        required
+      />
+      <select value={method} onChange={(e) => setMethod(e.target.value)}>
+        <option value="carta">Carta</option>
+        <option value="contanti">Contanti</option>
+        <option value="altro">Altro</option>
+      </select>
+      <textarea
+        placeholder="Note"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+
+      {/* Campo per il tipo di luogo */}
+      <select
+        value={locationType}
+        onChange={(e) => setLocationType(e.target.value)}
+      >
+        <option value="online">Online (sito web, app, ecc.)</option>
+        <option value="luogo">Luogo (Attività, città (provincia))</option>
+      </select>
+
+      {/* Campo per il dettaglio del luogo */}
+      <input
+        type="text"
+        placeholder={
+          locationType === "online"
+            ? "Specifica sito web, app, ecc."
+            : "Attività, città (provincia)"
+        }
+        value={locationDetail}
+        onChange={(e) => setLocationDetail(e.target.value)}
+        required
+      />
+
+      <button type="submit">Aggiungi Transazione</button>
+    </form>
   );
 };
 
-export default TransactionForm;
+export default AddTransaction;

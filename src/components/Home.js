@@ -1,17 +1,19 @@
 import React from "react";
-import AddTransaction from "./AddTransaction";
 import TransactionList from "./TransactionList";
 import { useAuth } from "./AuthProvider";
+import "./Home.css";
 
 const Home = () => {
   const { currentUser } = useAuth();
 
   return (
     <div className="home-container">
-      <h1>Benvenuto in SoldiSotto</h1>
-      <AddTransaction />
+      <header className="home-header">
+        <h1>Benvenuto in SoldiSotto!</h1>
+        <p>Gestisci le tue finanze in modo semplice e veloce.</p>
+      </header>
       {currentUser && (
-        <div className="transaction-list-container">
+        <div className="transaction-section">
           <TransactionList />
         </div>
       )}

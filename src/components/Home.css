@@ -1,0 +1,33 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.home-header {
+  text-align: center;
+  background-color: #007bff;
+  color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  max-width: 100%;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.home-header p {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+}
+
+.transaction-section {
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+}
