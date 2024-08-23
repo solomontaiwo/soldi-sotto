@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  orderBy,
-} from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { useAuth } from "./AuthProvider";
+import { Link } from "react-router-dom";
 import "./TransactionList.css";
 
 const TransactionList = () => {
@@ -20,16 +15,8 @@ const TransactionList = () => {
       const fetchTransactions = async () => {
         try {
           const today = new Date();
-          const startOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-          );
-          const endOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth() + 1,
-            0
-          );
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
           const q = query(
             collection(firestore, "transactions"),
@@ -61,30 +48,34 @@ const TransactionList = () => {
     <div className="transaction-list">
       <h2>Lista Transazioni</h2>
       {error && <p className="error-message">{error}</p>}
-      <div className="transaction-cards">
-        {transactions.map((transaction) => (
-          <div key={transaction.id} className="transaction-card">
-            <h4>{new Date(transaction.date.toDate()).toLocaleDateString()}</h4>
-            <p>
-              <strong>Tipo:</strong>{" "}
-              {transaction.type === "income" ? "Entrata" : "Uscita"}
-            </p>
-            <p>
-              <strong>Importo:</strong> {transaction.amount.toFixed(2)} €
-            </p>
-            <p>
-              <strong>Descrizione:</strong> {transaction.description || "-"}
-            </p>
-            <p>
-              <strong>Luogo:</strong> {transaction.place || "-"}
-            </p>
-            <p>
-              <strong>Metodo di Pagamento:</strong>{" "}
-              {transaction.paymentMethod || "-"}
-            </p>
-          </div>
-        ))}
-      </div>
+      {transactions.length === 0 ? (
+        <p className="no-transactions-message">
+          Nessuna transazione registrata, vai alla <Link to="/soldi-sotto">home</Link> per inserirne.
+        </p>
+      ) : (
+        <div className="transaction-cards">
+          {transactions.map((transaction) => (
+            <div key={transaction.id} className="transaction-card">
+              <h4>{new Date(transaction.date.toDate()).toLocaleDateString()}</h4>
+              <p>
+                <strong>Tipo:</strong> {transaction.type === "income" ? "Entrata" : "Uscita"}
+              </p>
+              <p>
+                <strong>Importo:</strong> {transaction.amount.toFixed(2)} €
+              </p>
+              <p>
+                <strong>Descrizione:</strong> {transaction.description || "-"}
+              </p>
+              <p>
+                <strong>Luogo:</strong> {transaction.place || "-"}
+              </p>
+              <p>
+                <strong>Metodo di Pagamento:</strong> {transaction.paymentMethod || "-"}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

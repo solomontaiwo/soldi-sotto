@@ -54,6 +54,26 @@
   color: #333;
 }
 
+.no-transactions-message {
+  color: #333;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.no-transactions-message a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.no-transactions-message a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.9rem;
+}
+
 /* Media query per schermi più grandi */
 @media (min-width: 768px) {
   .transaction-card {
