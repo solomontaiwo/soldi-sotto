@@ -16,11 +16,11 @@ function App() {
       <TransitionGroup>
         <CSSTransition timeout={300} classNames="fade">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/statistics" element={<Statistics />} />{" "}
+            <Route path="/soldi-sotto" element={<Home />} />
+            <Route path="/soldi-sotto/login" element={<Login />} />
+            <Route path="/soldi-sotto/register" element={<Register />} />
+            <Route path="/soldi-sotto/transactions" element={<Transactions />} />
+            <Route path="/soldi-sotto/statistics" element={<Statistics />} />{" "}
           </Routes>
         </CSSTransition>
       </TransitionGroup>

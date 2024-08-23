@@ -24,7 +24,7 @@ const Navbar = () => {
           className={activeTab === "home" ? "active" : ""}
           onClick={() => setActiveTab("home")}
         >
-          <Link to="/">Home</Link>
+          <Link to="/soldi-sotto">Home</Link>
         </li>
         {currentUser && (
           <>
@@ -32,13 +32,13 @@ const Navbar = () => {
               className={activeTab === "transactions" ? "active" : ""}
               onClick={() => setActiveTab("transactions")}
             >
-              <Link to="/transactions">Transazioni</Link>
+              <Link to="/soldi-sotto/transactions">Transazioni</Link>
             </li>
             <li
               className={activeTab === "statistics" ? "active" : ""}
               onClick={() => setActiveTab("statistics")}
             >
-              <Link to="/statistics">Statistiche</Link>
+              <Link to="/soldi-sotto/statistics">Statistiche</Link>
             </li>
             <li>
               <button onClick={handleLogout}>Logout</button>
@@ -51,13 +51,13 @@ const Navbar = () => {
               className={activeTab === "login" ? "active" : ""}
               onClick={() => setActiveTab("login")}
             >
-              <Link to="/login">Login</Link>
+              <Link to="/soldi-sotto/login">Login</Link>
             </li>
             <li
               className={activeTab === "register" ? "active" : ""}
               onClick={() => setActiveTab("register")}
             >
-              <Link to="/register">Registrazione</Link>
+              <Link to="/soldi-sotto/register">Registrazione</Link>
             </li>
           </>
         )}
