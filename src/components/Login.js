@@ -8,13 +8,13 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook per il reindirizzamento
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/soldi-sotto/transactions"); // Reindirizza alle transazioni dopo il login
+      navigate("/soldi-sotto/transactions");
     } catch (err) {
       setError(err.message);
     }
@@ -23,7 +23,7 @@ const Login = () => {
   return (
     <div className="auth-form-container">
       <h2>Login</h2>
-      <form onSubmit={handleLogin} className="auth-form">
+      <form onSubmit={handleLogin}>
         <div className="form-group">
           <label>Email</label>
           <input

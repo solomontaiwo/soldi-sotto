@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
-import { updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import "./AuthForms.css";
 
@@ -10,19 +9,15 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook per il reindirizzamento
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await updateProfile(user, { displayName: username });
-      navigate("/soldi-sotto/transactions"); // Reindirizza l'utente alla pagina delle transazioni
+      navigate("/soldi-sotto/transactions");
     } catch (err) {
       setError(err.message);
     }
@@ -31,7 +26,7 @@ const Register = () => {
   return (
     <div className="auth-form-container">
       <h2>Registrazione</h2>
-      <form onSubmit={handleRegister} className="auth-form">
+      <form onSubmit={handleRegister}>
         <div className="form-group">
           <label>Nome Utente</label>
           <input

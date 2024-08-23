@@ -1,26 +1,35 @@
+/* AuthForms.css */
+
 .auth-form-container {
   background-color: #f8f9fa;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 2rem;
   max-width: 400px;
-  margin: auto;
+  margin: 2rem auto; /* Spazio verticale dal bordo della finestra */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centratura orizzontale del contenuto */
 }
 
 .auth-form-container h2 {
   font-size: 1.8rem;
   color: #007bff;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem; /* Spazio tra il titolo e il form */
   text-align: center;
 }
 
 .auth-form-container form {
   display: flex;
   flex-direction: column;
+  width: 100%; /* Assicura che il form occupi tutta la larghezza del container */
 }
 
 .auth-form-container .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem; /* Maggiore spazio tra i gruppi di input */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Assicura che il gruppo di input occupi tutta la larghezza del form */
 }
 
 .auth-form-container label {
@@ -28,6 +37,7 @@
   color: #333;
   margin-bottom: 0.5rem;
   display: block;
+  text-align: center; /* Centratura orizzontale del testo dell'etichetta */
 }
 
 .auth-form-container input {
@@ -35,7 +45,9 @@
   border-radius: 4px;
   padding: 0.75rem;
   font-size: 1rem;
-  width: 100%;
+  width: 100%; /* Assicura che l'input occupi tutta la larghezza disponibile */
+  max-width: 100%; /* Rimuove la larghezza massima per i campi di input */
+  box-sizing: border-box; /* Include il padding e il bordo nella larghezza totale */
 }
 
 .auth-form-container button {
@@ -48,6 +60,8 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-top: 1rem;
+  width: 100%; /* Assicura che il pulsante occupi tutta la larghezza disponibile */
+  box-sizing: border-box; /* Include il padding e il bordo nella larghezza totale */
 }
 
 .auth-form-container button:hover {
