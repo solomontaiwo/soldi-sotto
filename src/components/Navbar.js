@@ -23,16 +23,20 @@ const Navbar = () => {
         <li>
           <Link to="/">Home</Link>
         </li>
-        {currentUser ? (
+        {currentUser && (
           <>
             <li>
               <Link to="/transactions">Transazioni</Link>
             </li>
             <li>
+              <Link to="/statistics">Statistiche</Link> {/* Nuova voce */}
+            </li>
+            <li>
               <button onClick={handleLogout}>Logout</button>
             </li>
           </>
-        ) : (
+        )}
+        {!currentUser && (
           <>
             <li>
               <Link to="/login">Login</Link>

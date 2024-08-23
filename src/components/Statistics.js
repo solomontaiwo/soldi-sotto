@@ -1,13 +1,9 @@
-// src/components/Home.js
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import TransactionList from "./TransactionList";
-import TransactionForm from "./TransactionForm";
-import Statistics from "./Statistics";
 import { useAuth } from "./AuthProvider";
 import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
+import Chart from "react-apexcharts";
 import {
   startOfMonth,
   endOfMonth,
@@ -18,9 +14,9 @@ import {
 } from "date-fns";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import "./Home.css";
+import "./Statistics.css";
 
-const Home = () => {
+const Statistics = () => {
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState({
@@ -115,8 +111,7 @@ const Home = () => {
 
   const generatePDF = () => {
     const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
-
+    const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, "");
     const reportType =
       viewMode === "daily"
         ? "giornaliero"
@@ -125,13 +120,10 @@ const Home = () => {
         : viewMode === "monthly"
         ? "mensile"
         : "annuale";
-
     const userName = currentUser.displayName
       ? currentUser.displayName.replace(/\s+/g, "-")
       : "nomeutente";
-
     const fileName = `[${formattedDate}]report-${reportType}-${userName}-soldisotto.pdf`;
-
     const doc = new jsPDF();
     doc.text("Statistiche Finanziarie", 14, 16);
 
@@ -162,34 +154,72 @@ const Home = () => {
   };
 
   return (
-    <div className="home-container">
-      <header className="home-header">
+    <div className="page-container">
+      <header className="page-header">
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          Benvenuto in SoldiSotto!
+          Statistiche Finanziarie
         </motion.h1>
-        <p>Gestisci le tue finanze in modo semplice e veloce.</p>
+        <p>Visualizza e analizza le tue statistiche finanziarie.</p>
       </header>
       {currentUser && (
-        <div className="home-content">
-          <TransactionForm />
-          <div className="transaction-list-container">
-            <TransactionList />
+        <div className="content-container">
+          <div className="controls">
+            <button onClick={() => handleViewModeChange("daily")}>
+              Giornaliero
+            </button>
+            <button onClick={() => handleViewModeChange("weekly")}>
+              Settimanale
+            </button>
+            <button onClick={() => handleViewModeChange("monthly")}>
+              Mensile
+            </button>
+            <button onClick={generatePDF}>Genera PDF</button>
           </div>
-          <Statistics
-            stats={stats}
-            options={options}
-            series={series}
-            handleViewModeChange={handleViewModeChange}
-            generatePDF={generatePDF}
-          />
+          <div className="stats-section">
+            <motion.div
+              className="stat-item"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3>Entrate Totali</h3>
+              <p>{stats.totalIncome.toFixed(2)} €</p>
+            </motion.div>
+            <motion.div
+              className="stat-item"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3>Uscite Totali</h3>
+              <p>{stats.totalExpense.toFixed(2)} €</p>
+            </motion.div>
+            <motion.div
+              className="stat-item"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3>Saldo</h3>
+              <p>{stats.balance.toFixed(2)} €</p>
+            </motion.div>
+          </div>
+          <motion.div
+            className="chart-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Chart options={options} series={series} type="pie" width="400" />
+          </motion.div>
         </div>
       )}
     </div>
   );
 };
 
-export default Home;
+export default Statistics;

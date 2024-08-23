@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Transactions from "./components/TransactionList";
+import Statistics from "./components/Statistics";
 import Navbar from "./components/Navbar";
 import "./App.css";
 
@@ -19,6 +20,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route path="/statistics" element={<Statistics />} />{" "}
           </Routes>
         </CSSTransition>
       </TransitionGroup>

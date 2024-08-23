@@ -1,0 +1,70 @@
+.page-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  font-size: 1.2em;
+  color: #666;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px; /* Spazio tra i pulsanti */
+}
+
+.controls button {
+  padding: 10px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007bff; /* Colore di sfondo */
+  color: white; /* Colore del testo */
+  transition: background-color 0.3s, transform 0.2s; /* Transizioni per effetto hover */
+}
+
+.controls button:hover {
+  background-color: #0056b3; /* Colore di sfondo al passaggio del mouse */
+}
+
+.controls button:active {
+  transform: scale(0.95); /* Effetto di pressione */
+}
+
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  flex: 1;
+  max-width: 300px;
+  margin: 10px;
+  text-align: center;
+}
+
+.chart-container {
+  text-align: center;
+}
