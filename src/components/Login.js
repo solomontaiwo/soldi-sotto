@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/transactions"); // Reindirizza alle transazioni dopo il login
+      navigate("/soldi-sotto/transactions"); // Reindirizza alle transazioni dopo il login
     } catch (err) {
       setError(err.message);
     }

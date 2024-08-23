@@ -22,7 +22,7 @@ const Register = () => {
       );
       const user = userCredential.user;
       await updateProfile(user, { displayName: username });
-      navigate("/transactions"); // Reindirizza l'utente alla pagina delle transazioni
+      navigate("/soldi-sotto/transactions"); // Reindirizza l'utente alla pagina delle transazioni
     } catch (err) {
       setError(err.message);
     }
