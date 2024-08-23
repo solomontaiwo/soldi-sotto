@@ -1,33 +1,24 @@
-nav {
+.tabbed-navbar {
   background-color: #007bff;
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   border-bottom: 2px solid #0056b3;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
-nav .logo {
-  font-size: 1.6rem;
-  font-weight: bold;
-}
-
-nav ul {
+.tabbed-navbar ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-  gap: 1rem;
+  justify-content: space-around;
 }
 
-nav li {
+.tabbed-navbar li {
   margin: 0;
 }
 
-nav a,
-nav button {
+.tabbed-navbar a,
+.tabbed-navbar button {
   color: #fff;
   text-decoration: none;
   font-size: 1rem;
@@ -37,29 +28,21 @@ nav button {
   transition: background-color 0.3s ease;
 }
 
-nav a:hover,
-nav button:hover {
+.tabbed-navbar a:hover,
+.tabbed-navbar button:hover {
   background-color: #0056b3;
 }
 
-nav button {
+.tabbed-navbar button {
   background-color: #dc3545;
   border: none;
   cursor: pointer;
 }
 
-nav button:hover {
+.tabbed-navbar button:hover {
   background-color: #c82333;
 }
 
-@media (max-width: 768px) {
-  nav ul {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-
-  nav {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.tabbed-navbar .active a {
+  background-color: #0056b3;
 }

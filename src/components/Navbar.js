@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { signOut } from "firebase/auth";
@@ -7,6 +7,7 @@ import "./Navbar.css";
 
 const Navbar = () => {
   const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState("home");
 
   const handleLogout = async () => {
     try {
@@ -17,19 +18,27 @@ const Navbar = () => {
   };
 
   return (
-    <nav>
-      <div className="logo">SoldiSotto</div>
+    <nav className="tabbed-navbar">
       <ul>
-        <li>
+        <li
+          className={activeTab === "home" ? "active" : ""}
+          onClick={() => setActiveTab("home")}
+        >
           <Link to="/">Home</Link>
         </li>
         {currentUser && (
           <>
-            <li>
+            <li
+              className={activeTab === "transactions" ? "active" : ""}
+              onClick={() => setActiveTab("transactions")}
+            >
               <Link to="/transactions">Transazioni</Link>
             </li>
-            <li>
-              <Link to="/statistics">Statistiche</Link> {/* Nuova voce */}
+            <li
+              className={activeTab === "statistics" ? "active" : ""}
+              onClick={() => setActiveTab("statistics")}
+            >
+              <Link to="/statistics">Statistiche</Link>
             </li>
             <li>
               <button onClick={handleLogout}>Logout</button>
@@ -38,10 +47,16 @@ const Navbar = () => {
         )}
         {!currentUser && (
           <>
-            <li>
+            <li
+              className={activeTab === "login" ? "active" : ""}
+              onClick={() => setActiveTab("login")}
+            >
               <Link to="/login">Login</Link>
             </li>
-            <li>
+            <li
+              className={activeTab === "register" ? "active" : ""}
+              onClick={() => setActiveTab("register")}
+            >
               <Link to="/register">Registrazione</Link>
             </li>
           </>

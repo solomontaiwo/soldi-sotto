@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 import { useAuth } from "./AuthProvider";
-import "./TransactionList.css"; // Assicurati di avere il CSS appropriato
+import "./TransactionList.css";
 
 const TransactionList = () => {
   const { currentUser } = useAuth();
@@ -29,7 +35,8 @@ const TransactionList = () => {
             collection(firestore, "transactions"),
             where("userId", "==", currentUser.uid),
             where("date", ">=", startOfMonth),
-            where("date", "<=", endOfMonth)
+            where("date", "<=", endOfMonth),
+            orderBy("date", "desc") // Ordinamento per data decrescente
           );
 
           const unsubscribe = onSnapshot(q, (querySnapshot) => {

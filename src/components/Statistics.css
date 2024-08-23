@@ -1,70 +1,93 @@
-.page-container {
-  padding: 20px;
-  max-width: 1200px;
+.stats-container {
+  padding: 1rem;
+  max-width: 1200px; /* Limita la larghezza massima per un layout più compatto su desktop */
   margin: 0 auto;
 }
 
-.page-header {
+.stats-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
-.page-header h1 {
-  font-size: 2em;
-  margin-bottom: 10px;
+.stats-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-.page-header p {
-  font-size: 1.2em;
-  color: #666;
+.stats-header p {
+  font-size: 1.1rem;
+  color: #555;
 }
 
-.content-container {
+.stats-controls {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 10px; /* Spazio tra i pulsanti */
-}
-
-.controls button {
-  padding: 10px 20px;
-  font-size: 1em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #007bff; /* Colore di sfondo */
-  color: white; /* Colore del testo */
-  transition: background-color 0.3s, transform 0.2s; /* Transizioni per effetto hover */
-}
-
-.controls button:hover {
-  background-color: #0056b3; /* Colore di sfondo al passaggio del mouse */
-}
-
-.controls button:active {
-  transform: scale(0.95); /* Effetto di pressione */
-}
-
-.stats-section {
-  display: flex;
-  justify-content: space-around;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.stat-item {
-  flex: 1;
-  max-width: 300px;
-  margin: 10px;
-  text-align: center;
+.stats-controls button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.stats-controls button:hover {
+  background-color: #0056b3;
 }
 
 .chart-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.stat-item {
+  margin: 1rem 0;
   text-align: center;
+}
+
+.stat-item h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+  font-size: 1.25rem;
+  color: #333;
+}
+
+@media (min-width: 768px) {
+  .stats-controls {
+    justify-content: flex-start;
+  }
+
+  .stats-controls button {
+    font-size: 1.1rem;
+    padding: 0.75rem 2rem;
+  }
+
+  .chart-container {
+    margin: 2rem 0;
+  }
+
+  .stat-item {
+    display: inline-block;
+    width: 30%;
+    box-sizing: border-box;
+  }
+
+  .stat-item h2 {
+    font-size: 1.75rem;
+  }
+
+  .stat-item p {
+    font-size: 1.5rem;
+  }
 }

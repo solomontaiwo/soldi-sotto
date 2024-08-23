@@ -24,7 +24,7 @@ const Statistics = () => {
     totalExpense: 0,
     balance: 0,
   });
-  const [viewMode, setViewMode] = useState("monthly");
+  const [viewMode, setViewMode] = useState("monthly"); // monthly, weekly, daily
 
   useEffect(() => {
     if (currentUser) {
@@ -112,6 +112,7 @@ const Statistics = () => {
   const generatePDF = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, "");
+
     const reportType =
       viewMode === "daily"
         ? "giornaliero"
@@ -120,10 +121,13 @@ const Statistics = () => {
         : viewMode === "monthly"
         ? "mensile"
         : "annuale";
+
     const userName = currentUser.displayName
       ? currentUser.displayName.replace(/\s+/g, "-")
       : "nomeutente";
+
     const fileName = `[${formattedDate}]report-${reportType}-${userName}-soldisotto.pdf`;
+
     const doc = new jsPDF();
     doc.text("Statistiche Finanziarie", 14, 16);
 
@@ -154,8 +158,8 @@ const Statistics = () => {
   };
 
   return (
-    <div className="page-container">
-      <header className="page-header">
+    <div className="stats-container">
+      <header className="stats-header">
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -163,61 +167,35 @@ const Statistics = () => {
         >
           Statistiche Finanziarie
         </motion.h1>
-        <p>Visualizza e analizza le tue statistiche finanziarie.</p>
+        <p>Visualizza e gestisci le tue statistiche in base al periodo selezionato.</p>
       </header>
-      {currentUser && (
-        <div className="content-container">
-          <div className="controls">
-            <button onClick={() => handleViewModeChange("daily")}>
-              Giornaliero
-            </button>
-            <button onClick={() => handleViewModeChange("weekly")}>
-              Settimanale
-            </button>
-            <button onClick={() => handleViewModeChange("monthly")}>
-              Mensile
-            </button>
-            <button onClick={generatePDF}>Genera PDF</button>
-          </div>
-          <div className="stats-section">
-            <motion.div
-              className="stat-item"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h3>Entrate Totali</h3>
-              <p>{stats.totalIncome.toFixed(2)} €</p>
-            </motion.div>
-            <motion.div
-              className="stat-item"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h3>Uscite Totali</h3>
-              <p>{stats.totalExpense.toFixed(2)} €</p>
-            </motion.div>
-            <motion.div
-              className="stat-item"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h3>Saldo</h3>
-              <p>{stats.balance.toFixed(2)} €</p>
-            </motion.div>
-          </div>
-          <motion.div
-            className="chart-container"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Chart options={options} series={series} type="pie" width="400" />
-          </motion.div>
-        </div>
-      )}
+      <div className="stats-controls">
+        <button onClick={() => handleViewModeChange("daily")}>
+          Giornaliero
+        </button>
+        <button onClick={() => handleViewModeChange("weekly")}>
+          Settimanale
+        </button>
+        <button onClick={() => handleViewModeChange("monthly")}>
+          Mensile
+        </button>
+        <button onClick={generatePDF}>Genera PDF</button>
+      </div>
+      <div className="chart-container">
+        <Chart options={options} series={series} type="pie" width="100%" />
+      </div>
+      <div className="stat-item">
+        <h2>Entrate Totali</h2>
+        <p>{stats.totalIncome.toFixed(2)} €</p>
+      </div>
+      <div className="stat-item">
+        <h2>Spese Totali</h2>
+        <p>{stats.totalExpense.toFixed(2)} €</p>
+      </div>
+      <div className="stat-item">
+        <h2>Saldo</h2>
+        <p>{stats.balance.toFixed(2)} €</p>
+      </div>
     </div>
   );
 };
