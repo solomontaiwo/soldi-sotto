@@ -11,6 +11,8 @@ import {
   endOfWeek,
   startOfDay,
   endOfDay,
+  startOfYear,
+  endOfYear,
 } from "date-fns";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -24,7 +26,7 @@ const Statistics = () => {
     totalExpense: 0,
     balance: 0,
   });
-  const [viewMode, setViewMode] = useState("monthly"); // monthly, weekly, daily
+  const [viewMode, setViewMode] = useState("monthly"); // annually, monthly, weekly, daily
 
   useEffect(() => {
     if (currentUser) {
@@ -41,6 +43,9 @@ const Statistics = () => {
         } else if (viewMode === "daily") {
           startDate = startOfDay(today);
           endDate = endOfDay(today);
+        } else if (viewMode === "annually") {
+          startDate = startOfYear(today);
+          endDate = endOfYear(today);
         }
 
         const q = query(
@@ -120,7 +125,40 @@ const Statistics = () => {
         ? "settimanale"
         : viewMode === "monthly"
         ? "mensile"
-        : "annuale";
+        : viewMode === "annually"
+        ? "annuale"
+        : "sempre";
+
+    let periodText = "";
+    if (viewMode === "daily") {
+      periodText = today.toLocaleDateString("it-IT", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } else if (viewMode === "weekly") {
+      const startOfWeek = today.toLocaleDateString("it-IT", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      const endOfWeek = new Date(
+        today.setDate(today.getDate() + 6)
+      ).toLocaleDateString("it-IT", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      periodText = `${startOfWeek} / ${endOfWeek}`;
+    } else if (viewMode === "monthly") {
+      periodText = today.toLocaleDateString("it-IT", {
+        month: "long",
+        year: "numeric",
+      });
+    } else if (viewMode === "annually") {
+      periodText = today.getFullYear();
+    }
 
     const userName = currentUser.displayName
       ? currentUser.displayName.replace(/\s+/g, "-")
@@ -129,8 +167,14 @@ const Statistics = () => {
     const fileName = `[${formattedDate}]report-${reportType}-${userName}-soldisotto.pdf`;
 
     const doc = new jsPDF();
-    doc.text("Statistiche Finanziarie", 14, 16);
 
+    // TODO: inserire nome utente nel titolo
+    // Imposta la dimensione del font per il titolo
+    doc.setFontSize(22); // Dimensione del font più grande per il titolo
+    doc.text(`Statistiche Finanziarie [${periodText}]`, 14, 16);
+    doc.setFontSize(12); // Dimensione normale per il resto del testo
+
+    // Tabella delle transazioni
     const statsTable = transactions.map((tx) => [
       tx.date.toDate().toLocaleDateString(),
       tx.description,
@@ -141,6 +185,7 @@ const Statistics = () => {
     ]);
 
     doc.autoTable({
+      startY: 24, // Aggiunge spazio extra tra il titolo e la tabella
       head: [
         [
           "Data",
@@ -154,7 +199,138 @@ const Statistics = () => {
       body: statsTable,
     });
 
+    // Calcolo delle statistiche aggiuntive
+    const totalTransactions = transactions.length;
+    const averageSpendingPerDay = (
+      stats.totalExpense /
+      (viewMode === "daily"
+        ? 1
+        : viewMode === "weekly"
+        ? 7
+        : viewMode === "monthly"
+        ? 30
+        : 365)
+    ).toFixed(2);
+
+    const highestSpendingDay = transactions
+      .filter((tx) => tx.type === "expense")
+      .reduce((acc, tx) => {
+        const date = tx.date.toDate().toLocaleDateString("it-IT");
+        acc[date] = (acc[date] || 0) + tx.amount;
+        return acc;
+      }, {});
+
+    const highestIncomeDay = transactions
+      .filter((tx) => tx.type === "income")
+      .reduce((acc, tx) => {
+        const date = tx.date.toDate().toLocaleDateString("it-IT");
+        acc[date] = (acc[date] || 0) + tx.amount;
+        return acc;
+      }, {});
+
+    const highestSpendingDayValue = Math.max(
+      ...Object.values(highestSpendingDay)
+    );
+    const highestIncomeDayValue = Math.max(...Object.values(highestIncomeDay));
+
+    const highestSpendingDayDate = Object.keys(highestSpendingDay).find(
+      (date) => highestSpendingDay[date] === highestSpendingDayValue
+    );
+    const highestIncomeDayDate = Object.keys(highestIncomeDay).find(
+      (date) => highestIncomeDay[date] === highestIncomeDayValue
+    );
+
+    // Statistiche aggiuntive
+    doc.text(
+      `Entrate totali: ${stats.totalIncome.toFixed(2)} €`,
+      14,
+      doc.lastAutoTable.finalY + 20
+    );
+    doc.text(
+      `Spese totali: ${stats.totalExpense.toFixed(2)} €`,
+      14,
+      doc.lastAutoTable.finalY + 30
+    );
+    doc.text(
+      `Saldo: ${stats.balance.toFixed(2)} €`,
+      14,
+      doc.lastAutoTable.finalY + 40
+    );
+    doc.text(
+      `Media spesa giornaliera: ${averageSpendingPerDay} €`,
+      14,
+      doc.lastAutoTable.finalY + 50
+    );
+    doc.text(
+      `Numero totale di transazioni: ${totalTransactions}`,
+      14,
+      doc.lastAutoTable.finalY + 60
+    );
+    if (highestSpendingDayDate) {
+      doc.text(
+        `Giorno con spesa più alta: ${highestSpendingDayDate} (${highestSpendingDayValue.toFixed(
+          2
+        )} €)`,
+        14,
+        doc.lastAutoTable.finalY + 70
+      );
+    }
+    if (highestIncomeDayDate) {
+      doc.text(
+        `Giorno con entrata più alta: ${highestIncomeDayDate} (${highestIncomeDayValue.toFixed(
+          2
+        )} €)`,
+        14,
+        doc.lastAutoTable.finalY + 80
+      );
+    }
+
+    // Data e ora creazione PDF
+    doc.textWithLink(
+      `Report generato il ${today.toLocaleDateString(
+        "it-IT"
+      )} alle ${today.toLocaleTimeString("it-IT")} su SoldiSotto`,
+      14,
+      doc.lastAutoTable.finalY + 90,
+      {
+        url: "https://solomontaiwo.github.io/soldi-sotto/",
+      }
+    );
+
     doc.save(fileName);
+  };
+
+  const getPeriodText = () => {
+    const today = new Date();
+    if (viewMode === "daily") {
+      return today.toLocaleDateString("it-IT", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } else if (viewMode === "weekly") {
+      const startOfWeek = today.toLocaleDateString("it-IT", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      const endOfWeek = new Date(
+        today.setDate(today.getDate() + 6)
+      ).toLocaleDateString("it-IT", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      return `${startOfWeek} - ${endOfWeek}`;
+    } else if (viewMode === "monthly") {
+      return today.toLocaleDateString("it-IT", {
+        month: "long",
+        year: "numeric",
+      });
+    } else if (viewMode === "annually") {
+      return today.getFullYear();
+    }
   };
 
   return (
@@ -167,7 +343,11 @@ const Statistics = () => {
         >
           Statistiche Finanziarie
         </motion.h1>
-        <p>Visualizza e gestisci le tue statistiche in base al periodo selezionato.</p>
+        <h3>Periodo: {getPeriodText()}</h3>
+        <p>
+          Visualizza e gestisci le tue statistiche in base al periodo
+          selezionato.
+        </p>
       </header>
       <div className="stats-controls">
         <button onClick={() => handleViewModeChange("daily")}>
@@ -176,25 +356,32 @@ const Statistics = () => {
         <button onClick={() => handleViewModeChange("weekly")}>
           Settimanale
         </button>
-        <button onClick={() => handleViewModeChange("monthly")}>
-          Mensile
+        <button onClick={() => handleViewModeChange("monthly")}>Mensile</button>
+        <button onClick={() => handleViewModeChange("annually")}>
+          Annuale
         </button>
         <button onClick={generatePDF}>Genera PDF</button>
       </div>
+      <div className="stat-items">
+        <div className="stat-item">
+          <h2>Entrate Totali</h2>
+          <p>{stats.totalIncome.toFixed(2)} €</p>
+        </div>
+        <div className="stat-item">
+          <h2>Spese Totali</h2>
+          <p>{stats.totalExpense.toFixed(2)} €</p>
+        </div>
+        <div className="stat-item">
+          <h2>Saldo</h2>
+          <p>{stats.balance.toFixed(2)} €</p>
+        </div>
+      </div>
       <div className="chart-container">
-        <Chart options={options} series={series} type="pie" width="100%" />
-      </div>
-      <div className="stat-item">
-        <h2>Entrate Totali</h2>
-        <p>{stats.totalIncome.toFixed(2)} €</p>
-      </div>
-      <div className="stat-item">
-        <h2>Spese Totali</h2>
-        <p>{stats.totalExpense.toFixed(2)} €</p>
-      </div>
-      <div className="stat-item">
-        <h2>Saldo</h2>
-        <p>{stats.balance.toFixed(2)} €</p>
+        {stats.totalIncome > 0 || stats.totalExpense > 0 ? (
+          <Chart options={options} series={series} type="pie" width="100%" />
+        ) : (
+          <p>Nessuna transazione disponibile per creare un grafico.</p>
+        )}
       </div>
     </div>
   );
