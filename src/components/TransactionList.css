@@ -1,83 +1,77 @@
-.transaction-list-container {
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.transaction-list {
   max-width: 100%;
-  margin: 1rem auto;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.transaction-header {
-  background-color: #007bff;
-  color: #fff;
-  padding: 1rem;
-  border-radius: 8px;
+.transaction-list h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #333;
   text-align: center;
 }
 
-.filter-options {
-  margin: 1rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-options label {
-  font-weight: bold;
-}
-
-.date-range {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.generate-report-btn {
-  background-color: #28a745;
-  color: #fff;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.transaction-list .error-message {
+  color: red;
   font-size: 1rem;
-  margin-top: 1rem;
+  margin: 15px 0;
+  text-align: center;
 }
 
-.generate-report-btn:hover {
-  background-color: #218838;
+.transaction-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center; /* Centra le card orizzontalmente */
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+.transaction-card {
+  flex: 1 1 calc(100% - 30px); /* Occupano il 100% dello spazio meno il gap */
+  max-width: calc(100% - 30px);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  box-sizing: border-box;
 }
 
-.transaction-list {
-  list-style: none;
-  padding: 0;
+.transaction-card h4 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-.transaction-item {
-  border-bottom: 1px solid #ddd;
-  padding: 1rem 0;
+.transaction-card p {
+  margin: 5px 0;
+  font-size: 1rem;
+  color: #555;
 }
 
-.transaction-item p {
-  margin: 0;
+.transaction-card p strong {
+  color: #333;
 }
 
-.transaction-item strong {
-  color: #007bff;
-}
-
-@media (max-width: 768px) {
-  .date-range {
-    flex-direction: column;
+/* Media query per schermi più grandi */
+@media (min-width: 768px) {
+  .transaction-card {
+    flex: 1 1 calc(50% - 30px); /* Due card per riga */
+    max-width: calc(50% - 30px);
   }
+}
 
-  .generate-report-btn {
-    width: 100%;
+@media (min-width: 992px) {
+  .transaction-card {
+    flex: 1 1 calc(33.333% - 30px); /* Tre card per riga */
+    max-width: calc(33.333% - 30px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .transaction-card {
+    flex: 1 1 calc(25% - 30px); /* Quattro card per riga */
+    max-width: calc(25% - 30px);
   }
 }

@@ -13,7 +13,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password); // Usa il metodo corretto per il login
+      await signInWithEmailAndPassword(auth, email, password);
       navigate("/transactions"); // Reindirizza alle transazioni dopo il login
     } catch (err) {
       setError(err.message);

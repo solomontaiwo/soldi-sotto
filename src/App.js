@@ -1,32 +1,29 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./components/AuthProvider";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Home from "./components/Home";
-import TransactionList from "./components/TransactionList";
+import Transactions from "./components/TransactionList";
 import Navbar from "./components/Navbar";
-import PrivateRoute from "./components/PrivateRoute";
+import "./App.css";
 
-const App = () => {
+function App() {
   return (
-    <AuthProvider>
+    <Router>
       <Navbar />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Home />} />
-        <Route
-          path="/transactions"
-          element={
-            <PrivateRoute>
-              <TransactionList />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </AuthProvider>
+      <TransitionGroup>
+        <CSSTransition timeout={300} classNames="fade">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/transactions" element={<Transactions />} />
+          </Routes>
+        </CSSTransition>
+      </TransitionGroup>
+    </Router>
   );
-};
+}
 
 export default App;
