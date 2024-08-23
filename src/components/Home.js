@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import TransactionList from "./TransactionList";
 import TransactionForm from "./TransactionForm";
-import Statistics from "./Statistics";
 import { useAuth } from "./AuthProvider";
 import { firestore } from "../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -179,13 +178,6 @@ const Home = () => {
           <div className="transaction-list-container">
             <TransactionList />
           </div>
-          <Statistics
-            stats={stats}
-            options={options}
-            series={series}
-            handleViewModeChange={handleViewModeChange}
-            generatePDF={generatePDF}
-          />
         </div>
       )}
     </div>
