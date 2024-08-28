@@ -1,70 +1,71 @@
-# Getting Started with Create React App
+# SoldiSotto
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SoldiSotto è un'applicazione web sviluppata in React, progettata per aiutarti a gestire le mie (e, se vuoi, le tue) finanze personali. Questo progetto nasce con l'obiettivo di esplorare e apprendere le funzionalità del framework React, integrando anche Firebase per la gestione del backend.
 
-## Available Scripts
+## Funzionalità
 
-In the project directory, you can run:
+- **Registrazione e Login**: Gli utenti possono creare un account o accedere con credenziali esistenti.
+- **Aggiunta di Transazioni**: Registra le tue entrate e uscite in modo semplice e rapido.
+- **Visualizzazione Cronologica**: Consulta tutte le tue transazioni in ordine cronologico.
+- **Statistiche**: Visualizza le statistiche delle tue finanze per giorno, settimana, mese o anno.
+- **Generazione di PDF**: Genera un PDF contenente tutte le transazioni per un periodo selezionato (giorno, settimana, mese, anno) insieme a statistiche rilevanti.
 
-### `npm start`
+## Tecnologie Utilizzate
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **React**: Framework JavaScript utilizzato per costruire l'interfaccia utente.
+- **Firebase**: Utilizzato come backend per l'autenticazione e la gestione dei dati delle transazioni.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Come Iniziare
 
-### `npm test`
+### Prerequisiti
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js installato sulla tua macchina.
+- Un account Firebase configurato.
 
-### `npm run build`
+### Installazione
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Clona la repository:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```bash
+   git clone https://github.com/tuo-username/SoldiSotto.git
+   ```
+2. Naviga nella directory del progetto:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   ```bash
+   cd SoldiSotto
+   ```
+3. Installa le dipendenze:
 
-### `npm run eject`
+   ```bash
+   npm install
+   ```
+4. Configura Firebase:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   - Crea un progetto su Firebase.
+   - Ottieni le tue credenziali di configurazione Firebase e inseriscile nel file `.env` nella radice del progetto.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   Esempio di file `.env`:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   ```plaintext
+   REACT_APP_API_KEY=tuo-api-key
+   REACT_APP_AUTH_DOMAIN=tuo-auth-domain
+   REACT_APP_PROJECT_ID=tuo-project-id
+   REACT_APP_STORAGE_BUCKET=tuo-storage-bucket
+   REACT_APP_MESSAGING_SENDER_ID=tuo-messaging-sender-id
+   REACT_APP_APP_ID=tuo-app-id
+   ```
+5. Avvia l'applicazione:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   ```bash
+   npm start
+   ```
 
-## Learn More
+   L'app sarà disponibile su `http://localhost:3000`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contributi
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Essendo uno dei miei primi progetti in React, qualsiasi suggerimento o contributo è ben accetto! Se vuoi contribuire, sentiti libero di aprire una pull request o di segnalare eventuali problemi tramite le issue.
 
-### Code Splitting
+## Contatti
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Per domande o suggerimenti, puoi contattarmi via email: [tuoindirizzoemail@example.com](mailto:tuoindirizzoemail@example.com).
