@@ -1,6 +1,6 @@
 # SoldiSotto
 
-SoldiSotto è un'applicazione web sviluppata in React, progettata per aiutarti a gestire le mie (e, se vuoi, le tue) finanze personali. Questo progetto nasce con l'obiettivo di esplorare e apprendere le funzionalità del framework React, integrando anche Firebase per la gestione del backend.
+SoldiSotto è un'applicazione web sviluppata in React, progettata per gestire le proprie finanze personali. Questo progetto nasce con l'obiettivo di esplorare e apprendere le funzionalità del framework React, integrando anche Firebase per la gestione del backend.
 
 ## Funzionalità
 
