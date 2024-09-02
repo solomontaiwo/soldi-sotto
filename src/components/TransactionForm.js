@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { firestore } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./AuthProvider";
-import "./TransactionForm.css"; // Assicurati di avere il CSS appropriato
+import "./TransactionForm.css";
 
 const TransactionForm = () => {
   const { currentUser } = useAuth();

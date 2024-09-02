@@ -1,5 +1,3 @@
-// src/components/Home.js
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import TransactionList from "./TransactionList";
