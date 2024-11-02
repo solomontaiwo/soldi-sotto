@@ -62,6 +62,34 @@ SoldiSotto is a web application developed in React, designed to manage personal 
 
    The app will be available at `http://localhost:3000`.
 
+## Deployment on GitHub Pages
+
+To deploy this project on GitHub Pages:
+
+1. Install the `gh-pages` package if not already installed:
+   ```bash
+   npm install gh-pages --save-dev
+   ```
+
+2. Configure your `package.json` by adding the `"homepage"` field:
+   ```json
+   "homepage": "https://your-username.github.io/repository-name"
+   ```
+   Replace `your-username` with your GitHub username and `repository-name` with the repository name.
+
+3. Add the following `scripts` to `package.json`:
+   ```json
+   "predeploy": "npm run build",
+   "deploy": "gh-pages -d build"
+   ```
+
+4. Run the deployment command:
+   ```bash
+   npm run deploy
+   ```
+
+5. Go to your GitHub repository settings under **Pages** to ensure that `gh-pages` is selected as the source branch. Your application will be live at the URL defined in the `homepage` field.
+
 ## Contributions
 
 Since this is one of my first projects in React, any suggestions or contributions are welcome! If you'd like to contribute, feel free to open a pull request or report any issues via the issues tab.
@@ -71,7 +99,6 @@ Since this is one of my first projects in React, any suggestions or contribution
 For questions or suggestions, you can contact me via email: [solomon.taiwo@studenti.polito.it](mailto:solomon.taiwo@studenti.polito.it).
 
 ---
-
 
 # SoldiSotto - ITA
 
@@ -137,6 +164,34 @@ SoldiSotto è un'applicazione web sviluppata in React, progettata per gestire le
 
    L'app sarà disponibile su `http://localhost:3000`.
 
+## Deploy su GitHub Pages
+
+Per fare il deploy di questo progetto su GitHub Pages:
+
+1. Installa il pacchetto `gh-pages` se non è già installato:
+   ```bash
+   npm install gh-pages --save-dev
+   ```
+
+2. Configura il tuo `package.json` aggiungendo il campo `"homepage"`:
+   ```json
+   "homepage": "https://tuo-username.github.io/nome-repository"
+   ```
+   Sostituisci `tuo-username` con il tuo username GitHub e `nome-repository` con il nome della repository.
+
+3. Aggiungi i seguenti `scripts` in `package.json`:
+   ```json
+   "predeploy": "npm run build",
+   "deploy": "gh-pages -d build"
+   ```
+
+4. Esegui il comando di deploy:
+   ```bash
+   npm run deploy
+   ```
+
+5. Vai nelle impostazioni del repository GitHub sotto **Pages** e assicurati che la branch `gh-pages` sia selezionata come sorgente. La tua applicazione sarà visibile all'URL definito nel campo `homepage`.
+
 ## Contributi
 
 Essendo uno dei miei primi progetti in React, qualsiasi suggerimento o contributo è ben accetto! Se vuoi contribuire, sentiti libero di aprire una pull request o di segnalare eventuali problemi tramite le issue.
@@ -144,3 +199,4 @@ Essendo uno dei miei primi progetti in React, qualsiasi suggerimento o contribut
 ## Contatti
 
 Per domande o suggerimenti, puoi contattarmi via email: [solomon.taiwo@studenti.polito.it](mailto:solomon.taiwo@studenti.polito.it).
+```
