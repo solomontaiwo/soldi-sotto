@@ -199,4 +199,3 @@ Essendo uno dei miei primi progetti in React, qualsiasi suggerimento o contribut
 ## Contatti
 
 Per domande o suggerimenti, puoi contattarmi via email: [solomon.taiwo@studenti.polito.it](mailto:solomon.taiwo@studenti.polito.it).
-```
