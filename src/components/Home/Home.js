@@ -20,6 +20,7 @@ import "./Home.css";
 const Home = () => {
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState([]);
+  // eslint-disable-next-line
   const [stats, setStats] = useState({
     totalIncome: 0,
     totalExpense: 0,
@@ -83,10 +84,12 @@ const Home = () => {
     });
   };
 
+  // eslint-disable-next-line
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
   };
 
+  // eslint-disable-next-line
   const generatePDF = () => {
     const today = new Date();
     const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, "");
