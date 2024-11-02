@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { firestore } from "../firebase";
+import { firestore } from "../../firebase";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../Auth/AuthProvider";
 import { Link } from "react-router-dom";
 import "./TransactionList.css";
 

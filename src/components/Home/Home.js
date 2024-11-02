@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import TransactionList from "./TransactionList";
-import TransactionForm from "./TransactionForm";
-import { useAuth } from "./AuthProvider";
-import { firestore } from "../firebase";
+import TransactionList from "../Transaction/TransactionList";
+import TransactionForm from "../Transaction/TransactionForm";
+import { useAuth } from "../Auth/AuthProvider";
+import { firestore } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import {
   startOfMonth,
@@ -83,36 +83,13 @@ const Home = () => {
     });
   };
 
-  const options = {
-    chart: {
-      type: "pie",
-    },
-    labels: ["Income", "Expense"],
-    colors: ["#4caf50", "#f44336"],
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 320,
-          },
-          legend: {
-            position: "bottom",
-          },
-        },
-      },
-    ],
-  };
-
-  const series = [stats.totalIncome, stats.totalExpense];
-
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
   };
 
   const generatePDF = () => {
     const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, "");
 
     const reportType =
       viewMode === "daily"
@@ -168,7 +145,13 @@ const Home = () => {
         >
           Benvenuto in SoldiSotto!
         </motion.h1>
-        <p>Gestisci le tue finanze in modo semplice e veloce.</p>
+        <motion.p
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          Gestisci le tue finanze in modo semplice e veloce.
+        </motion.p>
       </header>
       {currentUser && (
         <div className="home-content">

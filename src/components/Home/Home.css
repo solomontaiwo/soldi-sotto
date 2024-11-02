@@ -1,0 +1,91 @@
+.home-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9, #e3eaf5);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #2c3e50;
+  transition: color 0.3s ease;
+}
+
+.home-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.stats-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stats-controls select,
+.stats-controls button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #bdc3c7;
+  font-size: 1rem;
+  background-color: #ecf0f1;
+  transition: background-color 0.3s ease;
+}
+
+.stats-controls button {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.stats-controls button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.stat-item {
+  flex: 1 1 calc(100% - 30px);
+  max-width: calc(100% - 30px);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+}
+
+.stat-item h3 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #2c3e50;
+}
+
+.stat-item p {
+  margin: 5px 0;
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}

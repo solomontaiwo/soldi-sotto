@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { firestore } from "../firebase";
+import { firestore } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../Auth/AuthProvider";
 import "./TransactionForm.css";
 
 const TransactionForm = () => {

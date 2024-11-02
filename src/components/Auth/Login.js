@@ -1,22 +1,19 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import "./AuthForms.css";
 
-const Register = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await updateProfile(user, { displayName: username });
+      await signInWithEmailAndPassword(auth, email, password);
       navigate("/soldi-sotto/transactions");
     } catch (err) {
       setError(err.message);
@@ -25,17 +22,8 @@ const Register = () => {
 
   return (
     <div className="auth-form-container">
-      <h2>Registrazione</h2>
-      <form onSubmit={handleRegister}>
-        <div className="form-group">
-          <label>Nome Utente</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Nome Utente"
-          />
-        </div>
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
         <div className="form-group">
           <label>Email</label>
           <input
@@ -54,11 +42,11 @@ const Register = () => {
             placeholder="Password"
           />
         </div>
-        <button type="submit">Registrati</button>
+        <button type="submit">Login</button>
         {error && <p className="error-message">{error}</p>}
       </form>
     </div>
   );
 };
 
-export default Register;
+export default Login;

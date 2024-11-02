@@ -1,12 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Transactions from "./components/TransactionList";
-import Statistics from "./components/Statistics";
-import Navbar from "./components/Navbar";
+import Home from "./components/Home/Home";
+import Login from "./components/Auth/Login";
+import Register from "./components/Auth/Register";
+import Transactions from "./components/Transaction/TransactionList";
+import Stats from "./components/Stats/Stats";
+import Navbar from "./components/Navbar/Navbar";
 import "./App.css";
 
 function App() {
@@ -20,7 +20,7 @@ function App() {
             <Route path="/soldi-sotto/login" element={<Login />} />
             <Route path="/soldi-sotto/register" element={<Register />} />
             <Route path="/soldi-sotto/transactions" element={<Transactions />} />
-            <Route path="/soldi-sotto/statistics" element={<Statistics />} />{" "}
+            <Route path="/soldi-sotto/stats" element={<Stats />} />{" "}
           </Routes>
         </CSSTransition>
       </TransitionGroup>

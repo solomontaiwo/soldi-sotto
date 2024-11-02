@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "./AuthProvider";
-import { firestore } from "../firebase";
+import { useAuth } from "../Auth/AuthProvider";
+import { firestore } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import Chart from "react-apexcharts";
 import {
@@ -16,9 +16,9 @@ import {
 } from "date-fns";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import "./Statistics.css";
+import "./Stats.css";
 
-const Statistics = () => {
+const Stats = () => {
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState({
@@ -387,4 +387,4 @@ const Statistics = () => {
   );
 };
 
-export default Statistics;
+export default Stats;
