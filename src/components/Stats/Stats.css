@@ -20,7 +20,6 @@
 
 .stats-header p {
   font-size: 1rem;
-  color: #666;
   margin-bottom: 1rem;
   transition: font-size 0.3s ease, color 0.3s ease;
 }

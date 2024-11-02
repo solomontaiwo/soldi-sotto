@@ -5,6 +5,8 @@
   background: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+
 }
 
 .transaction-list h2 {
@@ -55,7 +57,6 @@
 }
 
 .no-transactions-message {
-  color: #333;
   font-size: 1rem;
   text-align: center;
 }
