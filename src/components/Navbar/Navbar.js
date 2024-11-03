@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import { FiLogOut, FiHome, FiList, FiPieChart } from "react-icons/fi";
+import { FiLogIn, FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart } from "react-icons/fi";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -22,7 +22,7 @@ const Navbar = () => {
     <nav className="tabbed-navbar">
       <div className="navbar-logo">
         <Link to="/soldi-sotto">
-        <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" className="logo-icon" />
+          <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" className="logo-icon" />
         </Link>
       </div>
       <ul className="navbar-links">
@@ -66,10 +66,12 @@ const Navbar = () => {
           <>
             <li className="auth-links">
               <Link to="/soldi-sotto/login">
+                <FiLogIn className="icon" /> {/* Icona di login */}
                 <span className="link-label">Sign in</span>
               </Link>
               <span className="divider">|</span>
               <Link to="/soldi-sotto/register">
+                <FiUserPlus className="icon" /> {/* Icona di registrazione */}
                 <span className="link-label">Get started</span>
               </Link>
             </li>
