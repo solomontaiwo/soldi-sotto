@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import { FiLogOut, FiHome, FiList, FiPieChart } from "react-icons/fi"; // Icone di react-icons
+import { FiLogOut, FiHome, FiList, FiPieChart } from "react-icons/fi";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -20,17 +20,22 @@ const Navbar = () => {
 
   return (
     <nav className="tabbed-navbar">
-      <ul>
+      <div className="navbar-logo">
+        <Link to="/soldi-sotto">
+        <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" className="logo-icon" />
+        </Link>
+      </div>
+      <ul className="navbar-links">
         <li
           className={activeTab === "home" ? "active" : ""}
           onClick={() => setActiveTab("home")}
         >
           <Link to="/soldi-sotto">
             <FiHome className="icon" />
-            Home
+            <span className="link-label">Home</span>
           </Link>
         </li>
-        {currentUser && (
+        {currentUser ? (
           <>
             <li
               className={activeTab === "transactions" ? "active" : ""}
@@ -38,7 +43,7 @@ const Navbar = () => {
             >
               <Link to="/soldi-sotto/transactions">
                 <FiList className="icon" />
-                Transazioni
+                <span className="link-label">Transazioni</span>
               </Link>
             </li>
             <li
@@ -47,30 +52,26 @@ const Navbar = () => {
             >
               <Link to="/soldi-sotto/stats">
                 <FiPieChart className="icon" />
-                Statistiche
+                <span className="link-label">Statistiche</span>
               </Link>
             </li>
             <li>
-              <button onClick={handleLogout}>
+              <button onClick={handleLogout} className="auth-button">
                 <FiLogOut className="icon" />
-                Logout
+                <span className="link-label">Logout</span>
               </button>
             </li>
           </>
-        )}
-        {!currentUser && (
+        ) : (
           <>
-            <li
-              className={activeTab === "login" ? "active" : ""}
-              onClick={() => setActiveTab("login")}
-            >
-              <Link to="/soldi-sotto/login">Login</Link>
-            </li>
-            <li
-              className={activeTab === "register" ? "active" : ""}
-              onClick={() => setActiveTab("register")}
-            >
-              <Link to="/soldi-sotto/register">Registrazione</Link>
+            <li className="auth-links">
+              <Link to="/soldi-sotto/login">
+                <span className="link-label">Sign in</span>
+              </Link>
+              <span className="divider">|</span>
+              <Link to="/soldi-sotto/register">
+                <span className="link-label">Get started</span>
+              </Link>
             </li>
           </>
         )}

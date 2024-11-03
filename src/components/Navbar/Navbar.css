@@ -1,64 +1,121 @@
+/* Navbar generale */
 .tabbed-navbar {
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  background-color: #0d0d0d;
   color: #fff;
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  margin: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.tabbed-navbar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  gap: 15px;
-}
-
-.tabbed-navbar li {
-  margin: 0;
-}
-
-.tabbed-navbar a,
-.tabbed-navbar button {
-  color: #fff;
-  text-decoration: none;
-  font-size: 1rem;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  background-color: transparent;
+  justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.tabbed-navbar a:hover,
-.tabbed-navbar button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+.navbar-logo {
+  display: flex;
+  align-items: center;
 }
 
-.tabbed-navbar button {
-  background-color: #dc3545;
+.logo-icon {
+  font-size: 1.8rem;
+  color: #e0e0e0;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  margin: 0;
+}
+
+.navbar-links a,
+.navbar-links button {
+  color: #e0e0e0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1rem;
+  text-decoration: none;
+  padding: 0.5rem;
+  transition: color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
 }
 
-.tabbed-navbar button:hover {
-  background-color: #c82333;
+.navbar-links .auth-button {
+  color: #ff5c5c;
+  font-weight: bold;
+  border: 1px solid #ff5c5c;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
 }
 
-.tabbed-navbar .active a {
-  background-color: rgba(255, 255, 255, 0.2);
+.navbar-links a:hover,
+.navbar-links button:hover {
+  color: #ff5c5c;
+  transform: translateY(-1px);
 }
 
-.tabbed-navbar .icon {
+.navbar-links .icon {
   margin-right: 0.5rem;
   font-size: 1.2rem;
 }
 
+/* Nascondi le etichette su schermi piccoli */
+@media (max-width: 768px) {
+  .link-label {
+    display: none; /* Nascondi le etichette */
+  }
+
+  .navbar-links {
+    gap: 1rem; /* Riduci la distanza tra le icone */
+  }
+
+  .navbar-links .icon {
+    font-size: 1.5rem; /* Rendi le icone più grandi per compensare */
+  }
+
+  .navbar-links a,
+  .navbar-links button {
+    padding: 0.5rem;
+    font-size: 1.2rem; /* Aumenta la dimensione del carattere per le icone */
+  }
+
+  .navbar-logo .logo-icon {
+    font-size: 1.5rem; /* Regola la dimensione del logo */
+  }
+}
+
+/* Stile per link di autenticazione */
+.auth-links {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1rem;
+  color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-links .divider {
+  color: #555;
+}
+
+.auth-links a {
+  color: #ff5c5c;
+  font-weight: bold;
+}
+
+.auth-links a:hover {
+  color: #ff3c3c;
+}
+
+.logo-icon {
+  width: 40px; 
+  height: auto;
+  margin-right: 10px; /* Spazio tra il logo e i link */
+}
