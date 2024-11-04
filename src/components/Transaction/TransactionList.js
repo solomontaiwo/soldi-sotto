@@ -55,10 +55,16 @@ const TransactionList = () => {
       ) : (
         <div className="transaction-cards">
           {transactions.map((transaction) => (
-            <div key={transaction.id} className="transaction-card">
+            <div
+              key={transaction.id}
+              className="transaction-card"
+            >
               <h4>{new Date(transaction.date.toDate()).toLocaleDateString()}</h4>
               <p>
-                <strong>Tipo:</strong> {transaction.type === "income" ? "Entrata" : "Uscita"}
+                <strong>Tipo:</strong>
+                <span className={transaction.type === "income" ? "income" : "expense"}>
+                  {transaction.type === "income" ? "Entrata" : "Uscita"}
+                </span>
               </p>
               <p>
                 <strong>Importo:</strong> {transaction.amount.toFixed(2)} €
@@ -77,6 +83,7 @@ const TransactionList = () => {
         </div>
       )}
     </div>
+
   );
 };
 
