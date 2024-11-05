@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/Home/Home";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -13,11 +13,11 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/soldi-sotto" element={<Home />} />
-        <Route path="/soldi-sotto/login" element={<Login />} />
-        <Route path="/soldi-sotto/register" element={<Register />} />
-        <Route path="/soldi-sotto/transactions" element={<Transactions />} />
-        <Route path="/soldi-sotto/stats" element={<Stats />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/transactions" element={<Transactions />} />
+        <Route path="/stats" element={<Stats />} />
       </Routes>
     </Router>
   );
