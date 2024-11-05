@@ -10,14 +10,14 @@ import "./App.css";
 
 function App() {
   return (
-    <Router basename="/soldi-sotto">
+    <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="transactions" element={<Transactions />} />
-        <Route path="stats" element={<Stats />} />
+        <Route path="/soldi-sotto" element={<Home />} />
+        <Route path="/soldi-sotto/login" element={<Login />} />
+        <Route path="/soldi-sotto/register" element={<Register />} />
+        <Route path="/soldi-sotto/transactions" element={<Transactions />} />
+        <Route path="/soldi-sotto/stats" element={<Stats />} />
       </Routes>
     </Router>
   );
