@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/Home/Home";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -10,7 +10,7 @@ import "./App.css";
 
 function App() {
   return (
-    <Router basename="/soldi-sotto">
+    <Router>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
