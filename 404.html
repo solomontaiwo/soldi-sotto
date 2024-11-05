@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="refresh" content="0; URL='/soldi-sotto'" />
+    <script type="text/javascript">
+      // Reindirizza mantenendo l'URL originale
+      var path = window.location.pathname.replace('/soldi-sotto', '');
+      window.location.replace('/soldi-sotto' + path);
+    </script>
   </head>
   <body></body>
 </html>
