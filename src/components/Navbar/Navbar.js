@@ -41,7 +41,7 @@ const Navbar = () => {
               className={activeTab === "transactions" ? "active" : ""}
               onClick={() => setActiveTab("transactions")}
             >
-              <Link to="/transactions">
+              <Link to="/soldi-sotto/transactions">
                 <FiList className="icon" />
                 <span className="link-label">Transazioni</span>
               </Link>
@@ -50,7 +50,7 @@ const Navbar = () => {
               className={activeTab === "stats" ? "active" : ""}
               onClick={() => setActiveTab("stats")}
             >
-              <Link to="/stats">
+              <Link to="/soldi-sotto/stats">
                 <FiPieChart className="icon" />
                 <span className="link-label">Statistiche</span>
               </Link>
@@ -65,12 +65,12 @@ const Navbar = () => {
         ) : (
           <>
             <li className="auth-links">
-              <Link to="/login">
+              <Link to="/soldi-sotto/login">
                 <FiLogIn className="icon" /> {/* Icona di login */}
                 <span className="link-label">Sign in</span>
               </Link>
               <span className="divider">|</span>
-              <Link to="/register">
+              <Link to="/soldi-sotto/register">
                 <FiUserPlus className="icon" /> {/* Icona di registrazione */}
                 <span className="link-label">Get started</span>
               </Link>

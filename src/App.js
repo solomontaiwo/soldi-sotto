@@ -10,7 +10,7 @@ import "./App.css";
 
 function App() {
   return (
-    <Router basename="/soldi-sotto">
+    <Router>
       <Navbar />
       <Routes>
         <Route path="/soldi-sotto" element={<Home />} />
