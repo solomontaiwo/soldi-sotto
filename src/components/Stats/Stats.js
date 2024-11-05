@@ -369,7 +369,8 @@ const Stats = () => {
         </div>
         <div className="stat-item">
           <h2>Spese Totali</h2>
-          <p>{stats.totalExpense.toFixed(2)} €</p>
+          <p>{Number(stats.totalExpense).toFixed(2)}
+          €</p>
         </div>
         <div className="stat-item">
           <h2>Saldo</h2>
