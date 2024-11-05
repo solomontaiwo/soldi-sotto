@@ -17,10 +17,10 @@ function AnimatedRoutes() {
       <CSSTransition key={location.key} timeout={300} classNames="fade">
         <Routes location={location}>
           <Route path="/soldi-sotto" element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="stats" element={<Stats />} />
+          <Route path="/soldi-sotto/login" element={<Login />} />
+          <Route path="/soldi-sotto/register" element={<Register />} />
+          <Route path="/soldi-sotto/transactions" element={<Transactions />} />
+          <Route path="/soldi-sotto/stats" element={<Stats />} />
         </Routes>
       </CSSTransition>
     </TransitionGroup>
