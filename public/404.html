@@ -2,9 +2,12 @@
 <html>
   <head>
     <script type="text/javascript">
-      // Reindirizza mantenendo l'URL originale
-      var path = window.location.pathname.replace('/soldi-sotto', '');
-      window.location.replace('/soldi-sotto' + path);
+      // Verifica se siamo su una pagina di errore 404
+      if (window.location.pathname !== "/soldi-sotto" && !document.referrer.includes("/soldi-sotto")) {
+        // Mantieni il percorso originale senza reindirizzamento infinito
+        var path = window.location.pathname.replace("/soldi-sotto", "");
+        window.location.replace("/soldi-sotto" + path);
+      }
     </script>
   </head>
   <body></body>
