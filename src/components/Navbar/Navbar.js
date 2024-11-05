@@ -21,7 +21,7 @@ const Navbar = () => {
   return (
     <nav className="tabbed-navbar">
       <div className="navbar-logo">
-        <Link to="/">
+        <Link to="/soldi-sotto">
           <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" className="logo-icon" />
         </Link>
       </div>
@@ -30,7 +30,7 @@ const Navbar = () => {
           className={activeTab === "home" ? "active" : ""}
           onClick={() => setActiveTab("home")}
         >
-          <Link to="/">
+          <Link to="/soldi-sotto">
             <FiHome className="icon" />
             <span className="link-label">Home</span>
           </Link>
