@@ -26,7 +26,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
   return (
     <Modal
       title="Modifica Transazione"
-      visible={true}
+      open={true}
       centered // Aggiunge centratura verticale al modal
       onCancel={onClose}
       onOk={() => {
@@ -39,8 +39,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             console.log("Errore di validazione:", info);
           });
       }}
-      bodyStyle={{ padding: "20px" }} // Opzionale: modifica padding per un layout più compatto
-      width={500} // Opzionale: imposta una larghezza personalizzata
     >
       <Form
         form={form}

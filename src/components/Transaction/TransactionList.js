@@ -2,15 +2,18 @@ import React, { useState, useEffect, useCallback } from "react";
 import { firestore } from "../../firebase";
 import { collection, query, where, onSnapshot, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
-import { Card, message, Typography, Row, Col, Space, Spin, Radio, DatePicker, Empty } from "antd";
+import { Card, message, Typography, Row, Col, Space, Spin, Select, DatePicker, Empty, Button, Modal } from "antd";
 import EditTransactionModal from "./EditTransactionModal";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { formatDate } from "../../dayjs-setup";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import TransactionForm from "../Transaction/TransactionForm";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay, startOfYear, endOfYear } from "date-fns";
+import { useMediaQuery } from "react-responsive";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const TransactionList = () => {
@@ -20,6 +23,17 @@ const TransactionList = () => {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("monthly");
   const [customRange, setCustomRange] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   const fetchTransactions = useCallback(() => {
     setLoading(true);
@@ -93,9 +107,9 @@ const TransactionList = () => {
     }
   };
 
-  const handlePeriodChange = (e) => {
-    setPeriod(e.target.value);
-    if (e.target.value !== "custom") {
+  const handlePeriodChange = (value) => {
+    setPeriod(value);
+    if (value !== "custom") {
       setCustomRange(null);
     }
   };
@@ -119,24 +133,52 @@ const TransactionList = () => {
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
-        <Title level={2} style={{ textAlign: "center" }}>Transazioni recenti</Title>
+        <Title level={2} style={{ textAlign: "center" }}>Transazioni</Title>
       </motion.div>
       <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
-        Visualizza le tue transazioni recenti e filtra per periodo.
+        Visualizza le tue transazioni, filtrate per il periodo desiderato.
       </Text>
 
-      <Space style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
-        <Radio.Group value={period} onChange={handlePeriodChange} buttonStyle="solid">
-          <Radio.Button value="daily">Giornaliero</Radio.Button>
-          <Radio.Button value="weekly">Settimanale</Radio.Button>
-          <Radio.Button value="monthly">Mensile</Radio.Button>
-          <Radio.Button value="annually">Annuale</Radio.Button>
-          <Radio.Button value="custom">Personalizzato</Radio.Button>
-        </Radio.Group>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <Button
+          type="primary"
+          onClick={showModal}
+          style={{
+            width: isMobile ? "100%" : "50%",
+            height: isMobile ? "50px" : "60px",
+            fontSize: isMobile ? "16px" : "18px",
+            display: "block",
+            margin: "0 auto",
+            marginBottom: 20,
+          }}
+        >
+          Aggiungi Transazione
+        </Button>
+      </motion.div>
+
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <Select
+          value={period}
+          onChange={handlePeriodChange}
+          style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
+          size={isMobile ? "large" : "middle"}
+        >
+          <Option value="daily">Giornaliero</Option>
+          <Option value="weekly">Settimanale</Option>
+          <Option value="monthly">Mensile</Option>
+          <Option value="annually">Annuale</Option>
+          <Option value="custom">Personalizzato</Option>
+        </Select>
         {period === "custom" && (
-          <RangePicker onChange={handleRangeChange} />
+          <RangePicker onChange={handleRangeChange} style={{ marginTop: 20 }} />
         )}
-      </Space>
+      </div>
+
+      {isModalVisible && (
+        <Modal title="Aggiungi Transazione" open={isModalVisible} onCancel={handleCancel} footer={null}>
+          <TransactionForm onFormSubmit={handleCancel} />
+        </Modal>
+      )}
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>

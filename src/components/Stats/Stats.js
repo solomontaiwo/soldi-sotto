@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Typography, Row, Col, Card, Button, Statistic, Spin, Select, DatePicker, Divider } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
 import { firestore } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { Typography, Row, Col, Card, Button, Divider, Statistic, Radio, Space, Spin, DatePicker } from "antd";
-import Chart from "react-apexcharts";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Navigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import Chart from "react-apexcharts";
 import {
   startOfMonth,
   endOfMonth,
@@ -20,11 +20,14 @@ import {
   format,
   differenceInDays,
 } from "date-fns";
+import { useMediaQuery } from "react-responsive";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const Stats = () => {
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   const { currentUser, loading: authLoading } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState({
@@ -34,7 +37,7 @@ const Stats = () => {
     dailyAverageExpense: 0,
     topCategories: [],
     incomeTrend: [],
-    expenseTrend: []
+    expenseTrend: [],
   });
   const [viewMode, setViewMode] = useState("monthly");
   const [customRange, setCustomRange] = useState(null);
@@ -141,7 +144,6 @@ const Stats = () => {
     });
   };
 
-  // Definizione dei grafici
   const barChartOptions = {
     chart: { type: "bar" },
     xaxis: { categories: stats.topCategories.map((c) => c.category) },
@@ -160,12 +162,12 @@ const Stats = () => {
 
   const lineChartSeries = [
     { name: "Entrate", data: stats.incomeTrend },
-    { name: "Uscite", data: stats.expenseTrend }
+    { name: "Uscite", data: stats.expenseTrend },
   ];
 
-  const handleViewModeChange = (e) => {
-    setViewMode(e.target.value);
-    if (e.target.value !== "custom") {
+  const handleViewModeChange = (value) => {
+    setViewMode(value);
+    if (value !== "custom") {
       setCustomRange(null);
     }
   };
@@ -334,7 +336,6 @@ const Stats = () => {
     doc.save(filename);
   };
 
-
   if (authLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
@@ -356,19 +357,31 @@ const Stats = () => {
         Riepilogo delle tue transazioni e statistiche finanziarie, per tenere traccia del tuo bilancio
       </Text>
 
-      <Space style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
-        <Radio.Group value={viewMode} onChange={handleViewModeChange} buttonStyle="solid">
-          <Radio.Button value="daily">Giornaliero</Radio.Button>
-          <Radio.Button value="weekly">Settimanale</Radio.Button>
-          <Radio.Button value="monthly">Mensile</Radio.Button>
-          <Radio.Button value="annually">Annuale</Radio.Button>
-          <Radio.Button value="custom">Personalizzato</Radio.Button>
-        </Radio.Group>
-        {viewMode === "custom" && <RangePicker onChange={handleRangeChange} />}
-        <Button type="primary" onClick={generatePDF}>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <Button type="primary" onClick={generatePDF} style={{
+          width: isMobile ? "100%" : "50%",
+          height: isMobile ? "50px" : "60px",
+          fontSize: isMobile ? "16px" : "18px",
+          display: "block",
+          margin: "0 auto",
+          marginBottom: 20,
+        }}>
           Scarica Report PDF
         </Button>
-      </Space>
+        <Select
+          value={viewMode}
+          onChange={handleViewModeChange}
+          style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
+          size={isMobile ? "large" : "middle"}
+        >
+          <Option value="daily">Giornaliero</Option>
+          <Option value="weekly">Settimanale</Option>
+          <Option value="monthly">Mensile</Option>
+          <Option value="annually">Annuale</Option>
+          <Option value="custom">Personalizzato</Option>
+        </Select>
+        {viewMode === "custom" && <RangePicker onChange={handleRangeChange} />}
+      </div>
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>

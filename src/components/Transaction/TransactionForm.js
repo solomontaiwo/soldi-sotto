@@ -38,14 +38,6 @@ const TransactionForm = ({ onFormSubmit }) => {
         type: "expense",
         date: dayjs(), // Imposta la data di oggi come predefinita
       }}
-      style={{
-        maxWidth: 500,
-        margin: "20px auto",
-        padding: 20,
-        background: "#f6f6f6",
-        borderRadius: 8,
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-      }}
     >
       {/* Tipo di Transazione */}
       <Form.Item
@@ -74,7 +66,7 @@ const TransactionForm = ({ onFormSubmit }) => {
         name="description"
         rules={[{ required: true, message: "Inserisci una descrizione" }]}
       >
-        <Input placeholder="Descrizione (es. Spesa supermercato, Stipendio)" />
+        <Input placeholder="Es. Spesa, stipendio, kebab, ecc." />
       </Form.Item>
 
       {/* Data */}
