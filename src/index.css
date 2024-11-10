@@ -1,27 +1,27 @@
-/* Variabili di colore generali */
+/* Variabili di colore generali per il tema chiaro */
 :root {
-  --background-color: #f0f0f0;
-  --text-color: #333;
-  --primary-color: #007bff;
-  --secondary-color: #0056b3;
-  --card-background: #ffffff;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --button-bg-color: #007bff;
-  --button-hover-color: #0056b3;
-  --error-color: #dc3545;
+  --background-color: #f0f0f0; /* Sfondo principale */
+  --text-color: #333; /* Colore del testo primario */
+  --primary-color: #007bff; /* Colore primario per pulsanti e titoli */
+  --secondary-color: #0056b3; /* Colore secondario per hover e stati attivi */
+  --card-background: #ffffff; /* Sfondo dei card e modali */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Colore dell'ombra */
+  --button-bg-color: #007bff; /* Sfondo dei pulsanti */
+  --button-hover-color: #0056b3; /* Sfondo dei pulsanti al passaggio del mouse */
+  --error-color: #dc3545; /* Colore degli errori */
 }
 
 /* Variabili di colore per il tema scuro */
 .dark-theme {
-  --background-color: #1f1f1f;
-  --text-color: #e0e0e0;
-  --primary-color: #1a73e8;
-  --secondary-color: #255adb;
-  --card-background: #333333;
-  --shadow-color: rgba(255, 255, 255, 0.1);
-  --button-bg-color: #3b82f6;
-  --button-hover-color: #2563eb;
-  --error-color: #e57373;
+  --background-color: #1f1f1f; /* Sfondo principale per il tema scuro */
+  --text-color: #e0e0e0; /* Colore del testo primario in tema scuro */
+  --primary-color: #1a73e8; /* Colore primario in tema scuro */
+  --secondary-color: #255adb; /* Colore secondario in tema scuro */
+  --card-background: #333333; /* Sfondo dei card e modali in tema scuro */
+  --shadow-color: rgba(255, 255, 255, 0.1); /* Colore dell'ombra in tema scuro */
+  --button-bg-color: #3b82f6; /* Colore di sfondo dei pulsanti in tema scuro */
+  --button-hover-color: #2563eb; /* Colore di sfondo dei pulsanti al passaggio del mouse */
+  --error-color: #e57373; /* Colore degli errori in tema scuro */
 }
 
 /* Stili generali per l'intera applicazione */
@@ -32,7 +32,7 @@ body {
   box-sizing: border-box;
   background-color: var(--background-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transizione per il cambio tema */
 }
 
 /* Contenitore principale */
@@ -42,7 +42,7 @@ body {
   padding: 1rem;
 }
 
-/* Stili per componenti specifici */
+/* Stili di sfondo, colore e bordo per componenti specifici */
 .auth-form-container,
 .stats-container,
 .transaction-list,
@@ -59,7 +59,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Titoli e testi */
+/* Colore dei titoli principali (ad es. titoli delle sezioni) */
 .auth-form-container h2,
 .stats-header h1,
 .transaction-list h2,
@@ -67,6 +67,7 @@ body {
   color: var(--primary-color);
 }
 
+/* Colore dei label, testo interno ai form, e messaggi di errore */
 .auth-form-container label,
 .auth-form-container input,
 .auth-form-container .error-message,
@@ -75,16 +76,25 @@ body {
   color: var(--text-color);
 }
 
-/* Input e bottoni */
+/* Stile per input e select */
 .auth-form-container input,
 .transaction-form input,
 .transaction-form select {
-  border: 1px solid #ced4da;
+  border: 1px solid var(--shadow-color);
   background-color: var(--background-color);
   color: var(--text-color);
 }
 
-/* Stile globale per i pulsanti per mantenere il testo bianco */
+/* Stile per placeholder nei form, input e select in tema scuro */
+.dark-theme .ant-input::placeholder,
+.dark-theme .ant-input-number input::placeholder,
+.dark-theme .ant-select-selection-placeholder,
+.dark-theme .ant-picker-input input::placeholder {
+  color: var(--text-color);
+  opacity: 0.6; /* Riduce la visibilità del placeholder */
+}
+
+/* Stile globale per pulsanti per garantire testo bianco */
 .auth-form-container button,
 .stats-controls button,
 .transaction-form .submit-button,
@@ -94,6 +104,7 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* Hover sui pulsanti */
 .auth-form-container button:hover,
 .stats-controls button:hover,
 .transaction-form .submit-button:hover,
@@ -101,12 +112,13 @@ body {
   background-color: var(--button-hover-color);
 }
 
+/* Stile per i messaggi di errore */
 .auth-form-container .error-message {
   color: var(--error-color);
   margin-top: 1rem;
 }
 
-/* Stili per le transazioni di tipo entrata e uscita */
+/* Stili per le card delle transazioni (ad esempio in TransactionList) */
 .transaction-card {
   background-color: var(--card-background);
   color: var(--text-color);
@@ -116,25 +128,40 @@ body {
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+/* Colore specifico per le transazioni di tipo "entrata" */
 .transaction-card .income {
   color: #4caf50; /* Verde per le entrate */
 }
 
+/* Colore specifico per le transazioni di tipo "uscita" */
 .transaction-card .expense {
   color: #ff5c5c; /* Rosso per le spese */
 }
 
 /* Stili specifici per componenti Ant Design */
-.ant-input::placeholder,
-.ant-select-selection-placeholder,
-.ant-btn {
-  color: #fff; /* Colore del testo bianco */
+.ant-input,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  background-color: var(--card-background); /* Sfondo per input e select */
+  color: var(--text-color); /* Colore del testo interno */
+  border-color: var(--shadow-color); /* Colore del bordo */
 }
 
+/* Placeholder per input e select (tema scuro) */
+.dark-theme .ant-input::placeholder,
+.dark-theme .ant-input-number input::placeholder,
+.dark-theme .ant-select-selection-placeholder,
+.dark-theme .ant-picker-input input::placeholder {
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+/* Pulsanti principali in stile Ant Design */
 .ant-btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
-  color: #fff; /* Forza il colore del testo su bianco */
+  color: #fff; /* Colore del testo bianco */
 }
 
 .ant-btn-primary:hover {
@@ -144,10 +171,11 @@ body {
 
 /* Navbar e menu */
 .ant-layout-header {
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--background-color); /* Sfondo della navbar */
+  color: var(--text-color); /* Colore del testo della navbar */
 }
 
+/* Menu in modalità scura */
 .ant-menu-dark.ant-menu-horizontal > .ant-menu-item,
 .ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu {
   color: var(--text-color);
@@ -160,13 +188,11 @@ body {
 }
 
 .ant-menu-item-selected {
-  background-color: var(--primary-color);
-  color: #fff;
+  background-color: var(--primary-color); /* Colore di sfondo della voce selezionata */
+  color: #fff; /* Testo bianco per la voce selezionata */
 }
 
 /* Forza il colore del titolo nei componenti Statistic */
 .statistic-title {
-  color: var(
-    --text-color
-  ) !important; /* Usa la variabile per adattarsi al tema */
+  color: var(--text-color) !important; /* Colore del titolo per adattarsi al tema */
 }
