@@ -9,6 +9,7 @@ import { startOfMonth, endOfMonth } from "date-fns";
 import { formatDate } from "../../dayjs-setup";
 import { useMediaQuery } from "react-responsive";
 import LoginForm from "../Auth/LoginForm";
+import { animationConfig } from "../../utils/animationConfig";
 
 const { Title, Text } = Typography;
 
@@ -83,14 +84,12 @@ const Home = () => {
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
+      <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
         <Title level={2} style={{ textAlign: "center" }}>Benvenuto su Soldi Sotto</Title>
-      </motion.div>
-      <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
-        La tua nuova app per la gestione delle tue spese e delle tue entrate.
-      </Text>
+        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+          La tua nuova app per la gestione delle tue spese e delle tue entrate.
+        </Text>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         <Button
           type="primary"
           onClick={showModal}
@@ -113,7 +112,7 @@ const Home = () => {
         </div>
       ) : (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <motion.div {...animationConfig} transition={{delay: 0.5 }}>
             <Card title="Transazioni Recenti" bordered={true} style={{ marginTop: "10px" }}>
               <List
                 itemLayout="horizontal"

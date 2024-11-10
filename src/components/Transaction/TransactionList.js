@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import TransactionForm from "../Transaction/TransactionForm";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay, startOfYear, endOfYear } from "date-fns";
 import { useMediaQuery } from "react-responsive";
+import { animationConfig } from "../../utils/animationConfig";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -132,14 +133,15 @@ const TransactionList = () => {
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
+      <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
         <Title level={2} style={{ textAlign: "center" }}>Transazioni</Title>
+        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+          Visualizza le tue transazioni, filtrate per il periodo desiderato.
+        </Text>
       </motion.div>
-      <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
-        Visualizza le tue transazioni, filtrate per il periodo desiderato.
-      </Text>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+
+      <motion.div {...animationConfig}>
         <Button
           type="primary"
           onClick={showModal}
@@ -154,25 +156,26 @@ const TransactionList = () => {
         >
           Aggiungi Transazione
         </Button>
-      </motion.div>
 
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <Select
-          value={period}
-          onChange={handlePeriodChange}
-          style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
-          size={isMobile ? "large" : "middle"}
-        >
-          <Option value="daily">Giornaliero</Option>
-          <Option value="weekly">Settimanale</Option>
-          <Option value="monthly">Mensile</Option>
-          <Option value="annually">Annuale</Option>
-          <Option value="custom">Personalizzato</Option>
-        </Select>
-        {period === "custom" && (
-          <RangePicker onChange={handleRangeChange} style={{ marginTop: 20 }} />
-        )}
-      </div>
+
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <Select
+            value={period}
+            onChange={handlePeriodChange}
+            style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
+            size={isMobile ? "large" : "middle"}
+          >
+            <Option value="daily">Oggi</Option>
+            <Option value="weekly">Settimana corrente</Option>
+            <Option value="monthly">Mese corrente</Option>
+            <Option value="annually">Anno corrente</Option>
+            <Option value="custom">Personalizzato</Option>
+          </Select>
+          {period === "custom" && (
+            <RangePicker onChange={handleRangeChange} style={{ marginTop: 20 }} />
+          )}
+        </div>
+      </motion.div>
 
       {isModalVisible && (
         <Modal title="Aggiungi Transazione" open={isModalVisible} onCancel={handleCancel} footer={null}>
@@ -188,7 +191,7 @@ const TransactionList = () => {
         <Row gutter={[16, 16]}>
           {transactions.map((transaction) => (
             <Col xs={24} sm={12} md={8} lg={6} key={transaction.id}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <motion.div {...animationConfig}>
                 <Card
                   bordered={false}
                   style={{
@@ -226,7 +229,7 @@ const TransactionList = () => {
           ))}
         </Row>
       ) : (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} style={{ textAlign: "center", marginTop: "20px" }}>
+        <motion.div {...animationConfig} style={{ textAlign: "center", marginTop: "20px" }}>
           <Empty description="Non ci sono transazioni per il periodo selezionato." />
         </motion.div>
       )}

@@ -21,6 +21,7 @@ import {
   differenceInDays,
 } from "date-fns";
 import { useMediaQuery } from "react-responsive";
+import { animationConfig } from "../../utils/animationConfig";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -196,9 +197,9 @@ const Stats = () => {
 
     // Periodo di riferimento
     let periodText = "Mensile";
-    if (viewMode === "daily") periodText = "Giornaliero";
-    else if (viewMode === "weekly") periodText = "Settimanale";
-    else if (viewMode === "annually") periodText = "Annuale";
+    if (viewMode === "daily") periodText = "Giorno";
+    else if (viewMode === "weekly") periodText = "Mese";
+    else if (viewMode === "annually") periodText = "Anno";
     else if (viewMode === "custom" && customRange) {
       periodText = `Dal ${format(customRange[0], "dd/MM/yyyy")} al ${format(customRange[1], "dd/MM/yyyy")}`.toLowerCase();
     } else if (viewMode === "monthly") {
@@ -348,38 +349,38 @@ const Stats = () => {
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
+      <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
         <Title level={2} style={{ textAlign: "center" }}>Statistiche</Title>
-      </motion.div>
-      <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
-        Riepilogo delle tue transazioni e statistiche finanziarie, per tenere traccia del tuo bilancio
-      </Text>
+        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+          Riepilogo delle tue transazioni e statistiche finanziarie, per tenere traccia del tuo bilancio
+        </Text>
 
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <Button type="primary" onClick={generatePDF} style={{
-          width: isMobile ? "100%" : "50%",
-          height: isMobile ? "50px" : "60px",
-          fontSize: isMobile ? "16px" : "18px",
-          display: "block",
-          margin: "0 auto",
-          marginBottom: 20,
-        }}>
-          Scarica Report PDF
-        </Button>
-        <Select
-          value={viewMode}
-          onChange={handleViewModeChange}
-          style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
-          size={isMobile ? "large" : "middle"}
-        >
-          <Option value="daily">Giornaliero</Option>
-          <Option value="weekly">Settimanale</Option>
-          <Option value="monthly">Mensile</Option>
-          <Option value="annually">Annuale</Option>
-          <Option value="custom">Personalizzato</Option>
-        </Select>
-        {viewMode === "custom" && <RangePicker onChange={handleRangeChange} />}
-      </div>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <Button type="primary" onClick={generatePDF} style={{
+            width: isMobile ? "100%" : "50%",
+            height: isMobile ? "50px" : "60px",
+            fontSize: isMobile ? "16px" : "18px",
+            display: "block",
+            margin: "0 auto",
+            marginBottom: 20,
+          }}>
+            Scarica Report PDF
+          </Button>
+          <Select
+            value={viewMode}
+            onChange={handleViewModeChange}
+            style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
+            size={isMobile ? "large" : "middle"}
+          >
+            <Option value="daily">Oggi</Option>
+            <Option value="weekly">Settimana corrente</Option>
+            <Option value="monthly">Mese corrente</Option>
+            <Option value="annually">Anno corrente</Option>
+            <Option value="custom">Personalizzato</Option>
+          </Select>
+          {viewMode === "custom" && <RangePicker onChange={handleRangeChange} />}
+        </div>
+      </motion.div>
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
@@ -389,21 +390,21 @@ const Stats = () => {
         <>
           <Row gutter={16}>
             <Col xs={24} md={8}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <motion.div {...animationConfig}>
                 <Card>
                   <Statistic title="Entrate Totali" value={stats.totalIncome.toFixed(2)} suffix="€" />
                 </Card>
               </motion.div>
             </Col>
             <Col xs={24} md={8}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+              <motion.div {...animationConfig} transition={{ duration: 0.5, delay: 0.2 }}>
                 <Card>
                   <Statistic title="Spese Totali" value={stats.totalExpense.toFixed(2)} suffix="€" />
                 </Card>
               </motion.div>
             </Col>
             <Col xs={24} md={8}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+              <motion.div {...animationConfig} transition={{ duration: 0.5, delay: 0.4 }}>
                 <Card>
                   <Statistic title="Saldo" value={stats.balance.toFixed(2)} suffix="€" />
                 </Card>
@@ -415,7 +416,7 @@ const Stats = () => {
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <motion.div {...animationConfig}>
                 <Card title="Categorie Principali di Spesa">
                   <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
                 </Card>
