@@ -20,7 +20,7 @@ const { Title, Text } = Typography;
 
 const Stats = () => {
   const { currentUser } = useAuth();
-  const [transactions, setTransactions] = useState([]);
+  const [setTransactions] = useState([]);
   const [stats, setStats] = useState({
     totalIncome: 0,
     totalExpense: 0,
