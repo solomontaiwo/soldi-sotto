@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import { Layout, Menu, Button, message, Switch } from "antd";
+import { Layout, Menu, Button, message } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { useTheme } from "../../ThemeContext";
 import {
@@ -12,6 +12,8 @@ import {
   FiHome,
   FiList,
   FiPieChart,
+  FiSun,
+  FiMoon
 } from "react-icons/fi";
 
 const { Header } = Layout;
@@ -80,11 +82,15 @@ const Navbar = () => {
       </Menu>
 
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Switch
-          checked={theme === "dark"}
-          onChange={toggleTheme}
-          checkedChildren="🌙"
-          unCheckedChildren="☀️"
+        <Button
+          onClick={toggleTheme}
+          icon={theme === "dark" ? <FiSun /> : <FiMoon />}
+          shape="circle"
+          type="text"
+          style={{
+            color: theme === "dark" ? "#ffffff" : "#000000",
+            fontSize: "20px"
+          }}
         />
 
         {currentUser ? (
