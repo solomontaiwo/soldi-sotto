@@ -390,41 +390,45 @@ const Stats = () => {
         </div>
       ) : (
         <>
-          <Row gutter={16}>
-            <Col xs={24} md={8}>
-              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
-                <Statistic title={<span className="statistic-title">Entrate Totali</span>} value={stats.totalIncome.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
-                <Statistic title={<span className="statistic-title">Spese Totali</span>} value={stats.totalExpense.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
-                <Statistic title={<span className="statistic-title">Saldo</span>} value={stats.balance.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
-              </Card>
-            </Col>
-          </Row>
+          <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
+            <Row gutter={16}>
+              <Col xs={24} md={8}>
 
-          <Divider style={{ borderColor: "var(--text-color)" }} />
+                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                  <Statistic title={<span className="statistic-title">Entrate Totali</span>} value={stats.totalIncome.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                  <Statistic title={<span className="statistic-title">Spese Totali</span>} value={stats.totalExpense.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                  <Statistic title={<span className="statistic-title">Saldo</span>} value={stats.balance.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+                </Card>
+              </Col>
+            </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              <Card title={<span style={{ color: "var(--text-color)" }}>Categorie Principali di Spesa</span>} style={{ backgroundColor: "var(--card-background)" }}>
-                <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
-              </Card>
-            </Col>
-            <Col xs={24} md={12}>
-              <Card title={<span style={{ color: "var(--text-color)" }}>Tendenze Entrate e Uscite nel Tempo</span>} style={{ backgroundColor: "var(--card-background)" }}>
-                <Chart options={lineChartOptions} series={lineChartSeries} type="line" width="100%" />
-              </Card>
-            </Col>
-          </Row>
+            <Divider style={{ borderColor: "var(--text-color)" }} />
+
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Card title={<span style={{ color: "var(--text-color)" }}>Categorie Principali di Spesa</span>} style={{ backgroundColor: "var(--card-background)" }}>
+                  <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
+                </Card>
+              </Col>
+              <Col xs={24} md={12}>
+                <Card title={<span style={{ color: "var(--text-color)" }}>Tendenze Entrate e Uscite nel Tempo</span>} style={{ backgroundColor: "var(--card-background)" }}>
+                  <Chart options={lineChartOptions} series={lineChartSeries} type="line" width="100%" />
+                </Card>
+
+              </Col>
+            </Row>
+          </motion.div>
         </>
       )}
-    </div>
+    </div >
   );
 };
 
