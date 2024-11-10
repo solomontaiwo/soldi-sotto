@@ -1,0 +1,29 @@
+body.light {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  body.dark {
+    background-color: #1f1f1f;
+    color: #ffffff;
+  }
+  
+  /* Esempio di stile per componenti */
+  .card, .ant-card, .ant-layout, .ant-menu {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  body.dark .ant-card,
+  body.dark .ant-layout,
+  body.dark .ant-menu {
+    background-color: #333333; /* Sfondo scuro per i componenti */
+    color: #ffffff;
+  }
+  
+  body.light .ant-card,
+  body.light .ant-layout,
+  body.light .ant-menu {
+    background-color: #ffffff; /* Sfondo chiaro per i componenti */
+    color: #000000;
+  }
+  

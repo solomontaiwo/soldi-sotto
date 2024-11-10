@@ -1,84 +1,121 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import { FiLogIn, FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart } from "react-icons/fi";
-import "./Navbar.css";
+import { Layout, Menu, Button, message, Switch } from "antd";
+import { useMediaQuery } from "react-responsive";
+import { useTheme } from "../../ThemeContext";  // Importa useTheme dal ThemeContext
+import {
+  FiLogIn,
+  FiLogOut,
+  FiUserPlus,
+  FiHome,
+  FiList,
+  FiPieChart,
+} from "react-icons/fi";
+
+const { Header } = Layout;
 
 const Navbar = () => {
   const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("home");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.pathname);
+
+  // Rileva se lo schermo è di tipo mobile
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  // Usa il contesto del tema
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      message.success("Logout effettuato con successo!");
     } catch (error) {
       console.error("Error signing out: ", error);
+      message.error("Errore durante il logout.");
     }
   };
 
+  const menuItems = [
+    { key: "/", label: "Home", icon: <FiHome />, path: "/" },
+    { key: "/transactions", label: "Transazioni", icon: <FiList />, path: "/transactions" },
+    { key: "/stats", label: "Statistiche", icon: <FiPieChart />, path: "/stats" },
+  ];
+
   return (
-    <nav className="tabbed-navbar">
-      <div className="navbar-logo">
-        <Link to="/">
-          <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" className="logo-icon" />
-        </Link>
-      </div>
-      <ul className="navbar-links">
-        <li
-          className={activeTab === "home" ? "active" : ""}
-          onClick={() => setActiveTab("home")}
-        >
-          <Link to="/">
-            <FiHome className="icon" />
-            <span className="link-label">Home</span>
-          </Link>
-        </li>
+    <Header style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "0 20px",
+      backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",  // Cambia colore in base al tema
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    }}>
+      <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/icon.png`}
+          alt="Logo"
+          style={{ height: 40 }}
+        />
+      </Link>
+
+      <Menu
+        mode="horizontal"
+        theme={theme === "dark" ? "dark" : "light"}  // Cambia il tema del menu
+        selectedKeys={[activeTab]}
+        onClick={(e) => setActiveTab(e.key)}
+        style={{
+          backgroundColor: "transparent",
+          color: theme === "dark" ? "#ffffff" : "#000000",  // Colore in base al tema
+          borderBottom: "none",
+          flexGrow: 1,
+          justifyContent: isMobile ? "left" : "left",
+        }}
+      >
+        {menuItems.map((item) => (
+          <Menu.Item key={item.key} icon={item.icon}>
+            <Link to={item.path} style={{ color: theme === "dark" ? "#ffffff" : "#000000", fontSize: "16px" }}>
+              {!isMobile && item.label} {/* Nasconde il testo su mobile */}
+            </Link>
+          </Menu.Item>
+        ))}
+      </Menu>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <Switch
+          checked={theme === "dark"}
+          onChange={toggleTheme}
+          checkedChildren="🌙"  // Icona luna per tema scuro
+          unCheckedChildren="☀️"  // Icona sole per tema chiaro
+        />
+
         {currentUser ? (
-          <>
-            <li
-              className={activeTab === "transactions" ? "active" : ""}
-              onClick={() => setActiveTab("transactions")}
-            >
-              <Link to="/transactions">
-                <FiList className="icon" />
-                <span className="link-label">Transazioni</span>
-              </Link>
-            </li>
-            <li
-              className={activeTab === "stats" ? "active" : ""}
-              onClick={() => setActiveTab("stats")}
-            >
-              <Link to="/stats">
-                <FiPieChart className="icon" />
-                <span className="link-label">Statistiche</span>
-              </Link>
-            </li>
-            <li>
-              <button onClick={handleLogout} className="auth-button">
-                <FiLogOut className="icon" />
-                <span className="link-label">Logout</span>
-              </button>
-            </li>
-          </>
+          <Button
+            onClick={handleLogout}
+            type="primary"
+            icon={<FiLogOut />}
+            style={{
+              backgroundColor: "#f5222d",
+              borderColor: "#f5222d",
+              color: "white",
+            }}
+          >
+            {!isMobile && "Logout"}
+          </Button>
         ) : (
           <>
-            <li className="auth-links">
-              <Link to="/login">
-                <FiLogIn className="icon" /> {/* Icona di login */}
-                <span className="link-label">Sign in</span>
-              </Link>
-              <span className="divider">|</span>
-              <Link to="/register">
-                <FiUserPlus className="icon" /> {/* Icona di registrazione */}
-                <span className="link-label">Get started</span>
-              </Link>
-            </li>
+            <Button type="link" icon={<FiLogIn />} style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}>
+              <Link to="/login" style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}>{!isMobile && "Login"}</Link>
+            </Button>
+            <Button type="primary" icon={<FiUserPlus />}>
+              <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
+            </Button>
           </>
         )}
-      </ul>
-    </nav>
+      </div>
+    </Header>
   );
 };
 

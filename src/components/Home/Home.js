@@ -1,80 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import TransactionList from "../Transaction/TransactionList";
-import TransactionForm from "../Transaction/TransactionForm";
+import { Modal, Button, Card, Row, Col, Typography, Statistic, List, Space } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
 import { firestore } from "../../firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  startOfDay,
-  endOfDay,
-} from "date-fns";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import "./Home.css";
+import TransactionForm from "../Transaction/TransactionForm";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { ArrowUpOutlined, ArrowDownOutlined, PlusOutlined } from "@ant-design/icons";
+import { startOfMonth, endOfMonth } from "date-fns";
+import { formatDate } from "../../dayjs-setup"; // Importa la funzione formatDate da dayjs-setup.js
+import { Link } from "react-router-dom"; // Per il link a login e registrazione
+
+const { Title, Text } = Typography;
 
 const Home = () => {
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState([]);
-  // eslint-disable-next-line
-  const [stats, setStats] = useState({
-    totalIncome: 0,
-    totalExpense: 0,
-    balance: 0,
-  });
-  const [viewMode, setViewMode] = useState("monthly");
+  const [stats, setStats] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
-      const fetchTransactions = async () => {
-        let startDate, endDate;
-        const today = new Date();
+      const today = new Date();
+      const startDate = startOfMonth(today);
+      const endDate = endOfMonth(today);
 
-        if (viewMode === "monthly") {
-          startDate = startOfMonth(today);
-          endDate = endOfMonth(today);
-        } else if (viewMode === "weekly") {
-          startDate = startOfWeek(today);
-          endDate = endOfWeek(today);
-        } else if (viewMode === "daily") {
-          startDate = startOfDay(today);
-          endDate = endOfDay(today);
-        }
+      const q = query(
+        collection(firestore, "transactions"),
+        where("userId", "==", currentUser.uid),
+        where("date", ">=", startDate),
+        where("date", "<=", endDate),
+        orderBy("date", "desc")
+      );
 
-        const q = query(
-          collection(firestore, "transactions"),
-          where("userId", "==", currentUser.uid),
-          where("date", ">=", startDate),
-          where("date", "<=", endDate)
-        );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const data = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+          amount: parseFloat(doc.data().amount) || 0,
+        }));
+        setTransactions(data);
+        calculateStats(data);
+      });
 
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          const data = querySnapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }));
-          setTransactions(data);
-          calculateStats(data);
-        });
-
-        return () => unsubscribe();
-      };
-
-      fetchTransactions();
+      return () => unsubscribe();
     }
-  }, [currentUser, viewMode]);
+  }, [currentUser]);
 
   const calculateStats = (transactions) => {
     let totalIncome = 0;
     let totalExpense = 0;
 
     transactions.forEach((tx) => {
-      if (tx.type === "income") totalIncome += tx.amount;
-      if (tx.type === "expense") totalExpense += tx.amount;
+      if (tx.type === "income") totalIncome += parseFloat(tx.amount) || 0;
+      if (tx.type === "expense") totalExpense += parseFloat(tx.amount) || 0;
     });
 
     setStats({
@@ -84,85 +62,95 @@ const Home = () => {
     });
   };
 
-  // eslint-disable-next-line
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode);
+  const showModal = () => {
+    setIsModalVisible(true);
   };
 
-  // eslint-disable-next-line
-  const generatePDF = () => {
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, "");
-
-    const reportType =
-      viewMode === "daily"
-        ? "giornaliero"
-        : viewMode === "weekly"
-        ? "settimanale"
-        : viewMode === "monthly"
-        ? "mensile"
-        : "annuale";
-
-    const userName = currentUser.displayName
-      ? currentUser.displayName.replace(/\s+/g, "-")
-      : "nomeutente";
-
-    const fileName = `[${formattedDate}]report-${reportType}-${userName}-soldisotto.pdf`;
-
-    const doc = new jsPDF();
-    doc.text("Statistiche Finanziarie", 14, 16);
-
-    const statsTable = transactions.map((tx) => [
-      tx.date.toDate().toLocaleDateString(),
-      tx.description,
-      tx.amount.toFixed(2),
-      tx.type === "income" ? "Entrata" : "Uscita",
-      tx.place || "-",
-      tx.paymentMethod || "-",
-    ]);
-
-    doc.autoTable({
-      head: [
-        [
-          "Data",
-          "Descrizione",
-          "Importo",
-          "Tipo",
-          "Luogo",
-          "Metodo di Pagamento",
-        ],
-      ],
-      body: statsTable,
-    });
-
-    doc.save(fileName);
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Benvenuto in SoldiSotto!
-        </motion.h1>
-        <motion.p
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Gestisci le tue finanze in modo semplice e veloce.
-        </motion.p>
-      </header>
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "30px" }}>
+        <Title level={2}>Benvenuto in SoldiSotto</Title>
+        {currentUser ? (
+          <Text type="secondary">Una vista rapida delle tue finanze per aiutarti a rimanere in controllo.</Text>
+        ) : (
+          <Text type="secondary">
+            <Link to="/login">Accedi</Link> o <Link to="/register">registrati</Link> per scoprire come SoldiSotto può aiutarti a monitorare le tue finanze e gestire le tue transazioni.
+          </Text>
+        )}
+      </motion.div>
+
       {currentUser && (
-        <div className="home-content">
-          <TransactionForm />
-          <div className="transaction-list-container">
-            <TransactionList />
-          </div>
-        </div>
+        <>
+          <Row gutter={16} style={{ marginBottom: "20px" }} justify="space-around">
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Card>
+                <Statistic
+                  title="Entrate"
+                  value={stats.totalIncome.toFixed(2)}
+                  prefix={<ArrowUpOutlined style={{ color: "#3f8600" }} />}
+                  suffix="€"
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Card>
+                <Statistic
+                  title="Uscite"
+                  value={stats.totalExpense.toFixed(2)}
+                  prefix={<ArrowDownOutlined style={{ color: "#cf1322" }} />}
+                  suffix="€"
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Card>
+                <Statistic title="Saldo" value={stats.balance.toFixed(2)} suffix="€" />
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={6}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showModal}
+                style={{ width: "100%", height: "100%" }}
+              >
+                Aggiungi Transazione
+              </Button>
+            </Col>
+          </Row>
+
+          <Card title="Transazioni Recenti" bordered={false} style={{ marginTop: "20px" }}>
+            <List
+              itemLayout="horizontal"
+              dataSource={transactions.slice(0, 5)}
+              renderItem={(transaction) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <Space direction="horizontal">
+                        <Text strong>{transaction.description}</Text>
+                        <Text type="secondary">{new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}</Text>
+                      </Space>
+                    }
+                    description={
+                      <Text type={transaction.type === "income" ? "success" : "danger"}>
+                        {transaction.type === "income" ? "+" : "-"}{transaction.amount.toFixed(2)} €
+                      </Text>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          </Card>
+
+          <Modal title="Aggiungi Transazione" visible={isModalVisible} onCancel={handleCancel} footer={null}>
+            <TransactionForm onFormSubmit={handleCancel} />
+          </Modal>
+        </>
       )}
     </div>
   );

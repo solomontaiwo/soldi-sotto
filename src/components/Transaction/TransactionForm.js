@@ -1,165 +1,113 @@
-import React, { useState } from "react";
+import React from "react";
 import { firestore } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
-import "./TransactionForm.css";
+import { Form, Input, InputNumber, Select, DatePicker, Button, message } from "antd";
+import dayjs from "dayjs";
+
+const { Option } = Select;
 
 const TransactionForm = () => {
   const { currentUser } = useAuth();
-  const [type, setType] = useState("expense"); // Tipo di transazione predefinito
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().substring(0, 10)); // Imposta la data di oggi
-  const [place, setPlace] = useState(""); // Campo per il luogo
-  const [paymentMethod, setPaymentMethod] = useState(""); // Campo per il metodo di pagamento
-  const [locationType, setLocationType] = useState("online"); // Tipo di luogo predefinito
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (amount && description && date && currentUser) {
+  const handleSubmit = async (values) => {
+    if (currentUser) {
       try {
         await addDoc(collection(firestore, "transactions"), {
           userId: currentUser.uid,
-          type,
-          amount: parseFloat(amount),
-          description,
-          date: new Date(date),
-          place,
-          paymentMethod,
-          locationType,
+          type: values.type,
+          amount: parseFloat(values.amount),
+          description: values.description,
+          date: values.date.toDate(), // Converte da dayjs a JavaScript Date
+          category: values.category,
         });
-        // Resetta i campi del form dopo l'inserimento
-        setType("expense");
-        setAmount("");
-        setDescription("");
-        setDate(new Date().toISOString().substring(0, 10));
-        setPlace("");
-        setPaymentMethod("");
-        setLocationType("online");
+        message.success("Transazione aggiunta con successo!");
       } catch (error) {
-        console.error("Errore durante l'aggiunta della transazione: ", error);
+        message.error("Errore durante l'aggiunta della transazione.");
+        console.error("Errore:", error);
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="transaction-form">
-      <h3>Aggiungi Transazione</h3>
+    <Form
+      onFinish={handleSubmit}
+      layout="vertical"
+      initialValues={{
+        type: "expense",
+        date: dayjs(), // Imposta la data di oggi come predefinita
+      }}
+      style={{
+        maxWidth: 500,
+        margin: "20px auto",
+        padding: 20,
+        background: "#f6f6f6",
+        borderRadius: 8,
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Tipo di Transazione */}
+      <Form.Item
+        label="Tipo di Transazione"
+        name="type"
+        rules={[{ required: true, message: "Seleziona il tipo di transazione" }]}
+      >
+        <Select>
+          <Option value="expense">Uscita</Option>
+          <Option value="income">Entrata</Option>
+        </Select>
+      </Form.Item>
 
-      <div className="form-group">
-        <label htmlFor="type" className="required">
-          Tipo di Transazione
-        </label>
-        <select
-          id="type"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          required
-        >
-          <option value="expense">Uscita</option>
-          <option value="income">Entrata</option>
-        </select>
-      </div>
+      {/* Importo */}
+      <Form.Item
+        label="Importo (€)"
+        name="amount"
+        rules={[{ required: true, message: "Inserisci l'importo" }]}
+      >
+        <InputNumber min={0} step={0.01} style={{ width: "100%" }} placeholder="Importo" />
+      </Form.Item>
 
-      <div className="form-group">
-        <label htmlFor="amount" className="required">
-          Importo (€)
-        </label>
-        <input
-          id="amount"
-          type="number"
-          step="0.01"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Importo"
-          required
-        />
-      </div>
+      {/* Descrizione */}
+      <Form.Item
+        label="Descrizione"
+        name="description"
+        rules={[{ required: true, message: "Inserisci una descrizione" }]}
+      >
+        <Input placeholder="Descrizione (es. Spesa supermercato, Stipendio)" />
+      </Form.Item>
 
-      <div className="form-group">
-        <label htmlFor="description" className="required">
-          Descrizione
-        </label>
-        <input
-          id="description"
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Descrizione"
-          required
-        />
-      </div>
+      {/* Data */}
+      <Form.Item
+        label="Data"
+        name="date"
+        rules={[{ required: true, message: "Seleziona la data" }]}
+      >
+        <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+      </Form.Item>
 
-      <div className="form-group">
-        <label htmlFor="date" className="required">
-          Data
-        </label>
-        <input
-          id="date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-        />
-      </div>
+      {/* Categoria */}
+      <Form.Item
+        label="Categoria"
+        name="category"
+        rules={[{ required: true, message: "Seleziona una categoria" }]}
+      >
+        <Select placeholder="Seleziona Categoria">
+          <Option value="alimentazione">Alimentazione</Option>
+          <Option value="affitto">Affitto</Option>
+          <Option value="stipendio">Stipendio</Option>
+          <Option value="intrattenimento">Intrattenimento</Option>
+          <Option value="trasporti">Trasporti</Option>
+          <Option value="altro">Altro</Option>
+        </Select>
+      </Form.Item>
 
-      <div className="form-group">
-        <label htmlFor="paymentMethod">Metodo di Pagamento</label>
-        <select
-          id="paymentMethod"
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-        >
-          <option value="">Seleziona Metodo</option>
-          <option value="cash">Contanti</option>
-          <option value="card">Carta</option>
-          <option value="bankTransfer">Bonifico</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="locationType">Tipo di Luogo</label>
-        <select
-          id="locationType"
-          value={locationType}
-          onChange={(e) => setLocationType(e.target.value)}
-        >
-          <option value="physical">Attività</option>
-          <option value="online">Online (sito web, app, ecc.)</option>
-        </select>
-      </div>
-
-      {locationType === "physical" && (
-        <div className="form-group">
-          <label htmlFor="place">Dettaglio Luogo</label>
-          <input
-            id="place"
-            type="text"
-            placeholder="Attività, città (provincia)"
-            value={place}
-            onChange={(e) => setPlace(e.target.value)}
-          />
-        </div>
-      )}
-
-      {locationType === "online" && (
-        <div className="form-group">
-          <label htmlFor="place">Dettaglio Luogo</label>
-          <input
-            id="place"
-            type="text"
-            placeholder="Specifica sito web, app, ecc."
-            value={place}
-            onChange={(e) => setPlace(e.target.value)}
-          />
-        </div>
-      )}
-
-      <button type="submit" className="submit-button">
-        Aggiungi Transazione
-      </button>
-    </form>
+      {/* Pulsante di Invio */}
+      <Form.Item>
+        <Button type="primary" htmlType="submit" style={{ width: "100%", padding: "10px 0" }}>
+          Aggiungi Transazione
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 
