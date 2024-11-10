@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { firestore } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
@@ -9,6 +9,37 @@ const { Option } = Select;
 
 const TransactionForm = ({ onFormSubmit }) => {
   const { currentUser } = useAuth();
+  const [categories, setCategories] = useState([]);
+
+  // Definisci le categorie in base al tipo di transazione usando useMemo
+  const expenseCategories = useMemo(() => [
+    { value: "alimentazione", label: "🍔 Alimentazione" },
+    { value: "affitto", label: "🏠 Affitto" },
+    { value: "trasporti", label: "🚗 Trasporti" },
+    { value: "intrattenimento", label: "🎉 Intrattenimento" },
+    { value: "altro", label: "🔍 Altro" },
+  ], []);
+
+  const incomeCategories = useMemo(() => [
+    { value: "stipendio", label: "💼 Stipendio" },
+    { value: "bonus", label: "💰 Bonus" },
+    { value: "regalo", label: "🎁 Regalo" },
+    { value: "investimenti", label: "📈 Investimenti" },
+    { value: "altro", label: "🔍 Altro" },
+  ], []);
+
+  // Funzione per aggiornare le categorie in base al tipo di transazione selezionato
+  const updateCategories = useCallback((type) => {
+    if (type === "expense") {
+      setCategories(expenseCategories);
+    } else if (type === "income") {
+      setCategories(incomeCategories);
+    }
+  }, [expenseCategories, incomeCategories]);
+
+  useEffect(() => {
+    updateCategories("expense"); // Imposta le categorie iniziali per il tipo "expense"
+  }, [updateCategories]);
 
   const handleSubmit = async (values) => {
     if (currentUser) {
@@ -45,7 +76,7 @@ const TransactionForm = ({ onFormSubmit }) => {
         name="type"
         rules={[{ required: true, message: "Seleziona il tipo di transazione" }]}
       >
-        <Select>
+        <Select onChange={(value) => updateCategories(value)}>
           <Option value="expense">Uscita</Option>
           <Option value="income">Entrata</Option>
         </Select>
@@ -85,12 +116,11 @@ const TransactionForm = ({ onFormSubmit }) => {
         rules={[{ required: true, message: "Seleziona una categoria" }]}
       >
         <Select placeholder="Seleziona Categoria">
-          <Option value="alimentazione">🍔 Alimentazione</Option>
-          <Option value="affitto">🏠 Affitto</Option>
-          <Option value="stipendio">💼 Stipendio</Option>
-          <Option value="intrattenimento">🎉 Intrattenimento</Option>
-          <Option value="trasporti">🚗 Trasporti</Option>
-          <Option value="altro">📦 Altro</Option>
+          {categories.map((category) => (
+            <Option key={category.value} value={category.value}>
+              {category.label}
+            </Option>
+          ))}
         </Select>
       </Form.Item>
 

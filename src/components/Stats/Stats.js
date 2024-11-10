@@ -200,11 +200,11 @@ const Stats = () => {
     else if (viewMode === "weekly") periodText = "Settimanale";
     else if (viewMode === "annually") periodText = "Annuale";
     else if (viewMode === "custom" && customRange) {
-      periodText = `Dal ${format(customRange[0], "dd/MM/yyyy")} al ${format(customRange[1], "dd/MM/yyyy")}`;
+      periodText = `Dal ${format(customRange[0], "dd/MM/yyyy")} al ${format(customRange[1], "dd/MM/yyyy")}`.toLowerCase();
     } else if (viewMode === "monthly") {
       const startOfMonth = format(new Date(now.getFullYear(), now.getMonth(), 1), "dd/MM/yyyy");
       const endOfMonth = format(new Date(now.getFullYear(), now.getMonth() + 1, 0), "dd/MM/yyyy");
-      periodText = `Dal ${startOfMonth} al ${endOfMonth}`;
+      periodText = `Dal ${startOfMonth} al ${endOfMonth}`.toLowerCase();
     }
     doc.text(`Periodo di riferimento: ${periodText}`, centerX, 70, { align: "center" });
 
@@ -330,7 +330,7 @@ const Stats = () => {
     }
 
     // Salva il file PDF
-    const filename = `report-statistiche-${periodText.replace(/\s+/g, '-')}.pdf`;
+    const filename = `report-statistiche-${periodText.replace(/\s+/g, '-')}.pdf`.toLowerCase();
     doc.save(filename);
   };
 

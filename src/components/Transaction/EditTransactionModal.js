@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Modal, Form, Input, InputNumber, Select, DatePicker, message } from "antd";
 import { firestore } from "../../firebase";
 import { doc, updateDoc } from "firebase/firestore";
@@ -8,6 +8,37 @@ const { Option } = Select;
 
 const EditTransactionModal = ({ transaction, onClose }) => {
   const [form] = Form.useForm();
+  const [categories, setCategories] = useState([]);
+
+  // Usa useMemo per memorizzare le categorie e prevenire la ricreazione a ogni render
+  const expenseCategories = useMemo(() => [
+    { value: "alimentazione", label: "🍔 Alimentazione" },
+    { value: "affitto", label: "🏠 Affitto" },
+    { value: "trasporti", label: "🚗 Trasporti" },
+    { value: "intrattenimento", label: "🎉 Intrattenimento" },
+    { value: "altro", label: "🔍 Altro" },
+  ], []);
+
+  const incomeCategories = useMemo(() => [
+    { value: "stipendio", label: "💼 Stipendio" },
+    { value: "bonus", label: "💰 Bonus" },
+    { value: "regalo", label: "🎁 Regalo" },
+    { value: "investimenti", label: "📈 Investimenti" },
+    { value: "altro", label: "🔍 Altro" },
+  ], []);
+
+  // Definisci updateCategories con useCallback e usa le categorie memorizzate con useMemo
+  const updateCategories = useCallback((type) => {
+    if (type === "expense") {
+      setCategories(expenseCategories);
+    } else if (type === "income") {
+      setCategories(incomeCategories);
+    }
+  }, [expenseCategories, incomeCategories]);
+
+  useEffect(() => {
+    updateCategories(transaction.type);
+  }, [transaction.type, updateCategories]);
 
   const handleSaveChanges = async (values) => {
     const transactionRef = doc(firestore, "transactions", transaction.id);
@@ -57,7 +88,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           label="Tipo di Transazione"
           rules={[{ required: true, message: "Seleziona il tipo di transazione" }]}
         >
-          <Select>
+          <Select onChange={(value) => updateCategories(value)}>
             <Option value="expense">Uscita</Option>
             <Option value="income">Entrata</Option>
           </Select>
@@ -89,12 +120,11 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           rules={[{ required: true, message: "Seleziona una categoria" }]}
         >
           <Select placeholder="Seleziona Categoria">
-            <Option value="alimentazione">Alimentazione</Option>
-            <Option value="affitto">Affitto</Option>
-            <Option value="stipendio">Stipendio</Option>
-            <Option value="intrattenimento">Intrattenimento</Option>
-            <Option value="trasporti">Trasporti</Option>
-            <Option value="altro">Altro</Option>
+            {categories.map((category) => (
+              <Option key={category.value} value={category.value}>
+                {category.label}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       </Form>
