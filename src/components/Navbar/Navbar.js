@@ -5,9 +5,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { Layout, Menu, Button, message, Switch } from "antd";
 import { useMediaQuery } from "react-responsive";
-import { useTheme } from "../../ThemeContext";  // Importa useTheme dal ThemeContext
+import { useTheme } from "../../ThemeContext";
 import {
-  FiLogIn,
   FiLogOut,
   FiUserPlus,
   FiHome,
@@ -22,10 +21,7 @@ const Navbar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
 
-  // Rileva se lo schermo è di tipo mobile
   const isMobile = useMediaQuery({ maxWidth: 768 });
-
-  // Usa il contesto del tema
   const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
@@ -50,7 +46,7 @@ const Navbar = () => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "0 20px",
-      backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",  // Cambia colore in base al tema
+      backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
       boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     }}>
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
@@ -63,21 +59,21 @@ const Navbar = () => {
 
       <Menu
         mode="horizontal"
-        theme={theme === "dark" ? "dark" : "light"}  // Cambia il tema del menu
+        theme={theme === "dark" ? "dark" : "light"}
         selectedKeys={[activeTab]}
         onClick={(e) => setActiveTab(e.key)}
         style={{
           backgroundColor: "transparent",
-          color: theme === "dark" ? "#ffffff" : "#000000",  // Colore in base al tema
+          color: theme === "dark" ? "#ffffff" : "#000000",
           borderBottom: "none",
           flexGrow: 1,
-          justifyContent: isMobile ? "left" : "left",
+          justifyContent: "left",
         }}
       >
         {menuItems.map((item) => (
           <Menu.Item key={item.key} icon={item.icon}>
             <Link to={item.path} style={{ color: theme === "dark" ? "#ffffff" : "#000000", fontSize: "16px" }}>
-              {!isMobile && item.label} {/* Nasconde il testo su mobile */}
+              {!isMobile && item.label}
             </Link>
           </Menu.Item>
         ))}
@@ -87,8 +83,8 @@ const Navbar = () => {
         <Switch
           checked={theme === "dark"}
           onChange={toggleTheme}
-          checkedChildren="🌙"  // Icona luna per tema scuro
-          unCheckedChildren="☀️"  // Icona sole per tema chiaro
+          checkedChildren="🌙"
+          unCheckedChildren="☀️"
         />
 
         {currentUser ? (
@@ -105,14 +101,9 @@ const Navbar = () => {
             {!isMobile && "Logout"}
           </Button>
         ) : (
-          <>
-            <Button type="link" icon={<FiLogIn />} style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}>
-              <Link to="/login" style={{ color: theme === "dark" ? "#ffffff" : "#000000" }}>{!isMobile && "Login"}</Link>
-            </Button>
-            <Button type="primary" icon={<FiUserPlus />}>
-              <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
-            </Button>
-          </>
+          <Button type="primary" icon={<FiUserPlus />}>
+            <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
+          </Button>
         )}
       </div>
     </Header>
