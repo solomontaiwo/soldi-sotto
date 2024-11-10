@@ -6,6 +6,7 @@ import { auth } from "../../firebase";
 import { Layout, Menu, Button, message } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { useTheme } from "../../ThemeContext";
+import { motion } from "framer-motion";
 import {
   FiLogOut,
   FiUserPlus,
@@ -19,7 +20,7 @@ import {
 const { Header } = Layout;
 
 const Navbar = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
 
@@ -81,37 +82,45 @@ const Navbar = () => {
         ))}
       </Menu>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Button
-          onClick={toggleTheme}
-          icon={theme === "dark" ? <FiSun /> : <FiMoon />}
-          shape="circle"
-          type="text"
-          style={{
-            color: theme === "dark" ? "#ffffff" : "#000000",
-            fontSize: "20px"
-          }}
-        />
-
-        {currentUser ? (
+      {/* Condizione per mostrare l'intero blocco dei pulsanti solo dopo la verifica dell'autenticazione */}
+      {!authLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
           <Button
-            onClick={handleLogout}
-            type="primary"
-            icon={<FiLogOut />}
+            onClick={toggleTheme}
+            icon={theme === "dark" ? <FiSun /> : <FiMoon />}
+            shape="circle"
+            type="text"
             style={{
-              backgroundColor: "#f5222d",
-              borderColor: "#f5222d",
-              color: "white",
+              color: theme === "dark" ? "#ffffff" : "#000000",
+              fontSize: "20px"
             }}
-          >
-            {!isMobile && "Logout"}
-          </Button>
-        ) : (
-          <Button type="primary" icon={<FiUserPlus />}>
-            <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
-          </Button>
-        )}
-      </div>
+          />
+
+          {currentUser ? (
+            <Button
+              onClick={handleLogout}
+              type="primary"
+              icon={<FiLogOut />}
+              style={{
+                backgroundColor: "#f5222d",
+                borderColor: "#f5222d",
+                color: "white",
+              }}
+            >
+              {!isMobile && "Logout"}
+            </Button>
+          ) : (
+            <Button type="primary" icon={<FiUserPlus />}>
+              <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
+            </Button>
+          )}
+        </motion.div>
+      )}
     </Header>
   );
 };
