@@ -1,6 +1,5 @@
 import React from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import PrivateRoute from "./components/PrivateRoute";
 import Home from "./components/Home/Home";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -8,7 +7,7 @@ import Transactions from "./components/Transaction/TransactionList";
 import Stats from "./components/Stats/Stats";
 import Navbar from "./components/Navbar/Navbar";
 import { ThemeProvider } from "./ThemeContext";
-import "./styles.css";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -19,22 +18,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            path="/transactions"
-            element={
-              <PrivateRoute>
-                <Transactions />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/stats"
-            element={
-              <PrivateRoute>
-                <Stats />
-              </PrivateRoute>
-            }
-          />
+          {/* Route protette */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/stats" element={<Stats />} />
+          </Route>
         </Routes>
       </Router>
     </ThemeProvider>

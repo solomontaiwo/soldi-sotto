@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 const { Option } = Select;
 
-const TransactionForm = () => {
+const TransactionForm = ({ onFormSubmit }) => {
   const { currentUser } = useAuth();
 
   const handleSubmit = async (values) => {
@@ -22,6 +22,7 @@ const TransactionForm = () => {
           category: values.category,
         });
         message.success("Transazione aggiunta con successo!");
+        onFormSubmit(); // Chiama la funzione per chiudere il form
       } catch (error) {
         message.error("Errore durante l'aggiunta della transazione.");
         console.error("Errore:", error);
@@ -92,12 +93,12 @@ const TransactionForm = () => {
         rules={[{ required: true, message: "Seleziona una categoria" }]}
       >
         <Select placeholder="Seleziona Categoria">
-          <Option value="alimentazione">Alimentazione</Option>
-          <Option value="affitto">Affitto</Option>
-          <Option value="stipendio">Stipendio</Option>
-          <Option value="intrattenimento">Intrattenimento</Option>
-          <Option value="trasporti">Trasporti</Option>
-          <Option value="altro">Altro</Option>
+          <Option value="alimentazione">🍔 Alimentazione</Option>
+          <Option value="affitto">🏠 Affitto</Option>
+          <Option value="stipendio">💼 Stipendio</Option>
+          <Option value="intrattenimento">🎉 Intrattenimento</Option>
+          <Option value="trasporti">🚗 Trasporti</Option>
+          <Option value="altro">📦 Altro</Option>
         </Select>
       </Form.Item>
 
