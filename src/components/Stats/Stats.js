@@ -147,7 +147,6 @@ const Stats = () => {
   const barChartOptions = {
     chart: { type: "bar" },
     xaxis: { categories: stats.topCategories.map((c) => c.category) },
-    title: { text: "Categorie Principali di Spesa" },
     colors: ["#FF4560"],
   };
 
@@ -156,7 +155,6 @@ const Stats = () => {
   const lineChartOptions = {
     chart: { type: "line" },
     xaxis: { type: "datetime" },
-    title: { text: "Tendenze Entrate e Uscite nel Tempo" },
     colors: ["#00E396", "#FF4560"],
   };
 
