@@ -70,11 +70,11 @@ const Home = () => {
 
   if (!authLoading && !currentUser) {
     return (
-      <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="container">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
-          <Title level={2} style={{ textAlign: "center" }}>Accedi a Soldi Sotto</Title>
+          <Title level={2} style={{ textAlign: "center", color: "var(--primary-color)" }}>Accedi a Soldi Sotto</Title>
         </motion.div>
-        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+        <Text style={{ textAlign: "center", display: "block", marginBottom: 20, color: "var(--text-color)" }}>
           Inserisci le tue credenziali per accedere al tuo account.
         </Text>
         <LoginForm />
@@ -83,10 +83,10 @@ const Home = () => {
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="container">
       <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
-        <Title level={2} style={{ textAlign: "center" }}>Benvenuto su Soldi Sotto</Title>
-        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+        <Title level={2} style={{ textAlign: "center", color: "var(--primary-color)" }}>Benvenuto su Soldi Sotto</Title>
+        <Text style={{ textAlign: "center", display: "block", marginBottom: 20, color: "var(--text-color)" }}>
           La tua nuova app per la gestione delle tue spese e delle tue entrate.
         </Text>
 
@@ -100,6 +100,9 @@ const Home = () => {
             display: "block",
             margin: "0 auto",
             marginBottom: 20,
+            backgroundColor: "var(--button-bg-color)",
+            borderColor: "var(--button-bg-color)",
+            textColor: "var(--button-text-color)",
           }}
         >
           Aggiungi Transazione
@@ -112,8 +115,8 @@ const Home = () => {
         </div>
       ) : (
         <>
-          <motion.div {...animationConfig} transition={{delay: 0.5 }}>
-            <Card title="Transazioni Recenti" bordered={true} style={{ marginTop: "10px" }}>
+          <motion.div {...animationConfig} transition={{ delay: 0.5 }}>
+            <Card title={<span style={{ color: "var(--text-color)" }}>Transazioni Recenti</span>} style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)", marginTop: "10px" }}>
               <List
                 itemLayout="horizontal"
                 dataSource={transactions.slice(0, 5)}
@@ -122,12 +125,12 @@ const Home = () => {
                     <List.Item.Meta
                       title={
                         <Space direction="horizontal">
-                          <Text strong>{transaction.description}</Text>
-                          <Text type="secondary">{new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}</Text>
+                          <Text strong style={{ color: "var(--text-color)" }}>{transaction.description}</Text>
+                          <Text style={{ color: "var(--text-color)" }}>{new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}</Text>
                         </Space>
                       }
                       description={
-                        <Text type={transaction.type === "income" ? "success" : "danger"}>
+                        <Text style={{ color: transaction.type === "income" ? "#4caf50" : "#ff5c5c" }}>
                           {transaction.type === "income" ? "+" : "-"}{transaction.amount.toFixed(2)} €
                         </Text>
                       }

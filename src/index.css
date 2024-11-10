@@ -1,13 +1,172 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Variabili di colore generali */
+:root {
+  --background-color: #f0f0f0;
+  --text-color: #333;
+  --primary-color: #007bff;
+  --secondary-color: #0056b3;
+  --card-background: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --button-bg-color: #007bff;
+  --button-hover-color: #0056b3;
+  --error-color: #dc3545;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Variabili di colore per il tema scuro */
+.dark-theme {
+  --background-color: #1f1f1f;
+  --text-color: #e0e0e0;
+  --primary-color: #1a73e8;
+  --secondary-color: #255adb;
+  --card-background: #333333;
+  --shadow-color: rgba(255, 255, 255, 0.1);
+  --button-bg-color: #3b82f6;
+  --button-hover-color: #2563eb;
+  --error-color: #e57373;
+}
+
+/* Stili generali per l'intera applicazione */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Contenitore principale */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Stili per componenti specifici */
+.auth-form-container,
+.stats-container,
+.transaction-list,
+.transaction-form,
+.ant-card,
+.ant-layout,
+.ant-modal,
+.ant-select,
+.ant-input,
+.ant-button {
+  background-color: var(--card-background);
+  color: var(--text-color);
+  border-color: var(--shadow-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Titoli e testi */
+.auth-form-container h2,
+.stats-header h1,
+.transaction-list h2,
+.transaction-form h3 {
+  color: var(--primary-color);
+}
+
+.auth-form-container label,
+.auth-form-container input,
+.auth-form-container .error-message,
+.transaction-card p strong,
+.transaction-form label {
+  color: var(--text-color);
+}
+
+/* Input e bottoni */
+.auth-form-container input,
+.transaction-form input,
+.transaction-form select {
+  border: 1px solid #ced4da;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Stile globale per i pulsanti per mantenere il testo bianco */
+.auth-form-container button,
+.stats-controls button,
+.transaction-form .submit-button,
+.ant-btn {
+  background-color: var(--button-bg-color);
+  color: #fff; /* Forza il colore del testo su bianco */
+  transition: background-color 0.3s ease;
+}
+
+.auth-form-container button:hover,
+.stats-controls button:hover,
+.transaction-form .submit-button:hover,
+.ant-btn:hover {
+  background-color: var(--button-hover-color);
+}
+
+.auth-form-container .error-message {
+  color: var(--error-color);
+  margin-top: 1rem;
+}
+
+/* Stili per le transazioni di tipo entrata e uscita */
+.transaction-card {
+  background-color: var(--card-background);
+  color: var(--text-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.transaction-card .income {
+  color: #4caf50; /* Verde per le entrate */
+}
+
+.transaction-card .expense {
+  color: #ff5c5c; /* Rosso per le spese */
+}
+
+/* Stili specifici per componenti Ant Design */
+.ant-input::placeholder,
+.ant-select-selection-placeholder,
+.ant-btn {
+  color: #fff; /* Colore del testo bianco */
+}
+
+.ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff; /* Forza il colore del testo su bianco */
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+/* Navbar e menu */
+.ant-layout-header {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item,
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu {
+  color: var(--text-color);
+  background-color: transparent;
+}
+
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover,
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu:hover {
+  color: var(--primary-color);
+}
+
+.ant-menu-item-selected {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+/* Forza il colore del titolo nei componenti Statistic */
+.statistic-title {
+  color: var(
+    --text-color
+  ) !important; /* Usa la variabile per adattarsi al tema */
 }

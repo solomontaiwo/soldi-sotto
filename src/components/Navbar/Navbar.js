@@ -23,7 +23,6 @@ const Navbar = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
-
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { theme, toggleTheme } = useTheme();
 
@@ -51,7 +50,9 @@ const Navbar = () => {
       padding: "0 20px",
       backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
       boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+      transition: "background-color 0.3s ease",
     }}>
+      {/* Logo */}
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
         <img
           src={`${process.env.PUBLIC_URL}/icon.png`}
@@ -60,6 +61,7 @@ const Navbar = () => {
         />
       </Link>
 
+      {/* Menu */}
       <Menu
         mode="horizontal"
         theme={theme === "dark" ? "dark" : "light"}
@@ -82,7 +84,7 @@ const Navbar = () => {
         ))}
       </Menu>
 
-      {/* Condizione per mostrare l'intero blocco dei pulsanti solo dopo la verifica dell'autenticazione */}
+      {/* Right-side buttons (Theme toggle & Auth) */}
       {!authLoading && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -90,17 +92,21 @@ const Navbar = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
+          {/* Theme Toggle Button */}
           <Button
             onClick={toggleTheme}
             icon={theme === "dark" ? <FiSun /> : <FiMoon />}
-            shape="circle"
             type="text"
             style={{
               color: theme === "dark" ? "#ffffff" : "#000000",
-              fontSize: "20px"
+              fontSize: "20px",
+              backgroundColor: "transparent",
+              transition: "color 0.3s ease",
             }}
           />
 
+
+          {/* Auth Buttons */}
           {currentUser ? (
             <Button
               onClick={handleLogout}

@@ -132,14 +132,13 @@ const TransactionList = () => {
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", color: "var(--text-color)" }}>
       <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
-        <Title level={2} style={{ textAlign: "center" }}>Transazioni</Title>
-        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
+        <Title level={2} style={{ textAlign: "center", color: "var(--primary-color)" }}>Transazioni</Title>
+        <Text style={{ textAlign: "center", display: "block", marginBottom: 20, color: "var(--text-color)" }}>
           Visualizza le tue transazioni, filtrate per il periodo desiderato.
         </Text>
       </motion.div>
-
 
       <motion.div {...animationConfig}>
         <Button
@@ -152,18 +151,23 @@ const TransactionList = () => {
             display: "block",
             margin: "0 auto",
             marginBottom: 20,
+            backgroundColor: "var(--button-bg-color)",
+            borderColor: "var(--button-bg-color)",
+            color: "#fff",
           }}
         >
           Aggiungi Transazione
         </Button>
 
-
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <Select
             value={period}
             onChange={handlePeriodChange}
-            style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
-            size={isMobile ? "large" : "middle"}
+            style={{
+              width: isMobile ? "100%" : "50%",
+              textAlign: "center",
+              color: "var(--text-color)",
+            }}
           >
             <Option value="daily">Oggi</Option>
             <Option value="weekly">Settimana corrente</Option>
@@ -195,32 +199,34 @@ const TransactionList = () => {
                 <Card
                   bordered={false}
                   style={{
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 4px 8px var(--shadow-color)",
                     borderRadius: "8px",
+                    backgroundColor: "var(--card-background)",
+                    color: "var(--text-color)",
                   }}
                   actions={[
-                    <EditOutlined onClick={() => handleEditClick(transaction)} />,
-                    <DeleteOutlined onClick={() => handleDeleteClick(transaction.id)} style={{ color: "red" }} />,
+                    <EditOutlined onClick={() => handleEditClick(transaction)} style={{ color: "black" }} />,
+                    <DeleteOutlined onClick={() => handleDeleteClick(transaction.id)} style={{ color: "#f5222d" }} />,
                   ]}
                 >
                   <Space direction="vertical" size="small">
-                    <Text>
-                      <Text strong>Data:</Text> {formatDate(transaction.date.toDate())}
+                    <Text style={{ color: "var(--text-color)" }}>
+                      <strong style={{ color: "var(--text-color)" }}>Data:</strong> {formatDate(transaction.date.toDate())}
                     </Text>
-                    <Text>
-                      <Text strong>Descrizione:</Text> {transaction.description}
+                    <Text style={{ color: "var(--text-color)" }}>
+                      <strong style={{ color: "var(--text-color)" }}>Descrizione:</strong> {transaction.description}
                     </Text>
-                    <Text>
-                      <Text strong>Tipo:</Text>{" "}
-                      <span style={{ color: transaction.type === "income" ? "#3f8600" : "#cf1322" }}>
+                    <Text style={{ color: "var(--text-color)" }}>
+                      <strong style={{ color: "var(--text-color)" }}>Tipo: </strong>
+                      <span style={{ color: transaction.type === "income" ? "#4caf50" : "#ff5c5c" }}>
                         {transaction.type === "income" ? "Entrata" : "Uscita"}
                       </span>
                     </Text>
-                    <Text>
-                      <Text strong>Importo:</Text> {Number(transaction.amount).toFixed(2)} €
+                    <Text style={{ color: "var(--text-color)" }}>
+                      <strong style={{ color: "var(--text-color)" }}>Importo:</strong> {Number(transaction.amount).toFixed(2)} €
                     </Text>
-                    <Text>
-                      <Text strong>Categoria:</Text> {transaction.category || "N/A"}
+                    <Text style={{ color: "var(--text-color)" }}>
+                      <strong style={{ color: "var(--text-color)" }}>Categoria:</strong> {transaction.category || "N/A"}
                     </Text>
                   </Space>
                 </Card>

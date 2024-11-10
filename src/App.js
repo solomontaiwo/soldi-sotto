@@ -6,8 +6,8 @@ import Register from "./components/Auth/Register";
 import Transactions from "./components/Transaction/TransactionList";
 import Stats from "./components/Stats/Stats";
 import Navbar from "./components/Navbar/Navbar";
-import { ThemeProvider } from "./ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ThemeProvider } from "./ThemeContext"; 
 
 function App() {
   return (

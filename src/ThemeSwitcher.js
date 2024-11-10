@@ -1,7 +1,7 @@
 // ThemeSwitcher.js
 import React from "react";
 import { Switch } from "antd";
-import { useTheme } from ".ThemeContext";
+import { useTheme } from "./ThemeContext";
 
 const ThemeSwitcher = () => {
   const { theme, toggleTheme } = useTheme();

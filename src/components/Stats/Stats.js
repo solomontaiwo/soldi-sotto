@@ -335,6 +335,7 @@ const Stats = () => {
     doc.save(filename);
   };
 
+
   if (authLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
@@ -348,11 +349,11 @@ const Stats = () => {
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", color: "var(--text-color)" }}>
       <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
-        <Title level={2} style={{ textAlign: "center" }}>Statistiche</Title>
-        <Text type="secondary" style={{ textAlign: "center", display: "block", marginBottom: 20 }}>
-          Riepilogo delle tue transazioni e statistiche finanziarie, per tenere traccia del tuo bilancio
+        <Title level={2} style={{ color: "var(--primary-color)", textAlign: "center" }}>Statistiche</Title>
+        <Text style={{ color: "var(--text-color)", textAlign: "center", display: "block", marginBottom: 20 }}>
+          Riepilogo delle tue transazioni e statistiche finanziarie, per tenere traccia del tuo bilancio.
         </Text>
 
         <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -363,14 +364,15 @@ const Stats = () => {
             display: "block",
             margin: "0 auto",
             marginBottom: 20,
+            backgroundColor: "var(--button-bg-color)",
+            borderColor: "var(--button-bg-color)",
           }}>
             Scarica Report PDF
           </Button>
           <Select
             value={viewMode}
             onChange={handleViewModeChange}
-            style={{ width: isMobile ? "100%" : "50%", textAlign: "center" }}
-            size={isMobile ? "large" : "middle"}
+            style={{ width: isMobile ? "100%" : "50%", textAlign: "center", color: "var(--text-color)" }}
           >
             <Option value="daily">Oggi</Option>
             <Option value="weekly">Settimana corrente</Option>
@@ -390,44 +392,34 @@ const Stats = () => {
         <>
           <Row gutter={16}>
             <Col xs={24} md={8}>
-              <motion.div {...animationConfig}>
-                <Card>
-                  <Statistic title="Entrate Totali" value={stats.totalIncome.toFixed(2)} suffix="€" />
-                </Card>
-              </motion.div>
+              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                <Statistic title={<span className="statistic-title">Entrate Totali</span>} value={stats.totalIncome.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+              </Card>
             </Col>
             <Col xs={24} md={8}>
-              <motion.div {...animationConfig} transition={{ duration: 0.5, delay: 0.2 }}>
-                <Card>
-                  <Statistic title="Spese Totali" value={stats.totalExpense.toFixed(2)} suffix="€" />
-                </Card>
-              </motion.div>
+              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                <Statistic title={<span className="statistic-title">Spese Totali</span>} value={stats.totalExpense.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+              </Card>
             </Col>
             <Col xs={24} md={8}>
-              <motion.div {...animationConfig} transition={{ duration: 0.5, delay: 0.4 }}>
-                <Card>
-                  <Statistic title="Saldo" value={stats.balance.toFixed(2)} suffix="€" />
-                </Card>
-              </motion.div>
+              <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                <Statistic title={<span className="statistic-title">Saldo</span>} value={stats.balance.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
+              </Card>
             </Col>
           </Row>
 
-          <Divider />
+          <Divider style={{ borderColor: "var(--text-color)" }} />
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
-              <motion.div {...animationConfig}>
-                <Card title="Categorie Principali di Spesa">
-                  <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
-                </Card>
-              </motion.div>
+              <Card title={<span style={{ color: "var(--text-color)" }}>Categorie Principali di Spesa</span>} style={{ backgroundColor: "var(--card-background)" }}>
+                <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
+              </Card>
             </Col>
             <Col xs={24} md={12}>
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                <Card title="Tendenze Entrate e Uscite nel Tempo">
-                  <Chart options={lineChartOptions} series={lineChartSeries} type="line" width="100%" />
-                </Card>
-              </motion.div>
+              <Card title={<span style={{ color: "var(--text-color)" }}>Tendenze Entrate e Uscite nel Tempo</span>} style={{ backgroundColor: "var(--card-background)" }}>
+                <Chart options={lineChartOptions} series={lineChartSeries} type="line" width="100%" />
+              </Card>
             </Col>
           </Row>
         </>
