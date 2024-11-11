@@ -13,9 +13,10 @@ const TransactionForm = ({ onFormSubmit }) => {
 
   const expenseCategories = useMemo(() => [
     { value: "alimentazione", label: "🍔 Alimentazione" },
-    { value: "affitto", label: "🏠 Affitto" },
+    { value: "casa", label: "🏠 casa" },
     { value: "trasporti", label: "🚗 Trasporti" },
     { value: "intrattenimento", label: "🎉 Intrattenimento" },
+    { value: "abbonamenti", label: "📺 Abbonamenti" },
     { value: "altro", label: "🔍 Altro" },
   ], []);
 

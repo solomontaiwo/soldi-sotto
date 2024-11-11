@@ -15,6 +15,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
     { value: "affitto", label: "🏠 Affitto" },
     { value: "trasporti", label: "🚗 Trasporti" },
     { value: "intrattenimento", label: "🎉 Intrattenimento" },
+    { value: "abbonamenti", label: "📺 Abbonamenti" },
     { value: "altro", label: "🔍 Altro" },
   ], []);
 
