@@ -34,36 +34,67 @@ const LoginForm = () => {
                 maxWidth: 400,
                 margin: "0 auto",
                 padding: "20px",
-                backgroundColor: "#fff",
+                backgroundColor: "var(--card-background)",  // Colore di sfondo della card
                 borderRadius: "8px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                boxShadow: "0 4px 8px var(--shadow-color)", // Ombra adattata al tema
             }}
         >
             <Form layout="vertical" onFinish={handleLogin} style={{ marginTop: "20px" }}>
                 <Form.Item
-                    label="Email"
+                    label={<span style={{ color: "var(--text-color)" }}>Email</span>} // Colore label
                     name="email"
                     rules={[{ required: true, message: "Inserisci la tua email" }]}
                 >
-                    <Input placeholder="Email" />
+                    <Input
+                        placeholder="Ad esempio, kebab@kebab.com"
+                        style={{
+                            backgroundColor: "var(--background-color)", 
+                            color: "var(--text-color)", 
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item
-                    label="Password"
+                    label={<span style={{ color: "var(--text-color)" }}>Password</span>} // Colore label
                     name="password"
                     rules={[{ required: true, message: "Inserisci la tua password" }]}
                 >
-                    <Input.Password placeholder="Password" />
+                    <Input.Password
+                        placeholder="La tua password segreta e complessa"
+                        style={{
+                            backgroundColor: "var(--background-color)",
+                            color: "var(--text-color)", 
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loading}
+                        block
+                        style={{
+                            backgroundColor: "var(--button-bg-color)",
+                            borderColor: "var(--button-bg-color)",
+                            color: "#fff", // Colore testo bianco
+                        }}
+                    >
                         Accedi
                     </Button>
                 </Form.Item>
             </Form>
-            <Text type="secondary" style={{ display: "block", textAlign: "center", marginTop: "10px" }}>
-                Non hai un account? <Link to="/register">Registrati</Link>
+
+            <Text
+                type="secondary"
+                style={{
+                    display: "block",
+                    textAlign: "center",
+                    marginTop: "10px",
+                    color: "var(--text-color)", // Colore del testo secondario
+                }}
+            >
+                Non hai un account? <Link to="/register" style={{ color: "var(--primary-color)" }}>Registrati</Link>
             </Text>
         </motion.div>
     );

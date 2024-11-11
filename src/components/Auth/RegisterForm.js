@@ -36,44 +36,66 @@ const RegisterForm = () => {
                 maxWidth: 400,
                 margin: "0 auto",
                 padding: "20px",
-                backgroundColor: "#fff",
+                backgroundColor: "var(--card-background)", // Sfondo adattato al tema
                 borderRadius: "8px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                boxShadow: "0 4px 8px var(--shadow-color)", // Ombra adattata al tema
             }}
         >
             <Form layout="vertical" onFinish={handleRegister} style={{ marginTop: "20px" }}>
-                {/* <Form.Item
-                    label="Nome utente"
-                    name="username"
-                    rules={[{ required: true, message: "Inserisci il tuo nome utente" }]}
-                >
-                    <Input placeholder="Nome utente" />
-                </Form.Item> */}
-
                 <Form.Item
-                    label="Email"
+                    label={<span style={{ color: "var(--text-color)" }}>Email</span>} // Colore adattato al tema
                     name="email"
                     rules={[{ required: true, message: "Inserisci la tua email" }]}
                 >
-                    <Input placeholder="Email" />
+                    <Input
+                        placeholder="Ad esempio, kebab@kebab.com"
+                        style={{
+                            backgroundColor: "var(--background-color)",
+                            color: "var(--text-color)",
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item
-                    label="Password"
+                    label={<span style={{ color: "var(--text-color)" }}>Password</span>}
                     name="password"
                     rules={[{ required: true, message: "Inserisci la tua password" }]}
                 >
-                    <Input.Password placeholder="Password" />
+                    <Input.Password
+                        placeholder="La tua password segreta e complessa"
+                        style={{
+                            backgroundColor: "var(--background-color)",
+                            color: "var(--text-color)",
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loading}
+                        block
+                        style={{
+                            backgroundColor: "var(--button-bg-color)", // Sfondo del pulsante adattato al tema
+                            borderColor: "var(--button-bg-color)", // Bordo adattato al tema
+                            color: "#fff", // Colore del testo bianco
+                        }}
+                    >
                         Registrati
                     </Button>
                 </Form.Item>
             </Form>
-            <Text type="secondary" style={{ display: "block", textAlign: "center", marginTop: "10px" }}>
-                Hai già un account? <Link to="/login">Accedi</Link>
+            <Text
+                type="secondary"
+                style={{
+                    display: "block",
+                    textAlign: "center",
+                    marginTop: "10px",
+                    color: "var(--text-color)", // Testo adattato al tema
+                }}
+            >
+                Hai già un account? <Link to="/login" style={{ color: "var(--primary-color)" }}>Accedi</Link>
             </Text>
         </motion.div>
     );

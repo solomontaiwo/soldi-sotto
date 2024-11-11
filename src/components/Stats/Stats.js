@@ -147,16 +147,64 @@ const Stats = () => {
 
   const barChartOptions = {
     chart: { type: "bar" },
-    xaxis: { categories: stats.topCategories.map((c) => c.category) },
+    xaxis: {
+      categories: stats.topCategories.map((c) => c.category),
+      labels: {
+        style: {
+          colors: "var(--text-color)",
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: "var(--text-color)",
+        },
+      },
+    },
     colors: ["#FF4560"],
+    title: {
+      style: {
+        color: "var(--text-color)", // Colore del titolo del grafico
+      },
+    },
+    legend: {
+      labels: {
+        colors: "var(--text-color)", // Colore della legenda
+      },
+    },
   };
 
   const barChartSeries = [{ name: "Spesa (€)", data: stats.topCategories.map((c) => c.amount) }];
 
   const lineChartOptions = {
     chart: { type: "line" },
-    xaxis: { type: "datetime" },
+    xaxis: {
+      type: "datetime",
+      labels: {
+        style: {
+          colors: "var(--text-color)", // Colore delle etichette adattato al tema
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: "var(--text-color)", // Colore delle etichette dell'asse Y adattato al tema
+        },
+      },
+    },
     colors: ["#00E396", "#FF4560"],
+    title: {
+      style: {
+        color: "var(--text-color)", // Colore del titolo del grafico
+      },
+    },
+    legend: {
+      labels: {
+        colors: "var(--text-color)", // Colore della legenda
+      },
+    },
   };
 
   const lineChartSeries = [
@@ -393,7 +441,6 @@ const Stats = () => {
           <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
             <Row gutter={16}>
               <Col xs={24} md={8}>
-
                 <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
                   <Statistic title={<span className="statistic-title">Entrate Totali</span>} value={stats.totalIncome.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
                 </Card>
