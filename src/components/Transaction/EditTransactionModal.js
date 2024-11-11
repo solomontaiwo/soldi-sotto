@@ -1,31 +1,16 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Form, Input, InputNumber, Select, DatePicker, message } from "antd";
 import { firestore } from "../../firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { useCategories } from "../../utils/categories";
 import dayjs from "dayjs";
 
 const { Option } = Select;
 
 const EditTransactionModal = ({ transaction, onClose }) => {
   const [form] = Form.useForm();
+  const { expenseCategories, incomeCategories } = useCategories(); // Usa le categorie dall'hook
   const [categories, setCategories] = useState([]);
-
-  const expenseCategories = useMemo(() => [
-    { value: "alimentazione", label: "🍔 Alimentazione" },
-    { value: "affitto", label: "🏠 Affitto" },
-    { value: "trasporti", label: "🚗 Trasporti" },
-    { value: "intrattenimento", label: "🎉 Intrattenimento" },
-    { value: "abbonamenti", label: "📺 Abbonamenti" },
-    { value: "altro", label: "🔍 Altro" },
-  ], []);
-
-  const incomeCategories = useMemo(() => [
-    { value: "stipendio", label: "💼 Stipendio" },
-    { value: "bonus", label: "💰 Bonus" },
-    { value: "regalo", label: "🎁 Regalo" },
-    { value: "investimenti", label: "📈 Investimenti" },
-    { value: "altro", label: "🔍 Altro" },
-  ], []);
 
   const updateCategories = useCallback((type) => {
     setCategories(type === "expense" ? expenseCategories : incomeCategories);

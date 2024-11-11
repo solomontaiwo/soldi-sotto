@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { firestore } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
+import { useCategories } from "../../utils/categories";
 import { Form, Input, InputNumber, Select, DatePicker, Button, message } from "antd";
 import dayjs from "dayjs";
 
@@ -9,24 +10,8 @@ const { Option } = Select;
 
 const TransactionForm = ({ onFormSubmit }) => {
   const { currentUser } = useAuth();
+  const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);
-
-  const expenseCategories = useMemo(() => [
-    { value: "alimentazione", label: "🍔 Alimentazione" },
-    { value: "casa", label: "🏠 casa" },
-    { value: "trasporti", label: "🚗 Trasporti" },
-    { value: "intrattenimento", label: "🎉 Intrattenimento" },
-    { value: "abbonamenti", label: "📺 Abbonamenti" },
-    { value: "altro", label: "🔍 Altro" },
-  ], []);
-
-  const incomeCategories = useMemo(() => [
-    { value: "stipendio", label: "💼 Stipendio" },
-    { value: "bonus", label: "💰 Bonus" },
-    { value: "regalo", label: "🎁 Regalo" },
-    { value: "investimenti", label: "📈 Investimenti" },
-    { value: "altro", label: "🔍 Altro" },
-  ], []);
 
   const updateCategories = useCallback((type) => {
     setCategories(type === "expense" ? expenseCategories : incomeCategories);
