@@ -68,8 +68,12 @@ const TransactionForm = ({ onFormSubmit }) => {
         label="Tipo di Transazione"
         name="type"
         rules={[{ required: true, message: "Seleziona il tipo di transazione" }]}
+        className="transaction-input"
       >
-        <Select onChange={(value) => updateCategories(value)} className="transaction-select">
+        <Select
+          onChange={(value) => updateCategories(value)}
+          className="transaction-select"
+        >
           <Option value="expense">Uscita</Option>
           <Option value="income">Entrata</Option>
         </Select>
@@ -80,13 +84,14 @@ const TransactionForm = ({ onFormSubmit }) => {
         name="amount"
         rules={[{ required: true, message: "Inserisci l'importo" }]}
       >
-        <InputNumber min={0} step={0.01} style={{ width: "100%" }} placeholder="Importo" className="transaction-input" />
+        <InputNumber min={0} step={0.01} style={{ width: "100%" }} placeholder="Importo" />
       </Form.Item>
 
       <Form.Item
         label="Descrizione"
         name="description"
         rules={[{ required: true, message: "Inserisci una descrizione" }]}
+        className="transaction-input"
       >
         <Input placeholder="Es. Spesa, stipendio, kebab, ecc." className="transaction-input" />
       </Form.Item>
@@ -103,6 +108,7 @@ const TransactionForm = ({ onFormSubmit }) => {
         label="Categoria"
         name="category"
         rules={[{ required: true, message: "Seleziona una categoria" }]}
+        className="transaction-input"
       >
         <Select placeholder="Seleziona Categoria" className="transaction-select">
           {categories.map((category) => (
