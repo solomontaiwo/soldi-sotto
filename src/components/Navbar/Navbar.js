@@ -13,7 +13,9 @@ import {
   FiHome,
   FiList,
   FiPieChart,
+  // eslint-disable-next-line
   FiSun,
+  // eslint-disable-next-line
   FiMoon
 } from "react-icons/fi";
 
@@ -24,6 +26,7 @@ const Navbar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  // eslint-disable-next-line
   const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
@@ -93,7 +96,7 @@ const Navbar = () => {
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
           {/* Theme Toggle Button */}
-          <Button
+{/*           <Button
             onClick={toggleTheme}
             icon={theme === "dark" ? <FiSun /> : <FiMoon />}
             type="text"
@@ -103,7 +106,7 @@ const Navbar = () => {
               backgroundColor: "transparent",
               transition: "color 0.3s ease",
             }}
-          />
+          /> */}
 
           {/* Auth Buttons */}
           {currentUser ? (
