@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Modal, Button, Card, Typography, List, Space } from "antd";
+import { Modal, Button, Card, Typography, List } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
 import { firestore } from "../../utils/firebase";
 import TransactionForm from "../Transaction/TransactionForm";
@@ -129,10 +129,14 @@ const Home = () => {
                 <List.Item>
                   <List.Item.Meta
                     title={
-                      <Space direction="horizontal">
-                        <Text strong style={{ color: "var(--text-color)" }}>{transaction.description}</Text>
-                        <Text style={{ color: "var(--text-color)" }}>{new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}</Text>
-                      </Space>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text strong style={{ color: "var(--text-color)", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {transaction.description}
+                        </Text>
+                        <Text style={{ color: "var(--text-color)", marginLeft: "10px", whiteSpace: "nowrap" }}>
+                          {new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}
+                        </Text>
+                      </div>
                     }
                     description={
                       <Text style={{ color: transaction.type === "income" ? "#4caf50" : "#ff5c5c" }}>
@@ -143,6 +147,7 @@ const Home = () => {
                 </List.Item>
               )}
             />
+
           </Card>
         </motion.div>
 
