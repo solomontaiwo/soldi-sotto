@@ -14,6 +14,7 @@ const { Header } = Layout;
 const Navbar = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const location = useLocation();
+  // eslint-disable-next-line
   const [activeTab, setActiveTab] = useState(location.pathname);
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { theme, toggleTheme } = useTheme();
@@ -50,7 +51,6 @@ const Navbar = () => {
     <Header
       style={{
         display: "flex",
-        alignItems: "center",
         padding: "0 20px",
         backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -64,19 +64,16 @@ const Navbar = () => {
       <Menu
         mode="horizontal"
         theme={theme === "dark" ? "dark" : "light"}
-        selectedKeys={[activeTab]}
         onClick={(e) => setActiveTab(e.key)}
         style={{
           backgroundColor: "transparent",
           color: theme === "dark" ? "#ffffff" : "#000000",
-          borderBottom: "none",
           flexGrow: 1,
-          justifyContent: "left",
         }}
       >
         {menuItems.map((item) => (
           <Menu.Item key={item.key} icon={item.icon}>
-            <Link to={item.path} style={{ color: theme === "dark" ? "#ffffff" : "#000000", fontSize: "16px" }}>
+            <Link to={item.path}>
               {!isMobile && item.label}
             </Link>
           </Menu.Item>
