@@ -10,29 +10,42 @@ export const useTheme = () => useContext(ThemeContext);
 
 // Componente principale per il tema
 export const ThemeProvider = ({ children }) => {
-  const [themeMode, setThemeMode] = useState("light"); // Stato per gestire il tema chiaro/scuro
+  const [themeMode, setThemeMode] = useState("light");
 
-  // Funzione per cambiare il tema
-  const toggleTheme = () => {
-    setThemeMode((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
+  const applySystemTheme = () => {
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setThemeMode(systemPrefersDark ? "dark" : "light");
+    document.body.classList.toggle("dark-theme", systemPrefersDark);
   };
 
-  // Effetto per gestire il salvataggio e il recupero del tema dal localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setThemeMode(savedTheme);
+  const toggleTheme = (mode) => {
+    if (mode === "system") {
+      applySystemTheme();
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
+    } else {
+      setThemeMode(mode);
+      document.body.classList.toggle("dark-theme", mode === "dark");
+      window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);
     }
-  }, []);
+    localStorage.setItem("theme", mode);
+  };
 
   useEffect(() => {
-    localStorage.setItem("theme", themeMode);
-    document.body.classList.toggle("dark-theme", themeMode === "dark");
-  }, [themeMode]);
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "system") {
+      applySystemTheme();
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
+    } else if (savedTheme) {
+      setThemeMode(savedTheme);
+      document.body.classList.toggle("dark-theme", savedTheme === "dark");
+    }
+    return () => {
+      window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);
+    };
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme: themeMode, toggleTheme }}>
-      {/* ConfigProvider di Ant Design per applicare il tema */}
       <ConfigProvider
         theme={{
           algorithm: themeMode === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
@@ -41,9 +54,7 @@ export const ThemeProvider = ({ children }) => {
           },
         }}
       >
-        <div style={{ padding: "10px" }}>
-          {children}
-        </div>
+        {children}
       </ConfigProvider>
     </ThemeContext.Provider>
   );

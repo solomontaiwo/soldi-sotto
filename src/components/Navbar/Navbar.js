@@ -3,19 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
 import { auth } from "../../utils/firebase";
-import { Layout, Menu, Button, message } from "antd";
+import { Layout, Menu, Button, Dropdown, message } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { useTheme } from "../../utils/ThemeProvider";
 import { motion } from "framer-motion";
-import {
-  FiLogOut,
-  FiUserPlus,
-  FiHome,
-  FiList,
-  FiPieChart,
-  FiSun,
-  FiMoon,
-} from "react-icons/fi";
+import { FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart, FiSun, FiMoon } from "react-icons/fi";
 
 const { Header } = Layout;
 
@@ -42,6 +34,18 @@ const Navbar = () => {
     { key: "/stats", label: "Statistiche", icon: <FiPieChart />, path: "/stats" },
   ];
 
+  // Menu per il tema
+  const themeMenu = (
+    <Menu
+      onClick={({ key }) => toggleTheme(key)} // Cambia tema specifico
+      items={[
+        { key: "light", label: "Tema chiaro", icon: <FiSun /> },
+        { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
+        { key: "system", label: "Tema di sistema", icon: theme === "dark" ? <FiMoon /> : <FiSun /> },
+      ]}
+    />
+  );
+
   return (
     <Header
       style={{
@@ -54,16 +58,10 @@ const Navbar = () => {
         transition: "background-color 0.3s ease",
       }}
     >
-      {/* Logo */}
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
-        <img
-          src={`${process.env.PUBLIC_URL}/icon.png`}
-          alt="Logo"
-          style={{ height: 40 }}
-        />
+        <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" style={{ height: 40 }} />
       </Link>
 
-      {/* Menu */}
       <Menu
         mode="horizontal"
         theme={theme === "dark" ? "dark" : "light"}
@@ -86,7 +84,6 @@ const Navbar = () => {
         ))}
       </Menu>
 
-      {/* Right-side buttons (Theme toggle & Auth) */}
       {!authLoading && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -94,20 +91,20 @@ const Navbar = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
-          {/* Theme Toggle Button */}
-          <Button
-            onClick={toggleTheme}
-            icon={theme === "dark" ? <FiSun /> : <FiMoon />}
-            type="text"
-            style={{
-              color: theme === "dark" ? "#ffffff" : "#000000",
-              fontSize: "20px",
-              backgroundColor: "transparent",
-              transition: "color 0.3s ease",
-            }}
-          />
+          {/* Dropdown per il cambio tema */}
+          <Dropdown overlay={themeMenu} trigger={["click"]}>
+            <Button
+              icon={theme === "dark" ? <FiMoon /> : <FiSun />}
+              type="text"
+              style={{
+                color: theme === "dark" ? "#ffffff" : "#000000",
+                fontSize: "20px",
+                backgroundColor: "transparent",
+                transition: "color 0.3s ease",
+              }}
+            />
+          </Dropdown>
 
-          {/* Auth Buttons */}
           {currentUser ? (
             <Button
               onClick={handleLogout}
