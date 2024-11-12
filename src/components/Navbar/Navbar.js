@@ -7,7 +7,7 @@ import { Layout, Menu, Button, Dropdown, message } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { useTheme } from "../../utils/ThemeProvider";
 import { motion } from "framer-motion";
-import { FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart, FiSun, FiMoon } from "react-icons/fi";
+import { FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart, FiSun, FiMoon, FiMonitor } from "react-icons/fi";
 
 const { Header } = Layout;
 
@@ -41,7 +41,7 @@ const Navbar = () => {
       items={[
         { key: "light", label: "Tema chiaro", icon: <FiSun /> },
         { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
-        { key: "system", label: "Tema di sistema", icon: theme === "dark" ? <FiMoon /> : <FiSun /> },
+        { key: "system", label: "Tema di sistema", icon: <FiMonitor /> }
       ]}
     />
   );
