@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/soldi-sotto/static/css/main.424c8a62.css",
-    "main.js": "/soldi-sotto/static/js/main.4e8b2d00.js",
+    "main.css": "/soldi-sotto/static/css/main.5140f513.css",
+    "main.js": "/soldi-sotto/static/js/main.5e44418c.js",
     "static/js/239.59657ae3.chunk.js": "/soldi-sotto/static/js/239.59657ae3.chunk.js",
     "static/js/213.e2b99e0e.chunk.js": "/soldi-sotto/static/js/213.e2b99e0e.chunk.js",
     "static/js/667.e2142ec8.chunk.js": "/soldi-sotto/static/js/667.e2142ec8.chunk.js",
     "index.html": "/soldi-sotto/index.html",
-    "main.424c8a62.css.map": "/soldi-sotto/static/css/main.424c8a62.css.map",
-    "main.4e8b2d00.js.map": "/soldi-sotto/static/js/main.4e8b2d00.js.map",
+    "main.5140f513.css.map": "/soldi-sotto/static/css/main.5140f513.css.map",
+    "main.5e44418c.js.map": "/soldi-sotto/static/js/main.5e44418c.js.map",
     "239.59657ae3.chunk.js.map": "/soldi-sotto/static/js/239.59657ae3.chunk.js.map",
     "213.e2b99e0e.chunk.js.map": "/soldi-sotto/static/js/213.e2b99e0e.chunk.js.map",
     "667.e2142ec8.chunk.js.map": "/soldi-sotto/static/js/667.e2142ec8.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.424c8a62.css",
-    "static/js/main.4e8b2d00.js"
+    "static/css/main.5140f513.css",
+    "static/js/main.5e44418c.js"
   ]
 }
