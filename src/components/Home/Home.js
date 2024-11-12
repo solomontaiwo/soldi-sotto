@@ -100,7 +100,7 @@ const Home = () => {
             type="primary"
             onClick={showModal}
             style={{
-              width: isMobile ? "100%" : "50%",
+              width: "100%",
               height: isMobile ? "50px" : "60px",
               fontSize: isMobile ? "16px" : "18px",
               display: "block",
@@ -108,7 +108,6 @@ const Home = () => {
               marginBottom: 20,
               backgroundColor: "var(--button-bg-color)",
               borderColor: "var(--button-bg-color)",
-              color: "#fff",
             }}
           >
             Aggiungi Transazione
@@ -117,7 +116,6 @@ const Home = () => {
 
         <motion.div {...animationConfig}>
           <Card
-            title={<span style={{ color: "var(--text-color)" }}>Transazioni Recenti</span>}
             style={{
               backgroundColor: "var(--card-background)",
               color: "var(--text-color)",
@@ -153,9 +151,6 @@ const Home = () => {
           open={isModalVisible}
           onCancel={handleCancel}
           footer={null}
-          style={{
-            backgroundColor: "var(--card-background)",
-          }}
         >
           <TransactionForm onFormSubmit={handleCancel} />
         </Modal>

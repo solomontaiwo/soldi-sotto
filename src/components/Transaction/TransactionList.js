@@ -145,7 +145,7 @@ const TransactionList = () => {
           type="primary"
           onClick={showModal}
           style={{
-            width: isMobile ? "100%" : "50%",
+            width: "100%",
             height: isMobile ? "50px" : "60px",
             fontSize: isMobile ? "16px" : "18px",
             display: "block",
@@ -164,7 +164,7 @@ const TransactionList = () => {
             value={period}
             onChange={handlePeriodChange}
             style={{
-              width: isMobile ? "100%" : "50%",
+              width: "100%",
               textAlign: "center",
               color: "var(--text-color)",
             }}

@@ -406,7 +406,7 @@ const Stats = () => {
 
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <Button type="primary" onClick={generatePDF} style={{
-            width: isMobile ? "100%" : "50%",
+            width: "100%",
             height: isMobile ? "50px" : "60px",
             fontSize: isMobile ? "16px" : "18px",
             display: "block",
@@ -420,7 +420,7 @@ const Stats = () => {
           <Select
             value={viewMode}
             onChange={handleViewModeChange}
-            style={{ width: isMobile ? "100%" : "50%", textAlign: "center", color: "var(--text-color)" }}
+            style={{ width: "100%" }}
           >
             <Option value="daily">Oggi</Option>
             <Option value="weekly">Settimana corrente</Option>
@@ -441,12 +441,12 @@ const Stats = () => {
           <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
             <Row gutter={16}>
               <Col xs={24} md={8}>
-                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)", marginBottom: "10px" }}>
                   <Statistic title={<span className="statistic-title">Entrate Totali</span>} value={stats.totalIncome.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
                 </Card>
               </Col>
               <Col xs={24} md={8}>
-                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)" }}>
+                <Card style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)", marginBottom: "10px" }}>
                   <Statistic title={<span className="statistic-title">Spese Totali</span>} value={stats.totalExpense.toFixed(2)} suffix="€" valueStyle={{ color: "var(--text-color)" }} />
                 </Card>
               </Col>
@@ -461,7 +461,7 @@ const Stats = () => {
 
             <Row gutter={16}>
               <Col xs={24} md={12}>
-                <Card title={<span style={{ color: "var(--text-color)" }}>Categorie Principali di Spesa</span>} style={{ backgroundColor: "var(--card-background)" }}>
+                <Card title={<span style={{ color: "var(--text-color)" }}>Categorie Principali di Spesa</span>} style={{ backgroundColor: "var(--card-background)", marginBottom: "10px" }}>
                   <Chart options={barChartOptions} series={barChartSeries} type="bar" width="100%" />
                 </Card>
               </Col>
