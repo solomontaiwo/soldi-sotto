@@ -37,7 +37,7 @@ const Navbar = () => {
   // Menu per il tema
   const themeMenu = (
     <Menu
-      onClick={({ key }) => toggleTheme(key)} // Cambia tema specifico
+      onClick={({ key }) => toggleTheme(key)}
       items={[
         { key: "light", label: "Tema chiaro", icon: <FiSun /> },
         { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
@@ -50,7 +50,6 @@ const Navbar = () => {
     <Header
       style={{
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
         padding: "0 20px",
         backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
