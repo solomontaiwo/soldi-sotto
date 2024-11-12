@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { firestore } from "../../firebase";
+import { firestore } from "../../utils/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
 import { useCategories } from "../../utils/categories";

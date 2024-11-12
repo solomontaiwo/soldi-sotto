@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Modal, Button, Card, Typography, List, Space } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
-import { firestore } from "../../firebase";
+import { firestore } from "../../utils/firebase";
 import TransactionForm from "../Transaction/TransactionForm";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { formatDate } from "../../dayjs-setup";
+import { formatDate } from "../../utils/dayjs-setup";
 import LoginForm from "../Auth/LoginForm";
 import { useMediaQuery } from "react-responsive";
 import { animationConfig } from "../../utils/animationConfig";
@@ -20,8 +20,6 @@ const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-
-  // Variabile per gestire il caricamento combinato
   const fullLoading = authLoading || loading;
 
   const fetchTransactions = useCallback(() => {
@@ -70,12 +68,16 @@ const Home = () => {
     setIsModalVisible(false);
   };
 
-  // Ritorno al login se l'utente non è autenticato
   if (!authLoading && !currentUser) {
     return (
       <div className="container">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} style={{ textAlign: "center", marginBottom: "10px" }}>
-          <Title level={2} style={{ textAlign: "center", color: "var(--primary-color)" }}>Accedi a Soldi Sotto</Title>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          style={{ textAlign: "center", marginBottom: "10px" }}
+        >
+          <Title level={2} style={{ color: "var(--primary-color)" }}>Accedi a Soldi Sotto</Title>
         </motion.div>
         <Text style={{ textAlign: "center", display: "block", marginBottom: 20, color: "var(--text-color)" }}>
           Inserisci le tue credenziali per accedere al tuo account.
@@ -85,12 +87,11 @@ const Home = () => {
     );
   }
 
-  // Mostra LoadingWrapper finché `fullLoading` è true
   return (
     <LoadingWrapper loading={fullLoading}>
       <div className="container">
         <motion.div {...animationConfig} style={{ textAlign: "center", marginBottom: "10px" }}>
-          <Title level={2} style={{ textAlign: "center", color: "var(--primary-color)" }}>Benvenuto su Soldi Sotto</Title>
+          <Title level={2} style={{ color: "var(--primary-color)" }}>Benvenuto su Soldi Sotto</Title>
           <Text style={{ textAlign: "center", display: "block", marginBottom: 20, color: "var(--text-color)" }}>
             La tua nuova app per la gestione delle tue spese e delle tue entrate.
           </Text>
@@ -107,7 +108,7 @@ const Home = () => {
               marginBottom: 20,
               backgroundColor: "var(--button-bg-color)",
               borderColor: "var(--button-bg-color)",
-              textColor: "var(--button-text-color)",
+              color: "#fff",
             }}
           >
             Aggiungi Transazione
@@ -115,7 +116,14 @@ const Home = () => {
         </motion.div>
 
         <motion.div {...animationConfig}>
-          <Card title={<span style={{ color: "var(--text-color)" }}>Transazioni Recenti</span>} style={{ backgroundColor: "var(--card-background)", color: "var(--text-color)", marginTop: "10px" }}>
+          <Card
+            title={<span style={{ color: "var(--text-color)" }}>Transazioni Recenti</span>}
+            style={{
+              backgroundColor: "var(--card-background)",
+              color: "var(--text-color)",
+              marginTop: "10px",
+            }}
+          >
             <List
               itemLayout="horizontal"
               dataSource={transactions.slice(0, 5)}
@@ -140,7 +148,15 @@ const Home = () => {
           </Card>
         </motion.div>
 
-        <Modal title="Aggiungi Transazione" open={isModalVisible} onCancel={handleCancel} footer={null}>
+        <Modal
+          title={<span style={{ color: "var(--text-color)" }}>Aggiungi Transazione</span>}
+          open={isModalVisible}
+          onCancel={handleCancel}
+          footer={null}
+          style={{
+            backgroundColor: "var(--card-background)",
+          }}
+        >
           <TransactionForm onFormSubmit={handleCancel} />
         </Modal>
       </div>

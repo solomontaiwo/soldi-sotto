@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Typography, Row, Col, Card, Button, Statistic, Spin, Select, DatePicker, Divider } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
-import { firestore } from "../../firebase";
+import { firestore } from "../../utils/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";

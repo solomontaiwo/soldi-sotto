@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { signOut } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth } from "../../utils/firebase";
 import { Layout, Menu, Button, message } from "antd";
 import { useMediaQuery } from "react-responsive";
-import { useTheme } from "../../ThemeContext";
+import { useTheme } from "../../utils/ThemeProvider";
 import { motion } from "framer-motion";
 import {
   FiLogOut,
@@ -13,10 +13,8 @@ import {
   FiHome,
   FiList,
   FiPieChart,
-  // eslint-disable-next-line
   FiSun,
-  // eslint-disable-next-line
-  FiMoon
+  FiMoon,
 } from "react-icons/fi";
 
 const { Header } = Layout;
@@ -26,7 +24,6 @@ const Navbar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  // eslint-disable-next-line
   const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
@@ -46,15 +43,17 @@ const Navbar = () => {
   ];
 
   return (
-    <Header style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "0 20px",
-      backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-      transition: "background-color 0.3s ease",
-    }}>
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 20px",
+        backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        transition: "background-color 0.3s ease",
+      }}
+    >
       {/* Logo */}
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
         <img
@@ -96,7 +95,7 @@ const Navbar = () => {
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
           {/* Theme Toggle Button */}
-{/*           <Button
+          <Button
             onClick={toggleTheme}
             icon={theme === "dark" ? <FiSun /> : <FiMoon />}
             type="text"
@@ -106,7 +105,7 @@ const Navbar = () => {
               backgroundColor: "transparent",
               transition: "color 0.3s ease",
             }}
-          /> */}
+          />
 
           {/* Auth Buttons */}
           {currentUser ? (

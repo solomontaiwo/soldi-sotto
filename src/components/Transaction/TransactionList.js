@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { firestore } from "../../firebase";
+import { firestore } from "../../utils/firebase";
 import { collection, query, where, onSnapshot, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
 import { Card, message, Typography, Row, Col, Space, Spin, Select, DatePicker, Empty, Button, Modal } from "antd";
 import EditTransactionModal from "./EditTransactionModal";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { formatDate } from "../../dayjs-setup";
+import { formatDate } from "../../utils/dayjs-setup";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import TransactionForm from "../Transaction/TransactionForm";
@@ -205,7 +205,7 @@ const TransactionList = () => {
                     color: "var(--text-color)",
                   }}
                   actions={[
-                    <EditOutlined onClick={() => handleEditClick(transaction)} style={{ color: "black" }} />,
+                    <EditOutlined onClick={() => handleEditClick(transaction)} style={{ color: "var(--text-color)" }} />,
                     <DeleteOutlined onClick={() => handleDeleteClick(transaction.id)} style={{ color: "#f5222d" }} />,
                   ]}
                 >

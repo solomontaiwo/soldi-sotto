@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Form, Input, InputNumber, Select, DatePicker, message } from "antd";
-import { firestore } from "../../firebase";
+import { firestore } from "../../utils/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useCategories } from "../../utils/categories";
 import dayjs from "dayjs";
