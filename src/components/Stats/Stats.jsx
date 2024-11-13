@@ -4,12 +4,12 @@ import {
   Typography,
   Row,
   Col,
-  Card,
   Button,
   Statistic,
   Select,
   DatePicker,
   Divider,
+  Empty,
 } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
 import { useTransactions } from "../Transaction/TransactionProvider";
@@ -42,15 +42,7 @@ const { Option } = Select;
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { transactions, loading: transactionsLoading } = useTransactions();
-  const [stats, setStats] = useState({
-    totalIncome: 0,
-    totalExpense: 0,
-    balance: 0,
-    dailyAverageExpense: 0,
-    topCategories: [],
-    incomeTrend: [],
-    expenseTrend: [],
-  });
+  const [stats, setStats] = useState(null); // Stato nullo iniziale
   const [viewMode, setViewMode] = useState("monthly");
   const [customRange, setCustomRange] = useState(null);
   const [startDate, setStartDate] = useState(null);
@@ -58,28 +50,13 @@ const Stats = () => {
 
   const loading = authLoading || transactionsLoading;
   const isMobile = useMediaQuery({ maxWidth: 768 });
-
   const { theme } = useTheme();
 
-  // Definisci le serie dei dati per i grafici
-  const barChartSeries = [
-    {
-      name: "Spesa (€)",
-      data: (stats.topCategories || []).map((c) => c.amount),
-    },
-  ];
-
-  const lineChartSeries = [
-    { name: "Entrate", data: stats.incomeTrend || [] },
-    { name: "Uscite", data: stats.expenseTrend || [] },
-  ];
-
   useEffect(() => {
-    if (transactions.length > 0) {
+    if (!loading && transactions.length > 0) {
       const today = new Date();
       let start, end;
 
-      // Determina il range di date in base al periodo selezionato
       if (viewMode === "custom" && customRange) {
         [start, end] = customRange;
       } else {
@@ -104,7 +81,6 @@ const Stats = () => {
         }
       }
 
-      // Filtra le transazioni in base al periodo selezionato usando start e end
       const filteredTransactions = transactions.filter((transaction) => {
         const transactionDate = transaction.date.toDate();
         return (
@@ -112,14 +88,11 @@ const Stats = () => {
         );
       });
 
-      // Calcola le statistiche in base alle transazioni filtrate
       setStats(calculateStats(filteredTransactions, start, end));
-
-      // Aggiorna startDate ed endDate per altre funzionalità (es. per il PDF)
       setStartDate(start);
       setEndDate(end);
     }
-  }, [transactions, viewMode, customRange]);
+  }, [loading, transactions, viewMode, customRange]);
 
   const handleViewModeChange = (value) => {
     setViewMode(value);
@@ -226,30 +199,54 @@ const Stats = () => {
           )}
         </motion.div>
 
-        <Row gutter={16}>
-          <Col span={8}>
-            <Statistic
-              title="Entrate Totali"
-              value={formatCurrency(stats.totalIncome)}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Spese Totali"
-              value={formatCurrency(stats.totalExpense)}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic title="Saldo" value={formatCurrency(stats.balance)} />
-          </Col>
-        </Row>
-        <Divider />
-        <StatsCharts
-          barChartSeries={barChartSeries}
-          lineChartSeries={lineChartSeries}
-          categories={stats.topCategories.map((c) => c.category)}
-          theme={theme}
-        />
+        {stats && stats.totalIncome !== undefined ? (
+          <>
+            <Row gutter={16}>
+              <Col span={8}>
+                <motion.div {...animationConfig}>
+                  <Statistic
+                    title="Entrate Totali"
+                    value={formatCurrency(stats.totalIncome)}
+                  />
+                </motion.div>
+              </Col>
+              <Col span={8}>
+                <motion.div {...animationConfig}>
+                  <Statistic
+                    title="Spese Totali"
+                    value={formatCurrency(stats.totalExpense)}
+                  />
+                </motion.div>
+              </Col>
+              <Col span={8}>
+                <motion.div {...animationConfig}>
+                  <Statistic title="Saldo" value={formatCurrency(stats.balance)} />
+                </motion.div>
+              </Col>
+            </Row>
+            <Divider />
+            <motion.div {...animationConfig}>
+              <StatsCharts
+                barChartSeries={[
+                  {
+                    name: "Spesa (€)",
+                    data: stats.topCategories.map((c) => c.amount),
+                  },
+                ]}
+                lineChartSeries={[
+                  { name: "Entrate", data: stats.incomeTrend },
+                  { name: "Uscite", data: stats.expenseTrend },
+                ]}
+                categories={stats.topCategories.map((c) => c.category)}
+                theme={theme}
+              />
+            </motion.div>
+          </>
+        ) : (
+          <motion.div {...animationConfig} style={{ textAlign: "center", marginTop: "20px" }}>
+            <Empty description="Nessuna statistica disponibile per il periodo selezionato." />
+          </motion.div>
+        )}
       </div>
     </LoadingWrapper>
   );
