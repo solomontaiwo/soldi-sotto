@@ -16,7 +16,12 @@
   --primary-color: #1a73e8; /* Colore primario in tema scuro */
   --secondary-color: #255adb; /* Colore secondario in tema scuro */
   --card-background: #33333385; /* Sfondo dei card e modali in tema scuro */
-  --shadow-color: rgba(255, 255, 255, 0.1); /* Colore dell'ombra in tema scuro */
+  --shadow-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Colore dell'ombra in tema scuro */
   --button-bg-color: #3b83f6; /* Colore di sfondo dei pulsanti in tema scuro */
 }
 
@@ -39,7 +44,15 @@ body {
   padding: 1rem;
 }
 
-/* Navbar in modalità scura */
-.ant-menu-dark.ant-menu-horizontal > .ant-menu-item {
-  background-color: transparent;
+/* Rimuove lo sfondo dall'elemento selezionato */
+.ant-menu-horizontal > .ant-menu-item-selected {
+  background-color: transparent !important;
+}
+
+/* Rimuove la linea blu sotto l'elemento al passaggio del mouse (hover) */
+.ant-menu-horizontal > .ant-menu-item::after,
+.ant-menu-horizontal > .ant-menu-item:hover::after,
+.ant-menu-horizontal > .ant-menu-item-active::after,
+.ant-menu-horizontal > .ant-menu-item-selected::after {
+  border-bottom: none !important;
 }

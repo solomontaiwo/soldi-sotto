@@ -1,7 +1,7 @@
 {
   "homepage": "https://solomontaiwo.github.io/soldi-sotto",
   "name": "soldi-sotto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
