@@ -7,14 +7,22 @@ import { Layout, Menu, Button, Dropdown, message } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { useTheme } from "../../utils/ThemeProvider";
 import { motion } from "framer-motion";
-import { FiLogOut, FiUserPlus, FiHome, FiList, FiPieChart, FiSun, FiMoon, FiMonitor } from "react-icons/fi";
+import {
+  FiLogOut,
+  FiUserPlus,
+  FiHome,
+  FiList,
+  FiPieChart,
+  FiSun,
+  FiMoon,
+  FiMonitor,
+} from "react-icons/fi";
 
 const { Header } = Layout;
 
 const Navbar = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const location = useLocation();
-  // eslint-disable-next-line
   const [activeTab, setActiveTab] = useState(location.pathname);
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { theme, toggleTheme } = useTheme();
@@ -29,23 +37,47 @@ const Navbar = () => {
     }
   };
 
-  const menuItems = [
-    { key: "/", label: "Home", icon: <FiHome />, path: "/" },
-    { key: "/transactions", label: "Transazioni", icon: <FiList />, path: "/transactions" },
-    { key: "/stats", label: "Statistiche", icon: <FiPieChart />, path: "/stats" },
+  // Menu items per desktop (icone + testo)
+  const desktopMenuItems = [
+    {
+      key: "/",
+      icon: <FiHome />,
+      label: <Link to="/">Home</Link>,
+    },
+    {
+      key: "/transactions",
+      icon: <FiList />,
+      label: <Link to="/transactions">Transazioni</Link>,
+    },
+    {
+      key: "/stats",
+      icon: <FiPieChart />,
+      label: <Link to="/stats">Statistiche</Link>,
+    },
+  ];
+
+  // Menu items per mobile (solo icone)
+  const mobileMenuItems = [
+    {
+      key: "/",
+      icon: <Link to="/"><FiHome /></Link>,
+    },
+    {
+      key: "/transactions",
+      icon: <Link to="/transactions"><FiList /></Link>,
+    },
+    {
+      key: "/stats",
+      icon: <Link to="/stats"><FiPieChart /></Link>,
+    },
   ];
 
   // Menu per il tema
-  const themeMenu = (
-    <Menu
-      onClick={({ key }) => toggleTheme(key)}
-      items={[
-        { key: "light", label: "Tema chiaro", icon: <FiSun /> },
-        { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
-        { key: "system", label: "Tema di sistema", icon: <FiMonitor /> }
-      ]}
-    />
-  );
+  const themeMenuItems = [
+    { key: "light", label: "Tema chiaro", icon: <FiSun /> },
+    { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
+    { key: "system", label: "Tema di sistema", icon: <FiMonitor /> },
+  ];
 
   return (
     <Header
@@ -57,9 +89,10 @@ const Navbar = () => {
       }}
     >
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
-        <img src={`${process.env.PUBLIC_URL}/icon.png`} alt="Logo" style={{ height: 40 }} />
+        <img src="icon.png" alt="Logo" style={{ height: 40 }} />
       </Link>
 
+      {/* Menu principale: scegli il menu in base a isMobile */}
       <Menu
         mode="horizontal"
         theme={theme === "dark" ? "dark" : "light"}
@@ -68,16 +101,10 @@ const Navbar = () => {
           backgroundColor: "transparent",
           color: theme === "dark" ? "#ffffff" : "#000000",
           flexGrow: 1,
+          display: "flex",
         }}
-      >
-        {menuItems.map((item) => (
-          <Menu.Item key={item.key} icon={item.icon}>
-            <Link to={item.path}>
-              {!isMobile && item.label}
-            </Link>
-          </Menu.Item>
-        ))}
-      </Menu>
+        items={isMobile ? mobileMenuItems : desktopMenuItems}
+      />
 
       {!authLoading && (
         <motion.div
@@ -87,7 +114,13 @@ const Navbar = () => {
           style={{ display: "flex", alignItems: "center", gap: "8px" }}
         >
           {/* Dropdown per il cambio tema */}
-          <Dropdown overlay={themeMenu} trigger={["click"]}>
+          <Dropdown
+            menu={{
+              items: themeMenuItems,
+              onClick: ({ key }) => toggleTheme(key),
+            }}
+            trigger={["click"]}
+          >
             <Button
               icon={theme === "dark" ? <FiMoon /> : <FiSun />}
               type="text"
@@ -115,7 +148,9 @@ const Navbar = () => {
             </Button>
           ) : (
             <Button type="primary" icon={<FiUserPlus />}>
-              <Link to="/register" style={{ color: "white" }}>{!isMobile && "Registrati"}</Link>
+              <Link to="/register" style={{ color: "white" }}>
+                {!isMobile && "Registrati"}
+              </Link>
             </Button>
           )}
         </motion.div>
