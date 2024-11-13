@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    
-    <!-- Icona per il favicon e il PWA -->
-    <link rel="icon" href="/soldi-sotto/icon.png" sizes="32x32" type="image/png" />
-    <link rel="icon" href="/soldi-sotto/icon.png" sizes="192x192" type="image/png" />
-    <link rel="apple-touch-icon" href="/soldi-sotto/icon.png" />
-    
-    <!-- Colore di sfondo della status bar su Chrome, Firefox e Edge -->
-    <meta name="theme-color" content="#ffffff" />
-    
-    <!-- Colore per la status bar su Safari iOS -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
-    <!-- Descrizione del sito -->
-    <meta name="description" content="Gestisci le tue finanze in modo semplice e veloce." />
-    
-    <!-- Manifest per PWA -->
-    <link rel="manifest" href="/soldi-sotto/manifest.json" />
-    
-    <!-- Titolo della pagina -->
-    <title>Soldi Sotto</title>
-    
-    <!-- Script per applicare il tema salvato prima del caricamento di React -->
-    <script>
-      (function() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        if (savedTheme === 'light') {
-          document.documentElement.classList.add('light-theme');
-        }
-      })();
-    </script>
 
-    <style>
-      /* Tema scuro di default */
-      :root {
-        --background-color: #1f1f1f;
-        --text-color: #e0e0e0;
-        --primary-color: #1a73e8;
-        /* altre variabili del tema scuro */
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
-      /* Tema chiaro */
-      .light-theme {
-        --background-color: #f0f0f0;
-        --text-color: #333333;
-        --primary-color: #007bff;
-        /* altre variabili del tema chiaro */
-      }
+  <!-- Icona per il favicon e il PWA -->
+  <link rel="icon" href="/soldi-sotto/icon.svg" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/soldi-sotto/icon.svg" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="/soldi-sotto/icon.svg" />
 
-      /* Applicazione immediata dei colori */
-      body {
-        background-color: var(--background-color);
-        color: var(--text-color);
-        transition: background-color 0.3s ease, color 0.3s ease;
+  <!-- Colore di sfondo della status bar su Chrome, Firefox e Edge -->
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- Colore per la status bar su Safari iOS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Descrizione del sito -->
+  <meta name="description" content="Gestisci le tue finanze in modo semplice e veloce." />
+
+  <!-- Manifest per PWA -->
+  <link rel="manifest" href="/soldi-sotto/manifest.json" />
+
+  <!-- Titolo della pagina -->
+  <title>Soldi Sotto</title>
+
+  <!-- Script per applicare il tema salvato prima del caricamento di React -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
       }
-    </style>
-    <script type="module" crossorigin src="/soldi-sotto/assets/index-5jVNyiXk.js"></script>
-    <link rel="stylesheet" crossorigin href="/soldi-sotto/assets/index-KfVKyx6C.css">
-  </head>
-  
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    
-    <!-- Script principale -->
-  </body>
+    })();
+  </script>
+
+  <style>
+    /* Tema scuro di default */
+    :root {
+      --background-color: #1f1f1f;
+      --text-color: #e0e0e0;
+      --primary-color: #1a73e8;
+    }
+
+    /* Tema chiaro */
+    .light-theme {
+      --background-color: #f0f0f0;
+      --text-color: #333333;
+      --primary-color: #007bff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+  <script type="module" crossorigin src="/soldi-sotto/assets/index-CEn0t7w5.js"></script>
+  <link rel="stylesheet" crossorigin href="/soldi-sotto/assets/index-KfVKyx6C.css">
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+
+  <!-- Script principale -->
+</body>
+
 </html>

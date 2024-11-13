@@ -3,12 +3,12 @@
   "name": "Soldi Sotto",
   "icons": [
     {
-      "src": "icon.png",
-      "type": "image/png",
+      "src": "icon.svg",
+      "type": "image/svg",
       "sizes": "192x192"
     },
     {
-      "src": "icon.png",
+      "src": "icon.svg",
       "type": "image/png",
       "sizes": "512x512"
     }
