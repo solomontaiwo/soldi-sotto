@@ -89,7 +89,7 @@ const Navbar = () => {
       }}
     >
       <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
-        <img src="icon.svg" alt="Logo" style={{ height: 40 }} />
+        <img src="icon.png" alt="Logo" style={{ height: 40 }} />
       </Link>
 
       {/* Menu principale: scegli il menu in base a isMobile */}
