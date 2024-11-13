@@ -52,8 +52,7 @@ const Navbar = () => {
       style={{
         display: "flex",
         padding: "0 20px",
-        backgroundColor: theme === "dark" ? "#1f1f1f" : "#ffffff",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        backgroundColor: "var(--background-color)",
         transition: "background-color 0.3s ease",
       }}
     >

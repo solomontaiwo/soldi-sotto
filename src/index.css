@@ -56,3 +56,18 @@ body {
 .ant-menu-horizontal > .ant-menu-item-selected::after {
   border-bottom: none !important;
 }
+
+/* Padding per l'area sicura sui dispositivi con notch */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Disabilita il colore di highlight al tap su mobile,
+risoluzione bug di linea grigia verticale quando viene 
+selezionato un elemento della navbar*/
+* {
+  -webkit-tap-highlight-color: transparent;
+}

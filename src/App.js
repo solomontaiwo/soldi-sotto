@@ -8,6 +8,12 @@ import Stats from "./components/Stats/Stats";
 import Navbar from "./components/Navbar/Navbar";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import { ThemeProvider } from "./utils/ThemeProvider";
+import { message } from "antd";
+
+// Configura la posizione dei messaggi di avviso
+message.config({
+  top: 70 + (typeof window !== "undefined" && window.innerWidth < 768 ? 10 : 0), // Aggiusta l'offset per dispositivi mobili
+});
 
 function App() {
   return (

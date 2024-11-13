@@ -157,6 +157,7 @@ const Home = () => {
           open={isModalVisible}
           onCancel={handleCancel}
           footer={null}
+          centered
         >
           <TransactionForm onFormSubmit={handleCancel} />
         </Modal>

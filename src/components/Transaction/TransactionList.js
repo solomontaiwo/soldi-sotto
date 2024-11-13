@@ -182,7 +182,7 @@ const TransactionList = () => {
       </motion.div>
 
       {isModalVisible && (
-        <Modal title="Aggiungi Transazione" open={isModalVisible} onCancel={handleCancel} footer={null}>
+        <Modal title="Aggiungi Transazione" open={isModalVisible} onCancel={handleCancel} footer={null} centered>
           <TransactionForm onFormSubmit={handleCancel} />
         </Modal>
       )}
