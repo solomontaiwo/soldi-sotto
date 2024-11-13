@@ -30,6 +30,15 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("theme", mode);
   };
 
+  // Aggiorna il colore della status bar ogni volta che cambia il tema
+  useEffect(() => {
+    const themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMetaTag) {
+      themeColorMetaTag.setAttribute("content", themeMode === "dark" ? "#1f1f1f" : "#ffffff");
+    }
+  }, [themeMode]);
+
+  // Carica il tema salvato o imposta quello di sistema all'inizio
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "system") {
