@@ -1,6 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
 import { Typography, Card, Row, Col } from "antd";
+import { useMediaQuery } from "react-responsive";
 
 const { Title } = Typography;
 
@@ -10,9 +11,13 @@ const StatsCharts = ({
   categories = [],
   theme,
 }) => {
+  // Determina se si sta visualizzando il layout mobile
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+
   // Colori basati sul tema per barre e linee
   const barColors = theme === "dark" ? ["#FF4560"] : ["#FF6347"];
-  const lineColors = theme === "dark" ? ["#00E396", "#FF4560"] : ["#1E90FF", "#FF6347"];
+  const lineColors =
+    theme === "dark" ? ["#00E396", "#FF4560"] : ["#1E90FF", "#FF6347"];
 
   // Configurazioni per il barChart
   const barChartOptions = {
@@ -34,13 +39,13 @@ const StatsCharts = ({
         },
       },
     },
-    colors: barColors, // Colori per le barre
+    colors: barColors,
     tooltip: {
-      theme: theme === "dark" ? "dark" : "light", // Cambia tema tooltip in base al tema corrente
+      theme: theme === "dark" ? "dark" : "light",
     },
     legend: {
       labels: {
-        colors: theme === "dark" ? "#e0e0e0" : "#333333", // Colore del testo della legenda in base al tema
+        colors: theme === "dark" ? "#e0e0e0" : "#333333",
       },
     },
   };
@@ -63,13 +68,13 @@ const StatsCharts = ({
         },
       },
     },
-    colors: lineColors, // Colori per le linee
+    colors: lineColors,
     tooltip: {
-      theme: theme === "dark" ? "dark" : "light", // Cambia tema tooltip in base al tema corrente
+      theme: theme === "dark" ? "dark" : "light",
     },
     legend: {
       labels: {
-        colors: theme === "dark" ? "#e0e0e0" : "#333333", // Colore del testo della legenda in base al tema
+        colors: theme === "dark" ? "#e0e0e0" : "#333333",
       },
     },
   };
@@ -87,7 +92,7 @@ const StatsCharts = ({
   ];
 
   return (
-    <Row gutter={16}>
+    <Row gutter={[16, isMobile ? 16 : 0]}>
       <Col xs={24} md={12}>
         <Card title={<Title level={4}>Categorie principali di spesa</Title>}>
           <Chart
@@ -102,10 +107,8 @@ const StatsCharts = ({
           />
         </Card>
       </Col>
-      <Col xs={24} md={12}>
-        <Card
-          title={<Title level={4}>Tendenza entrate e uscite nel tempo</Title>}
-        >
+      <Col xs={24} md={12} style={isMobile ? { marginTop: 16 } : {}}>
+        <Card title={<Title level={4}>Tendenza entrate/uscite</Title>}>
           <Chart
             options={lineChartOptions}
             series={
