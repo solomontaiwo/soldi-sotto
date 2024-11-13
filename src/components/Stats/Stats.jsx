@@ -31,7 +31,7 @@ import { generatePDF } from "../../utils/pdfUtils";
 import { animationConfig } from "../../utils/animationConfig";
 import StatsCharts from "./StatsCharts";
 import { useMediaQuery } from "react-responsive";
-import LoadingWrapper from "../../utils/loadingWrapper"; // Importa LoadingWrapper
+import LoadingWrapper from "../../utils/loadingWrapper";
 import logo from "/icon.png";
 
 const { Title, Text } = Typography;

@@ -1,6 +1,40 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { format, differenceInDays, startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns";
+import {
+  format,
+  differenceInDays,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+} from "date-fns";
+
+// Funzione per determinare il nome del periodo di riferimento
+const periodOptions = (periodText, startDate, endDate) => {
+  switch (periodText) {
+    case "daily":
+      return `${format(new Date(), "yyyy/MM/dd")}`;
+    case "weekly":
+      return `${format(startOfWeek(new Date()), "yyyy/MM/dd")} - ${format(
+        endOfWeek(new Date()),
+        "yyyy/MM/dd"
+      )}`;
+    case "monthly":
+      return `${format(new Date(), "yyyy/MM")}`;
+    case "annually":
+      return `${format(new Date(), "yyyy")}`;
+    case "custom":
+      if (startDate && endDate) {
+        return `${format(startDate, "yyyy/MM/dd")} - ${format(
+          endDate,
+          "yyyy/MM/dd"
+        )}`;
+      }
+      return "Periodo personalizzato";
+    default:
+      return "Periodo non specificato";
+  }
+};
 
 const generateFileName = (periodText, startDate, endDate) => {
   const today = new Date();
@@ -8,22 +42,22 @@ const generateFileName = (periodText, startDate, endDate) => {
     case "daily":
       return `report-soldisotto-${format(today, "yyyy-MM-dd")}.pdf`;
     case "weekly":
-      return `report-soldisotto-da-${format(
+      return `report-soldisotto-${format(
         startOfWeek(today),
         "yyyy-MM-dd"
-      )}-a-${format(endOfWeek(today), "yyyy-MM-dd")}.pdf`;
+      )}-${format(endOfWeek(today), "yyyy-MM-dd")}.pdf`;
     case "monthly":
       return `report-soldisotto-${format(today, "yyyy-MM")}.pdf`;
     case "annually":
       return `report-soldisotto-${format(today, "yyyy")}.pdf`;
     case "custom":
       if (startDate && endDate) {
-        return `report-soldisotto-da-${format(
+        return `report-soldisotto-${format(
           startDate,
           "yyyy-MM-dd"
-        )}-a-${format(endDate, "yyyy-MM-dd")}.pdf`;
+        )}-${format(endDate, "yyyy-MM-dd")}.pdf`;
       }
-      return `report-soldisotto-personalizzato.pdf`;
+      return `report-soldisotto-custom.pdf`;
     default:
       return `report-soldisotto.pdf`;
   }
@@ -57,7 +91,10 @@ export const generatePDF = async (
     { align: "center" }
   );
   doc.text(`Utente: ${currentUser.email}`, centerX, 64, { align: "center" });
-  doc.text(`Periodo di riferimento: ${periodText}`, centerX, 70, {
+
+  // Usa la funzione periodOptions per ottenere il testo del periodo
+  const periodName = periodOptions(periodText, startDate, endDate);
+  doc.text(`Periodo di riferimento: ${periodName}`, centerX, 70, {
     align: "center",
   });
 
