@@ -8,6 +8,7 @@ import LoginForm from "../Auth/LoginForm";
 import { useMediaQuery } from "react-responsive";
 import { animationConfig } from "../../utils/animationConfig";
 import LoadingWrapper from "../../utils/loadingWrapper";
+import formatCurrency from "../../utils/formatCurrency";
 
 const { Title, Text } = Typography;
 
@@ -158,7 +159,7 @@ const Home = () => {
                         }}
                       >
                         {transaction.type === "income" ? "+" : "-"}
-                        {transaction.amount.toFixed(2)} €
+                        {formatCurrency(transaction.amount)}
                       </Text>
                     }
                   />

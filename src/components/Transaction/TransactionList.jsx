@@ -35,6 +35,7 @@ import { animationConfig } from "../../utils/animationConfig";
 import { firestore } from "../../utils/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import LoadingWrapper from "../../utils/loadingWrapper"; // Importa LoadingWrapper
+import formatCurrency from "../../utils/formatCurrency";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -266,7 +267,8 @@ const TransactionList = () => {
                       style={{ wordBreak: "break-word" }}
                     >
                       <Text style={{ color: "var(--text-color)" }}>
-                        <strong>Data:</strong> {formatDate(transaction.date.toDate())}
+                        <strong>Data:</strong>{" "}
+                        {formatDate(transaction.date.toDate())}
                       </Text>
                       <Text style={{ color: "var(--text-color)" }}>
                         <strong>Descrizione:</strong> {transaction.description}
@@ -275,17 +277,22 @@ const TransactionList = () => {
                         <strong>Tipo: </strong>
                         <span
                           style={{
-                            color: transaction.type === "income" ? "#4caf50" : "#ff5c5c",
+                            color:
+                              transaction.type === "income"
+                                ? "#4caf50"
+                                : "#ff5c5c",
                           }}
                         >
                           {transaction.type === "income" ? "Entrata" : "Uscita"}
                         </span>
                       </Text>
                       <Text style={{ color: "var(--text-color)" }}>
-                        <strong>Importo:</strong> {Number(transaction.amount).toFixed(2)} €
+                        <strong>Importo:</strong>{" "}
+                        {formatCurrency(transaction.amount)}
                       </Text>
                       <Text style={{ color: "var(--text-color)" }}>
-                        <strong>Categoria:</strong> {transaction.category.charAt(0).toUpperCase() +
+                        <strong>Categoria:</strong>{" "}
+                        {transaction.category.charAt(0).toUpperCase() +
                           transaction.category.slice(1).toLowerCase() || "N/A"}
                       </Text>
                     </Space>

@@ -8,6 +8,7 @@ import {
   startOfWeek,
   endOfWeek,
 } from "date-fns";
+import formatCurrency from "./formatCurrency";
 
 // Funzione per determinare il nome del periodo di riferimento
 const periodOptions = (periodText, startDate, endDate) => {
@@ -52,10 +53,10 @@ const generateFileName = (periodText, startDate, endDate) => {
       return `report-soldisotto-${format(today, "yyyy")}.pdf`;
     case "custom":
       if (startDate && endDate) {
-        return `report-soldisotto-${format(
-          startDate,
+        return `report-soldisotto-${format(startDate, "yyyy-MM-dd")}-${format(
+          endDate,
           "yyyy-MM-dd"
-        )}-${format(endDate, "yyyy-MM-dd")}.pdf`;
+        )}.pdf`;
       }
       return `report-soldisotto-custom.pdf`;
     default:
@@ -120,11 +121,11 @@ export const generatePDF = async (
     ],
     body: [
       [
-        `${stats.totalIncome.toFixed(2)} €`,
-        `${stats.totalExpense.toFixed(2)} €`,
-        `${stats.balance.toFixed(2)} €`,
-        `${avgDailyIncome.toFixed(2)} €`,
-        `${avgDailyExpense.toFixed(2)} €`,
+        formatCurrency(stats.totalIncome),
+        formatCurrency(stats.totalExpense),
+        formatCurrency(stats.balance),
+        formatCurrency(avgDailyIncome),
+        formatCurrency(avgDailyExpense),
       ],
     ],
     margin: { bottom: 20 },
@@ -156,9 +157,9 @@ export const generatePDF = async (
   );
   const averageTransactionPerCategory = stats.topCategories.map((c) => [
     `${c.category.charAt(0).toUpperCase() + c.category.slice(1)}`,
-    `${(
+    formatCurrency(
       c.amount / transactions.filter((tx) => tx.category === c.category).length
-    ).toFixed(2)} €`,
+    ),
   ]);
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 15,
@@ -181,7 +182,7 @@ export const generatePDF = async (
     body: topExpenses.map((tx) => [
       format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy"),
       tx.description,
-      `${tx.amount.toFixed(2)} €`,
+      formatCurrency(tx.amount),
       tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
     ]),
     margin: { bottom: 20 },
@@ -194,7 +195,7 @@ export const generatePDF = async (
     body: lowestExpenses.map((tx) => [
       format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy"),
       tx.description,
-      `${tx.amount.toFixed(2)} €`,
+      formatCurrency(tx.amount),
       tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
     ]),
     margin: { bottom: 20 },

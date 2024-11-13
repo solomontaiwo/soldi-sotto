@@ -32,11 +32,12 @@ import { animationConfig } from "../../utils/animationConfig";
 import StatsCharts from "./StatsCharts";
 import { useMediaQuery } from "react-responsive";
 import LoadingWrapper from "../../utils/loadingWrapper";
+import formatCurrency from "../../utils/formatCurrency";
+import { useTheme } from "../../utils/ThemeProvider";
 import logo from "/icon.png";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
@@ -57,6 +58,8 @@ const Stats = () => {
 
   const loading = authLoading || transactionsLoading;
   const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  const { theme } = useTheme();
 
   // Definisci le serie dei dati per i grafici
   const barChartSeries = [
@@ -132,13 +135,6 @@ const Stats = () => {
   };
 
   if (!currentUser) return <Navigate to="/login" replace />;
-
-  // Funzione per formattare i numeri con due decimali e separatori di migliaia
-  const formatCurrency = (value) =>
-    value.toLocaleString("it-IT", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
   return (
     <LoadingWrapper loading={loading}>
@@ -252,6 +248,7 @@ const Stats = () => {
           barChartSeries={barChartSeries}
           lineChartSeries={lineChartSeries}
           categories={stats.topCategories.map((c) => c.category)}
+          theme={theme}
         />
       </div>
     </LoadingWrapper>
