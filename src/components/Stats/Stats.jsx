@@ -201,26 +201,38 @@ const Stats = () => {
 
         {stats && stats.totalIncome !== undefined ? (
           <>
-            <Row gutter={16}>
-              <Col span={8}>
-                <motion.div {...animationConfig}>
+            <Row gutter={16} justify="center">
+              <Col xs={24} md={8}>
+                <motion.div
+                  {...animationConfig}
+                  style={{ textAlign: "center" }}
+                >
                   <Statistic
                     title="Entrate Totali"
                     value={formatCurrency(stats.totalIncome)}
                   />
                 </motion.div>
               </Col>
-              <Col span={8}>
-                <motion.div {...animationConfig}>
+              <Col xs={24} md={8}>
+                <motion.div
+                  {...animationConfig}
+                  style={{ textAlign: "center" }}
+                >
                   <Statistic
                     title="Spese Totali"
                     value={formatCurrency(stats.totalExpense)}
                   />
                 </motion.div>
               </Col>
-              <Col span={8}>
-                <motion.div {...animationConfig}>
-                  <Statistic title="Saldo" value={formatCurrency(stats.balance)} />
+              <Col xs={24} md={8}>
+                <motion.div
+                  {...animationConfig}
+                  style={{ textAlign: "center" }}
+                >
+                  <Statistic
+                    title="Saldo"
+                    value={formatCurrency(stats.balance)}
+                  />
                 </motion.div>
               </Col>
             </Row>
@@ -243,7 +255,10 @@ const Stats = () => {
             </motion.div>
           </>
         ) : (
-          <motion.div {...animationConfig} style={{ textAlign: "center", marginTop: "20px" }}>
+          <motion.div
+            {...animationConfig}
+            style={{ textAlign: "center", marginTop: "20px" }}
+          >
             <Empty description="Nessuna statistica disponibile per il periodo selezionato." />
           </motion.div>
         )}
