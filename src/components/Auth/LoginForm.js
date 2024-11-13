@@ -48,8 +48,8 @@ const LoginForm = () => {
                     <Input
                         placeholder="Ad esempio, kebab@kebab.com"
                         style={{
-                            backgroundColor: "var(--background-color)", 
-                            color: "var(--text-color)", 
+                            backgroundColor: "var(--background-color)",
+                            color: "var(--text-color)",
                         }}
                     />
                 </Form.Item>
@@ -63,7 +63,7 @@ const LoginForm = () => {
                         placeholder="La tua password segreta e complessa"
                         style={{
                             backgroundColor: "var(--background-color)",
-                            color: "var(--text-color)", 
+                            color: "var(--text-color)",
                         }}
                     />
                 </Form.Item>
@@ -91,7 +91,7 @@ const LoginForm = () => {
                     display: "block",
                     textAlign: "center",
                     marginTop: "10px",
-                    color: "var(--text-color)", // Colore del testo secondario
+                    color: "var(--text-color)",
                 }}
             >
                 Non hai un account? <Link to="/register" style={{ color: "var(--primary-color)" }}>Registrati</Link>
