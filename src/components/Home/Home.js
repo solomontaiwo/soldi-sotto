@@ -6,7 +6,6 @@ import { firestore } from "../../utils/firebase";
 import TransactionForm from "../Transaction/TransactionForm";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { formatDate } from "../../utils/dayjs-setup";
 import LoginForm from "../Auth/LoginForm";
 import { useMediaQuery } from "react-responsive";
 import { animationConfig } from "../../utils/animationConfig";
@@ -134,7 +133,9 @@ const Home = () => {
                           {transaction.description}
                         </Text>
                         <Text style={{ color: "var(--text-color)", marginLeft: "10px", whiteSpace: "nowrap" }}>
-                          {new Date(formatDate(transaction.date.toDate())).toLocaleDateString()}
+                          {transaction.date && transaction.date.toDate
+                            ? new Date(transaction.date.toDate()).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" })
+                            : "Data non disponibile"}
                         </Text>
                       </div>
                     }
