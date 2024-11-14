@@ -26,11 +26,11 @@ import {
   endOfYear,
   isAfter,
   isBefore,
+  differenceInDays,
 } from "date-fns";
 import { calculateStats } from "../../utils/statsUtils";
 import { generatePDF } from "../../utils/pdfUtils";
 import { animationConfig } from "../../utils/animationConfig";
-import StatsCharts from "./StatsCharts";
 import { useMediaQuery } from "react-responsive";
 import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
@@ -111,8 +111,30 @@ const Stats = () => {
   if (!currentUser) return <Navigate to="/login" replace />;
 
   // Definizione colori della card basati sul tema attivo
-  const cardBackgroundColor = theme === "dark" ? "#333333" : "#f6f9fc";
-  const cardTextColor = theme === "dark" ? "#e0e0e0" : "#333333";
+  const cardBackgroundColor = "var(--card-background)";
+  const cardTextColor = "var(--text-color)";
+
+  // Calcolo della media giornaliera per entrate e spese
+  const daysCount =
+    startDate && endDate
+      ? differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1
+      : 0;
+  const avgDailyIncome = stats
+    ? daysCount > 0
+      ? stats.totalIncome / daysCount
+      : 0
+    : 0;
+  const avgDailyExpense = stats
+    ? daysCount > 0
+      ? stats.totalExpense / daysCount
+      : 0
+    : 0;
+
+  // Calcolo del risparmio come percentuale delle entrate
+  const savingPercentage =
+    stats && stats.totalIncome > 0
+      ? ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100
+      : 0;
 
   return (
     <LoadingWrapper loading={loading}>
@@ -185,7 +207,13 @@ const Stats = () => {
             <Option value="custom">Personalizzato</Option>
           </Select>
           {viewMode === "custom" && (
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginTop: "10px",
+              }}
+            >
               <DatePicker
                 onChange={(date) =>
                   setCustomRange([date, customRange ? customRange[1] : null])
@@ -203,10 +231,9 @@ const Stats = () => {
             </div>
           )}
         </motion.div>
-
         {stats && stats.totalIncome !== undefined ? (
           <>
-            <Row gutter={16} justify="center" style={{ marginBottom: "20px" }}>
+            <Row gutter={16} justify="center" style={{ marginBottom: "20px", marginTop: "30px" }}>
               <Col xs={24} md={8}>
                 <motion.div {...animationConfig}>
                   <Card
@@ -220,12 +247,8 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Entrate totali
-                        </span>
-                      }
-                      value={formatCurrency(stats.totalIncome)}
+                      title="Entrate Totali"
+                      value={formatCurrency(stats.totalIncome || 0)}
                       valueStyle={{ color: "#3f8600" }}
                     />
                   </Card>
@@ -244,12 +267,8 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Spese totali
-                        </span>
-                      }
-                      value={formatCurrency(stats.totalExpense)}
+                      title="Spese Totali"
+                      value={formatCurrency(stats.totalExpense || 0)}
                       valueStyle={{ color: "#cf1322" }}
                     />
                   </Card>
@@ -268,12 +287,8 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Saldo
-                        </span>
-                      }
-                      value={formatCurrency(stats.balance)}
+                      title="Saldo"
+                      value={formatCurrency(stats.balance || 0)}
                       valueStyle={{
                         color: theme === "dark" ? "#e0e0e0" : "#333333",
                       }}
@@ -282,23 +297,65 @@ const Stats = () => {
                 </motion.div>
               </Col>
             </Row>
-            <Divider />
-            <motion.div {...animationConfig}>
-              <StatsCharts
-                barChartSeries={[
-                  {
-                    name: "Spesa (€)",
-                    data: stats.topCategories.map((c) => c.amount),
-                  },
-                ]}
-                lineChartSeries={[
-                  { name: "Entrate", data: stats.incomeTrend },
-                  { name: "Uscite", data: stats.expenseTrend },
-                ]}
-                categories={stats.topCategories.map((c) => c.category)}
-                theme={theme}
-              />
-            </motion.div>
+
+            {/* Nuove metriche in stile card */}
+            <Divider>Metriche Aggiuntive</Divider>
+            <Row gutter={16} justify="center" style={{ marginBottom: "20px" }}>
+              <Col xs={24} md={8}>
+                <Card
+                  style={{
+                    textAlign: "center",
+                    borderRadius: "8px",
+                    backgroundColor: cardBackgroundColor,
+                    color: cardTextColor,
+                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                    marginBottom: isMobile ? "10px" : "0",
+                  }}
+                >
+                  <Statistic
+                    title="Media Giornaliera Entrate"
+                    value={formatCurrency(avgDailyIncome)}
+                    valueStyle={{ color: "#3f8600" }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card
+                  style={{
+                    textAlign: "center",
+                    borderRadius: "8px",
+                    backgroundColor: cardBackgroundColor,
+                    color: cardTextColor,
+                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                    marginBottom: isMobile ? "10px" : "0",
+                  }}
+                >
+                  <Statistic
+                    title="Media Giornaliera Spese"
+                    value={formatCurrency(avgDailyExpense)}
+                    valueStyle={{ color: "#cf1322" }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card
+                  style={{
+                    textAlign: "center",
+                    borderRadius: "8px",
+                    backgroundColor: cardBackgroundColor,
+                    color: cardTextColor,
+                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                    marginBottom: isMobile ? "10px" : "0",
+                  }}
+                >
+                  <Statistic
+                    title="Percentuale di Risparmio"
+                    value={`${savingPercentage.toFixed(2)}%`}
+                    valueStyle={{ color: "#3f8600" }}
+                  />
+                </Card>
+              </Col>
+            </Row>
           </>
         ) : (
           <motion.div

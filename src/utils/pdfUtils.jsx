@@ -2,12 +2,15 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {
   format,
-  differenceInDays,
+  isAfter,
+  isBefore,
   startOfDay,
   endOfDay,
   startOfWeek,
   endOfWeek,
+  differenceInDays,
 } from "date-fns";
+
 import formatCurrency from "./formatCurrency";
 
 // Funzione per determinare il nome del periodo di riferimento
@@ -109,7 +112,7 @@ export const generatePDF = async (
 
   // Tabella delle spese totali, entrate totali, saldo e media giornaliera
   doc.autoTable({
-    startY: 85,
+    startY: 80,
     head: [
       [
         "Entrate Totali",
@@ -133,7 +136,7 @@ export const generatePDF = async (
 
   // Distribuzione delle spese per categoria
   doc.text(
-    "Distribuzione delle Spese per Categoria (%)",
+    "Distribuzione delle spese e importo medio per categoria",
     14,
     doc.lastAutoTable.finalY + 10
   );
@@ -141,40 +144,40 @@ export const generatePDF = async (
   const categoryDistribution = stats.topCategories.map((c) => [
     `${c.category.charAt(0).toUpperCase() + c.category.slice(1)}`,
     `${((c.amount / totalExpense) * 100).toFixed(2)}%`,
-  ]);
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 15,
-    head: [["Categoria", "Percentuale"]],
-    body: categoryDistribution,
-    margin: { bottom: 20 },
-  });
-
-  // Transazione media per categoria
-  doc.text(
-    "Transazione Media per Categoria",
-    14,
-    doc.lastAutoTable.finalY + 10
-  );
-  const averageTransactionPerCategory = stats.topCategories.map((c) => [
-    `${c.category.charAt(0).toUpperCase() + c.category.slice(1)}`,
     formatCurrency(
       c.amount / transactions.filter((tx) => tx.category === c.category).length
     ),
   ]);
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 15,
-    head: [["Categoria", "Importo Medio"]],
-    body: averageTransactionPerCategory,
+    head: [["Categoria", "Distribuzione Percentuale", "Importo Medio"]],
+    body: categoryDistribution,
     margin: { bottom: 20 },
   });
 
-  // Top 3 spese maggiori e minori
-  const sortedExpenses = transactions
-    .filter((tx) => tx.type === "expense")
-    .sort((a, b) => b.amount - a.amount);
-  const topExpenses = sortedExpenses.slice(0, 3);
-  const lowestExpenses = sortedExpenses.slice(-3);
+  // Filtra le spese nel periodo di riferimento e seleziona le top 3 maggiori
+  const topExpenses = transactions
+    .filter(
+      (tx) =>
+        tx.type === "expense" &&
+        isAfter(tx.date.toDate(), startDate) &&
+        isBefore(tx.date.toDate(), endDate)
+    )
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 3);
 
+  // Filtra le entrate nel periodo di riferimento e seleziona le top 3 maggiori
+  const topIncomes = transactions
+    .filter(
+      (tx) =>
+        tx.type === "income" &&
+        isAfter(tx.date.toDate(), startDate) &&
+        isBefore(tx.date.toDate(), endDate)
+    )
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 3);
+
+  // Generazione della tabella per le top 3 spese maggiori
   doc.text("Top 3 Spese Maggiori", 14, doc.lastAutoTable.finalY + 10);
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 15,
@@ -188,15 +191,40 @@ export const generatePDF = async (
     margin: { bottom: 20 },
   });
 
-  doc.text("Top 3 Spese Minori", 14, doc.lastAutoTable.finalY + 10);
+  // Generazione della tabella per le top 3 entrate maggiori
+  doc.text("Top 3 Entrate Maggiori", 14, doc.lastAutoTable.finalY + 10);
   doc.autoTable({
     startY: doc.lastAutoTable.finalY + 15,
     head: [["Data", "Descrizione", "Importo", "Categoria"]],
-    body: lowestExpenses.map((tx) => [
+    body: topIncomes.map((tx) => [
       format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy"),
       tx.description,
       formatCurrency(tx.amount),
       tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
+    ]),
+    margin: { bottom: 20 },
+  });
+
+  doc.addPage(); // Aggiungi una nuova pagina
+
+  doc.text("Elenco Completo delle Transazioni", 14, 20);
+  const allTransactions = transactions
+    .filter(
+      (tx) =>
+        isAfter(tx.date.toDate(), startDate) &&
+        isBefore(tx.date.toDate(), endDate)
+    )
+    .sort((a, b) => a.date.seconds - b.date.seconds); // Ordina dalla meno recente alla più recente
+
+  doc.autoTable({
+    startY: 25,
+    head: [["Data", "Descrizione", "Importo", "Categoria", "Tipo"]],
+    body: allTransactions.map((tx) => [
+      format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy"),
+      tx.description,
+      formatCurrency(tx.amount),
+      tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
+      tx.type === "income" ? "Entrata" : "Uscita",
     ]),
     margin: { bottom: 20 },
   });
@@ -207,15 +235,10 @@ export const generatePDF = async (
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     if (i === pageCount) {
-      // Solo ultima pagina
       const pageHeight = doc.internal.pageSize.height;
-
-      // Linea separatrice
-      doc.setDrawColor(150); // Grigio per la linea
-      doc.line(10, pageHeight - 30, 200, pageHeight - 30); // Linea orizzontale
-
-      // Piè di pagina
-      doc.setTextColor(100); // Colore del testo (grigio scuro)
+      doc.setDrawColor(150);
+      doc.line(10, pageHeight - 30, 200, pageHeight - 30);
+      doc.setTextColor(100);
       doc.text(
         "Soldi Sotto, made with love by Solomon",
         centerX,
