@@ -19,7 +19,6 @@ const StatsCharts = ({
   const lineColors =
     theme === "dark" ? ["#00E396", "#FF4560"] : ["#1E90FF", "#FF6347"];
 
-  // Configurazioni per il barChart
   const barChartOptions = {
     chart: { type: "bar" },
     xaxis: {
@@ -37,11 +36,22 @@ const StatsCharts = ({
         style: {
           colors: "var(--text-color)",
         },
+        formatter: (value) => value.toFixed(2), // Limita a due decimali sull'asse y
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (value) => value.toFixed(2), // Limita a due decimali per i valori interni alle barre
+      style: {
+        colors: ["#FFFFFF"], // Colore del testo dei dati
       },
     },
     colors: barColors,
     tooltip: {
       theme: theme === "dark" ? "dark" : "light",
+      y: {
+        formatter: (value) => value.toFixed(2), // Limita a due decimali nei tooltip
+      },
     },
     legend: {
       labels: {
@@ -50,7 +60,6 @@ const StatsCharts = ({
     },
   };
 
-  // Configurazioni per il lineChart
   const lineChartOptions = {
     chart: { type: "line" },
     xaxis: {
@@ -66,11 +75,15 @@ const StatsCharts = ({
         style: {
           colors: "var(--text-color)",
         },
+        formatter: (value) => value.toFixed(2), // Limita a due decimali
       },
     },
     colors: lineColors,
     tooltip: {
       theme: theme === "dark" ? "dark" : "light",
+      y: {
+        formatter: (value) => value.toFixed(2), // Limita a due decimali nei tooltip
+      },
     },
     legend: {
       labels: {

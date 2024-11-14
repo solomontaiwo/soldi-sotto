@@ -10,6 +10,7 @@ import {
   DatePicker,
   Divider,
   Empty,
+  Card,
 } from "antd";
 import { useAuth } from "../Auth/AuthProvider";
 import { useTransactions } from "../Transaction/TransactionProvider";
@@ -42,7 +43,7 @@ const { Option } = Select;
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { transactions, loading: transactionsLoading } = useTransactions();
-  const [stats, setStats] = useState(null); // Stato nullo iniziale
+  const [stats, setStats] = useState(null);
   const [viewMode, setViewMode] = useState("monthly");
   const [customRange, setCustomRange] = useState(null);
   const [startDate, setStartDate] = useState(null);
@@ -108,6 +109,10 @@ const Stats = () => {
   };
 
   if (!currentUser) return <Navigate to="/login" replace />;
+
+  // Definizione colori della card basati sul tema attivo
+  const cardBackgroundColor = theme === "dark" ? "#333333" : "#f6f9fc";
+  const cardTextColor = theme === "dark" ? "#e0e0e0" : "#333333";
 
   return (
     <LoadingWrapper loading={loading}>
@@ -201,38 +206,79 @@ const Stats = () => {
 
         {stats && stats.totalIncome !== undefined ? (
           <>
-            <Row gutter={16} justify="center">
+            <Row gutter={16} justify="center" style={{ marginBottom: "20px" }}>
               <Col xs={24} md={8}>
-                <motion.div
-                  {...animationConfig}
-                  style={{ textAlign: "center" }}
-                >
-                  <Statistic
-                    title="Entrate Totali"
-                    value={formatCurrency(stats.totalIncome)}
-                  />
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Entrate totali
+                        </span>
+                      }
+                      value={formatCurrency(stats.totalIncome)}
+                      valueStyle={{ color: "#3f8600" }}
+                    />
+                  </Card>
                 </motion.div>
               </Col>
               <Col xs={24} md={8}>
-                <motion.div
-                  {...animationConfig}
-                  style={{ textAlign: "center" }}
-                >
-                  <Statistic
-                    title="Spese Totali"
-                    value={formatCurrency(stats.totalExpense)}
-                  />
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Spese totali
+                        </span>
+                      }
+                      value={formatCurrency(stats.totalExpense)}
+                      valueStyle={{ color: "#cf1322" }}
+                    />
+                  </Card>
                 </motion.div>
               </Col>
               <Col xs={24} md={8}>
-                <motion.div
-                  {...animationConfig}
-                  style={{ textAlign: "center" }}
-                >
-                  <Statistic
-                    title="Saldo"
-                    value={formatCurrency(stats.balance)}
-                  />
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Saldo
+                        </span>
+                      }
+                      value={formatCurrency(stats.balance)}
+                      valueStyle={{
+                        color: theme === "dark" ? "#e0e0e0" : "#333333",
+                      }}
+                    />
+                  </Card>
                 </motion.div>
               </Col>
             </Row>
