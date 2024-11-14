@@ -9,6 +9,7 @@ import {
   startOfWeek,
   endOfWeek,
   differenceInDays,
+  isEqual,
 } from "date-fns";
 
 import formatCurrency from "./formatCurrency";
@@ -160,8 +161,10 @@ export const generatePDF = async (
     .filter(
       (tx) =>
         tx.type === "expense" &&
-        isAfter(tx.date.toDate(), startDate) &&
-        isBefore(tx.date.toDate(), endDate)
+        (isAfter(tx.date.toDate(), startDate) ||
+          isEqual(tx.date.toDate(), startDate)) &&
+        (isBefore(tx.date.toDate(), endDate) ||
+          isEqual(tx.date.toDate(), endDate))
     )
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 3);
@@ -171,11 +174,24 @@ export const generatePDF = async (
     .filter(
       (tx) =>
         tx.type === "income" &&
-        isAfter(tx.date.toDate(), startDate) &&
-        isBefore(tx.date.toDate(), endDate)
+        (isAfter(tx.date.toDate(), startDate) ||
+          isEqual(tx.date.toDate(), startDate)) &&
+        (isBefore(tx.date.toDate(), endDate) ||
+          isEqual(tx.date.toDate(), endDate))
     )
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 3);
+
+  // Filtra tutte le transazioni per l'elenco completo
+  const allTransactions = transactions
+    .filter(
+      (tx) =>
+        (isAfter(tx.date.toDate(), startDate) ||
+          isEqual(tx.date.toDate(), startDate)) &&
+        (isBefore(tx.date.toDate(), endDate) ||
+          isEqual(tx.date.toDate(), endDate))
+    )
+    .sort((a, b) => a.date.seconds - b.date.seconds); // Ordina dalla meno recente alla più recente
 
   // Generazione della tabella per le top 3 spese maggiori
   doc.text("Top 3 Spese Maggiori", 14, doc.lastAutoTable.finalY + 10);
@@ -208,14 +224,6 @@ export const generatePDF = async (
   doc.addPage(); // Aggiungi una nuova pagina
 
   doc.text("Elenco Completo delle Transazioni", 14, 20);
-  const allTransactions = transactions
-    .filter(
-      (tx) =>
-        isAfter(tx.date.toDate(), startDate) &&
-        isBefore(tx.date.toDate(), endDate)
-    )
-    .sort((a, b) => a.date.seconds - b.date.seconds); // Ordina dalla meno recente alla più recente
-
   doc.autoTable({
     startY: 25,
     head: [["Data", "Descrizione", "Importo", "Categoria", "Tipo"]],

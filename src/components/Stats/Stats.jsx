@@ -27,6 +27,7 @@ import {
   isAfter,
   isBefore,
   differenceInDays,
+  isEqual,
 } from "date-fns";
 import { calculateStats } from "../../utils/statsUtils";
 import { generatePDF } from "../../utils/pdfUtils";
@@ -85,7 +86,9 @@ const Stats = () => {
       const filteredTransactions = transactions.filter((transaction) => {
         const transactionDate = transaction.date.toDate();
         return (
-          isAfter(transactionDate, start) && isBefore(transactionDate, end)
+          (isAfter(transactionDate, start) ||
+            isEqual(transactionDate, start)) &&
+          (isBefore(transactionDate, end) || isEqual(transactionDate, end))
         );
       });
 
