@@ -119,6 +119,7 @@ const TransactionList = () => {
       okText: "Sì, elimina",
       okType: "danger",
       cancelText: "Annulla",
+      centered: true,
       onOk: async () => {
         try {
           await deleteDoc(doc(firestore, "transactions", transactionId));
