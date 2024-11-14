@@ -43,7 +43,7 @@ const StatsCharts = ({
       enabled: true,
       formatter: (value) => value.toFixed(2), // Limita a due decimali per i valori interni alle barre
       style: {
-        colors: ["#FFFFFF"], // Colore del testo dei dati
+        colors: ["var(--text-color)"], // Colore del testo dei dati
       },
     },
     colors: barColors,
