@@ -1,16 +1,5 @@
-/* Variabili di colore generali per il tema chiaro */
+/* Tema scuro di default */
 :root {
-  --background-color: #f0f0f0; /* Sfondo principale */
-  --text-color: #333333; /* Colore del testo primario */
-  --primary-color: #007bff; /* Colore primario per pulsanti e titoli */
-  --secondary-color: #0056b3; /* Colore secondario per hover e stati attivi */
-  --card-background: #ffffff; /* Sfondo dei card e modali */
-  --shadow-color: rgba(0, 0, 0, 0.1); /* Colore dell'ombra */
-  --button-bg-color: #007bff; /* Sfondo dei pulsanti */
-}
-
-/* Variabili di colore per il tema scuro */
-.dark-theme {
   --background-color: #1f1f1f; /* Sfondo principale per il tema scuro */
   --text-color: #e0e0e0; /* Colore del testo primario in tema scuro */
   --primary-color: #1a73e8; /* Colore primario in tema scuro */
@@ -23,6 +12,17 @@
     0.1
   ); /* Colore dell'ombra in tema scuro */
   --button-bg-color: #3b83f6; /* Colore di sfondo dei pulsanti in tema scuro */
+}
+
+/* Variabili di colore per il tema chiaro */
+.light-theme {
+  --background-color: #f0f0f0; /* Sfondo principale */
+  --text-color: #333333; /* Colore del testo primario */
+  --primary-color: #007bff; /* Colore primario per pulsanti e titoli */
+  --secondary-color: #0056b3; /* Colore secondario per hover e stati attivi */
+  --card-background: #ffffff; /* Sfondo dei card e modali */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Colore dell'ombra */
+  --button-bg-color: #007bff; /* Sfondo dei pulsanti */
 }
 
 /* Stili generali per l'intera applicazione */
@@ -55,6 +55,37 @@ body {
 .ant-menu-horizontal > .ant-menu-item-active::after,
 .ant-menu-horizontal > .ant-menu-item-selected::after {
   border-bottom: none !important;
+}
+
+/* Stili per la finestra di conferma nel tema scuro */
+.dark-confirm-modal .ant-modal-content {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.dark-confirm-modal .ant-modal-confirm-title {
+  color: var(--text-color) !important;
+}
+
+.dark-confirm-modal .ant-modal-confirm-content {
+  color: var(--text-color) !important;
+}
+
+/* Pulsante secondario (annulla) per la finestra di dialogo in tema scuro */
+.dark-confirm-modal .ant-btn {
+  background-color: transparent !important; /* Sfondo trasparente */
+  color: var(--text-color) !important; /* Colore del testo basato sul tema */
+}
+
+/* Hover e focus sul pulsante secondario */
+.dark-confirm-modal .ant-btn:hover,
+.dark-confirm-modal .ant-btn:focus {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ) !important; /* Sfondo leggermente chiaro su hover */
 }
 
 /* Padding per l'area sicura sui dispositivi con notch */

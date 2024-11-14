@@ -8,6 +8,29 @@ const ThemeContext = createContext();
 // Hook personalizzato per accedere al contesto del tema
 export const useTheme = () => useContext(ThemeContext);
 
+// Funzione per impostare le variabili CSS globali
+const setCSSVariables = (themeMode) => {
+  const root = document.documentElement;
+
+  if (themeMode === "dark") {
+    root.style.setProperty("--background-color", "#1f1f1f");
+    root.style.setProperty("--text-color", "#e0e0e0");
+    root.style.setProperty("--primary-color", "#1a73e8");
+    root.style.setProperty("--secondary-color", "#255adb");
+    root.style.setProperty("--card-background", "#33333385");
+    root.style.setProperty("--shadow-color", "rgba(255, 255, 255, 0.1)");
+    root.style.setProperty("--button-bg-color", "#3b83f6");
+  } else {
+    root.style.setProperty("--background-color", "#f0f0f0");
+    root.style.setProperty("--text-color", "#333333");
+    root.style.setProperty("--primary-color", "#007bff");
+    root.style.setProperty("--secondary-color", "#0056b3");
+    root.style.setProperty("--card-background", "#ffffff");
+    root.style.setProperty("--shadow-color", "rgba(0, 0, 0, 0.1)");
+    root.style.setProperty("--button-bg-color", "#007bff");
+  }
+};
+
 // Componente principale per il tema
 export const ThemeProvider = ({ children }) => {
   const [themeMode, setThemeMode] = useState("light");
@@ -15,7 +38,7 @@ export const ThemeProvider = ({ children }) => {
   const applySystemTheme = () => {
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     setThemeMode(systemPrefersDark ? "dark" : "light");
-    document.body.classList.toggle("dark-theme", systemPrefersDark);
+    setCSSVariables(systemPrefersDark ? "dark" : "light");
   };
 
   const toggleTheme = (mode) => {
@@ -24,7 +47,7 @@ export const ThemeProvider = ({ children }) => {
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
     } else {
       setThemeMode(mode);
-      document.body.classList.toggle("dark-theme", mode === "dark");
+      setCSSVariables(mode); // Applica subito le variabili CSS
       window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);
     }
     localStorage.setItem("theme", mode);
@@ -46,7 +69,7 @@ export const ThemeProvider = ({ children }) => {
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
     } else if (savedTheme) {
       setThemeMode(savedTheme);
-      document.body.classList.toggle("dark-theme", savedTheme === "dark");
+      setCSSVariables(savedTheme); // Imposta subito il tema salvato
     }
     return () => {
       window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);

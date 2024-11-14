@@ -15,7 +15,11 @@ import {
   Modal,
 } from "antd";
 import EditTransactionModal from "./EditTransactionModal";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { formatDate } from "../../utils/dayjs-setup";
 import { Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -36,10 +40,12 @@ import { firestore } from "../../utils/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import LoadingWrapper from "../../utils/loadingWrapper"; // Importa LoadingWrapper
 import formatCurrency from "../../utils/formatCurrency";
+import { useTheme } from "../../utils/ThemeProvider";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+const { confirm } = Modal;
 
 const TransactionList = () => {
   const { currentUser, loading: authLoading } = useAuth();
@@ -52,6 +58,8 @@ const TransactionList = () => {
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const loading = authLoading || transactionsLoading;
+
+  const { theme } = useTheme();
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -103,14 +111,29 @@ const TransactionList = () => {
     setEditTransaction(transaction);
   };
 
-  const handleDeleteClick = async (transactionId) => {
-    try {
-      await deleteDoc(doc(firestore, "transactions", transactionId));
-      message.success("Transazione eliminata con successo");
-    } catch (error) {
-      console.error("Errore durante l'eliminazione:", error);
-      message.error("Errore durante l'eliminazione della transazione.");
-    }
+  const handleDeleteClick = (transactionId) => {
+    confirm({
+      title: "Sei sicuro di voler eliminare questa transazione?",
+      icon: <ExclamationCircleOutlined />,
+      content: "Questa azione è irreversibile.",
+      okText: "Sì, elimina",
+      okType: "danger",
+      cancelText: "Annulla",
+      onOk: async () => {
+        try {
+          await deleteDoc(doc(firestore, "transactions", transactionId));
+          message.success("Transazione eliminata con successo");
+        } catch (error) {
+          console.error("Errore durante l'eliminazione:", error);
+          message.error("Errore durante l'eliminazione della transazione.");
+        }
+      },
+      onCancel() {
+        console.log("Eliminazione annullata");
+      },
+      // Stile dinamico in base al tema
+      className: theme === "dark" ? "dark-confirm-modal" : "",
+    });
   };
 
   const handlePeriodChange = (value) => {
