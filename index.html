@@ -3,8 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
   <!-- Icona per il favicon e il PWA -->
   <link rel="icon" href="/soldi-sotto/icon.png" sizes="32x32" type="image/png" />
@@ -12,8 +11,8 @@
   <link rel="apple-touch-icon" href="/soldi-sotto/icon.png" />
 
   <!-- Colore di sfondo della status bar su Chrome, Firefox e Edge -->
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#1f1f1f" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 
   <!-- Colore per la status bar su Safari iOS -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -31,9 +30,12 @@
   <script>
     (function () {
       const savedTheme = localStorage.getItem('theme') || 'dark';
+
       if (savedTheme === 'light') {
         document.documentElement.classList.add('light-theme');
+        document.documentElement.classList.remove('dark-theme');
       } else {
+        document.documentElement.classList.add('dark-theme');
         document.documentElement.classList.remove('light-theme');
       }
     })();
@@ -63,8 +65,8 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
   </style>
-  <script type="module" crossorigin src="/soldi-sotto/assets/index-BhnQ8Itf.js"></script>
-  <link rel="stylesheet" crossorigin href="/soldi-sotto/assets/index-KfVKyx6C.css">
+  <script type="module" crossorigin src="/soldi-sotto/assets/index-pIOYz2VE.js"></script>
+  <link rel="stylesheet" crossorigin href="/soldi-sotto/assets/index-CxLYVhBC.css">
 </head>
 
 <body>
