@@ -11,12 +11,11 @@
   <link rel="icon" href="/icon.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="/icon.png" />
 
-  <!-- Colore di sfondo della status bar su Chrome, Firefox e Edge -->
-  <meta name="theme-color" content="#1f1f1f" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-
   <!-- Colore per la status bar su Safari iOS -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Barra di stato trasparente in Chrome -->
+  <meta name="theme-color" content="#f0f0f0" />
 
   <!-- Descrizione del sito -->
   <meta name="description" content="Gestisci le tue finanze in modo semplice e veloce." />
@@ -24,7 +23,6 @@
   <!-- Manifest per PWA -->
   <link rel="manifest" href="/manifest.json" />
 
-  <!-- Titolo della pagina -->
   <title>Soldi Sotto</title>
 
   <!-- Script per applicare il tema salvato prima del caricamento di React -->
@@ -32,14 +30,17 @@
     (function () {
       const savedTheme = localStorage.getItem("theme") || "system";
       const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark)) {
-        document.documentElement.classList.add("dark-theme");
-      } else {
-        document.documentElement.classList.remove("dark-theme");
-      }
+      const isDarkMode = savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark);
+
+      document.documentElement.classList.toggle("dark-theme", isDarkMode);
+      document.documentElement.classList.toggle("light-theme", !isDarkMode);
+
+      // Aggiorna il colore del meta tag per il caricamento iniziale
+      document
+        .querySelector('meta[name="theme-color"]')
+        .setAttribute("content", isDarkMode ? "#1f1f1f" : "#f0f0f0");
     })();
   </script>
-
 
   <style>
     /* Tema scuro di default */
