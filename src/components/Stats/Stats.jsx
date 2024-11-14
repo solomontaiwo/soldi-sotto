@@ -233,7 +233,11 @@ const Stats = () => {
         </motion.div>
         {stats && stats.totalIncome !== undefined ? (
           <>
-            <Row gutter={16} justify="center" style={{ marginBottom: "20px", marginTop: "30px" }}>
+            <Row
+              gutter={16}
+              justify="center"
+              style={{ marginBottom: "20px", marginTop: "30px" }}
+            >
               <Col xs={24} md={8}>
                 <motion.div {...animationConfig}>
                   <Card
@@ -247,7 +251,11 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title="Entrate Totali"
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Entrate Totali
+                        </span>
+                      }
                       value={formatCurrency(stats.totalIncome || 0)}
                       valueStyle={{ color: "#3f8600" }}
                     />
@@ -267,7 +275,11 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title="Spese Totali"
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Spese Totali
+                        </span>
+                      }
                       value={formatCurrency(stats.totalExpense || 0)}
                       valueStyle={{ color: "#cf1322" }}
                     />
@@ -287,7 +299,11 @@ const Stats = () => {
                     }}
                   >
                     <Statistic
-                      title="Saldo"
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Saldo
+                        </span>
+                      }
                       value={formatCurrency(stats.balance || 0)}
                       valueStyle={{
                         color: theme === "dark" ? "#e0e0e0" : "#333333",
@@ -299,61 +315,88 @@ const Stats = () => {
             </Row>
 
             {/* Nuove metriche in stile card */}
-            <Divider>Metriche Aggiuntive</Divider>
-            <Row gutter={16} justify="center" style={{ marginBottom: "20px" }}>
+            <motion.div {...animationConfig}>
+              <Divider>Metriche Aggiuntive</Divider>
+            </motion.div>
+
+            <Row
+              gutter={16}
+              justify="center"
+              style={{ marginBottom: "20px", marginTop: "20px" }}
+            >
               <Col xs={24} md={8}>
-                <Card
-                  style={{
-                    textAlign: "center",
-                    borderRadius: "8px",
-                    backgroundColor: cardBackgroundColor,
-                    color: cardTextColor,
-                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                    marginBottom: isMobile ? "10px" : "0",
-                  }}
-                >
-                  <Statistic
-                    title="Media Giornaliera Entrate"
-                    value={formatCurrency(avgDailyIncome)}
-                    valueStyle={{ color: "#3f8600" }}
-                  />
-                </Card>
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Media Giornaliera Entrate
+                        </span>
+                      }
+                      value={formatCurrency(avgDailyIncome)}
+                      valueStyle={{ color: "#3f8600" }}
+                    />
+                  </Card>
+                </motion.div>
               </Col>
               <Col xs={24} md={8}>
-                <Card
-                  style={{
-                    textAlign: "center",
-                    borderRadius: "8px",
-                    backgroundColor: cardBackgroundColor,
-                    color: cardTextColor,
-                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                    marginBottom: isMobile ? "10px" : "0",
-                  }}
-                >
-                  <Statistic
-                    title="Media Giornaliera Spese"
-                    value={formatCurrency(avgDailyExpense)}
-                    valueStyle={{ color: "#cf1322" }}
-                  />
-                </Card>
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Media Giornaliera Spese
+                        </span>
+                      }
+                      value={formatCurrency(avgDailyExpense)}
+                      valueStyle={{ color: "#cf1322" }}
+                    />
+                  </Card>
+                </motion.div>
               </Col>
               <Col xs={24} md={8}>
-                <Card
-                  style={{
-                    textAlign: "center",
-                    borderRadius: "8px",
-                    backgroundColor: cardBackgroundColor,
-                    color: cardTextColor,
-                    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                    marginBottom: isMobile ? "10px" : "0",
-                  }}
-                >
-                  <Statistic
-                    title="Percentuale di Risparmio"
-                    value={`${savingPercentage.toFixed(2)}%`}
-                    valueStyle={{ color: "#3f8600" }}
-                  />
-                </Card>
+                <motion.div {...animationConfig}>
+                  <Card
+                    style={{
+                      textAlign: "center",
+                      borderRadius: "8px",
+                      backgroundColor: cardBackgroundColor,
+                      color: cardTextColor,
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                      marginBottom: isMobile ? "10px" : "0",
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span style={{ color: "var(--text-color)" }}>
+                          Percentuale di Risparmio
+                        </span>
+                      }
+                      value={`${savingPercentage.toFixed(2)}%`}
+                      valueStyle={{
+                        color: theme === "dark" ? "#e0e0e0" : "#333333",
+                      }}
+                    />
+                  </Card>
+                </motion.div>
               </Col>
             </Row>
           </>
