@@ -2,16 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { ConfigProvider } from "antd";
 import { theme } from "antd";
 
-// Creazione del contesto per il tema
 const ThemeContext = createContext();
 
-// Hook personalizzato per accedere al contesto del tema
 export const useTheme = () => useContext(ThemeContext);
 
-// Funzione per impostare le variabili CSS globali
 const setCSSVariables = (themeMode) => {
   const root = document.documentElement;
-
   if (themeMode === "dark") {
     root.style.setProperty("--background-color", "#1f1f1f");
     root.style.setProperty("--text-color", "#e0e0e0");
@@ -31,9 +27,8 @@ const setCSSVariables = (themeMode) => {
   }
 };
 
-// Componente principale per il tema
 export const ThemeProvider = ({ children }) => {
-  const [themeMode, setThemeMode] = useState("light");
+  const [themeMode, setThemeMode] = useState(null);
 
   const applySystemTheme = () => {
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -47,13 +42,12 @@ export const ThemeProvider = ({ children }) => {
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
     } else {
       setThemeMode(mode);
-      setCSSVariables(mode); // Applica subito le variabili CSS
+      setCSSVariables(mode);
       window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);
     }
     localStorage.setItem("theme", mode);
   };
 
-  // Aggiorna il colore della status bar ogni volta che cambia il tema
   useEffect(() => {
     const themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
     if (themeColorMetaTag) {
@@ -61,20 +55,23 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [themeMode]);
 
-  // Carica il tema salvato o imposta quello di sistema all'inizio
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "system") {
+    if (savedTheme === "system" || !savedTheme) {
       applySystemTheme();
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applySystemTheme);
-    } else if (savedTheme) {
+    } else {
       setThemeMode(savedTheme);
-      setCSSVariables(savedTheme); // Imposta subito il tema salvato
+      setCSSVariables(savedTheme);
     }
     return () => {
       window.matchMedia("(prefers-color-scheme: dark)").removeEventListener("change", applySystemTheme);
     };
   }, []);
+
+  if (themeMode === null) {
+    return null; // Rendi nulla la UI finché non è determinato il tema
+  }
 
   return (
     <ThemeContext.Provider value={{ theme: themeMode, toggleTheme }}>

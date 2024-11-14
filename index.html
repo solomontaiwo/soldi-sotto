@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
   <!-- Icona per il favicon e il PWA -->
   <link rel="icon" href="/icon.png" sizes="32x32" type="image/png" />
@@ -29,17 +30,16 @@
   <!-- Script per applicare il tema salvato prima del caricamento di React -->
   <script>
     (function () {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
-
-      if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-theme');
-        document.documentElement.classList.remove('dark-theme');
+      const savedTheme = localStorage.getItem("theme") || "system";
+      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark)) {
+        document.documentElement.classList.add("dark-theme");
       } else {
-        document.documentElement.classList.add('dark-theme');
-        document.documentElement.classList.remove('light-theme');
+        document.documentElement.classList.remove("dark-theme");
       }
     })();
   </script>
+
 
   <style>
     /* Tema scuro di default */
