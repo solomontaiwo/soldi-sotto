@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Modal, Form, Input, InputNumber, DatePicker, Button, message } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  DatePicker,
+  Button,
+  message,
+} from "antd";
 import { firestore } from "../../utils/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useCategories } from "../../utils/categories";
@@ -9,7 +17,9 @@ const EditTransactionModal = ({ transaction, onClose }) => {
   const [form] = Form.useForm();
   const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(transaction.category); // Stato per la categoria selezionata
+  const [selectedCategory, setSelectedCategory] = useState(
+    transaction.category
+  );
 
   const updateCategories = useCallback(
     (type) => {
@@ -20,7 +30,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
 
   useEffect(() => {
     updateCategories(transaction.type);
-    // Imposta la categoria selezionata iniziale nel form
     form.setFieldsValue({ category: transaction.category });
   }, [transaction.type, transaction.category, updateCategories, form]);
 
@@ -29,7 +38,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
       await updateDoc(doc(firestore, "transactions", transaction.id), {
         ...values,
         date: values.date.toDate(),
-        category: selectedCategory, // Usa la categoria selezionata
+        category: selectedCategory,
       });
       message.success("Transazione aggiornata con successo");
       onClose();
@@ -44,8 +53,10 @@ const EditTransactionModal = ({ transaction, onClose }) => {
       open={true}
       centered
       onCancel={onClose}
-      footer={null} // Rimuove il footer predefinito
-      style={{ color: "var(--text-color)" }}
+      footer={null}
+      style={{
+        padding: "10px",
+      }}
     >
       <Form
         form={form}
@@ -60,7 +71,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "20px", // Spaziatura uniforme tra gli elementi
+          gap: "12px",
         }}
       >
         {/* Importo */}
@@ -74,9 +85,9 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             step={0.01}
             style={{
               width: "100%",
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
             placeholder="Es. 50.00"
           />
@@ -91,9 +102,9 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           <Input
             placeholder="Es. Spesa alimentare, Stipendio"
             style={{
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
           />
         </Form.Item>
@@ -108,9 +119,9 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             format="DD/MM/YYYY"
             style={{
               width: "100%",
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
           />
         </Form.Item>
@@ -125,8 +136,8 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "10px",
-              justifyContent: "center", // Centra i bottoni
+              gap: "8px",
+              justifyContent: "center",
             }}
           >
             {categories.map((category) => (
@@ -136,23 +147,23 @@ const EditTransactionModal = ({ transaction, onClose }) => {
                   selectedCategory === category.value ? "primary" : "default"
                 }
                 style={{
-                  padding: "10px 15px",
-                  borderRadius: "20px", // Bottoni più arrotondati
-                  fontSize: "14px",
+                  padding: "6px 12px",
+                  borderRadius: "12px",
+                  fontSize: "12px",
                   backgroundColor:
                     selectedCategory === category.value
-                      ? "var(--primary-color)" // Colore vivace per il bottone selezionato
-                      : "#f0f0f0", // Colore neutro per i bottoni non selezionati
+                      ? "var(--primary-color)"
+                      : "#f0f0f0",
                   border:
                     selectedCategory === category.value
-                      ? "2px solid var(--primary-color)" // Bordo evidente per i bottoni selezionati
-                      : "1px solid #d9d9d9", // Bordo sottile per i bottoni non selezionati
-                  color: selectedCategory === category.value ? "#fff" : "#333", // Testo bianco o scuro
+                      ? "2px solid var(--primary-color)"
+                      : "1px solid #d9d9d9",
+                  color: selectedCategory === category.value ? "#fff" : "#333",
                   cursor: "pointer",
                 }}
                 onClick={() => {
-                  setSelectedCategory(category.value); // Aggiorna lo stato della categoria
-                  form.setFieldsValue({ category: category.value }); // Aggiorna il valore nel form
+                  setSelectedCategory(category.value);
+                  form.setFieldsValue({ category: category.value });
                 }}
               >
                 {category.label}
@@ -167,11 +178,9 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           htmlType="submit"
           block
           style={{
-            height: "50px",
-            borderRadius: "12px",
-            fontSize: "16px",
-            background: "var(--primary-color)",
-            borderColor: "var(--primary-color)",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "14px",
           }}
         >
           Salva Modifiche

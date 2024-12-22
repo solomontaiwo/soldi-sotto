@@ -5,11 +5,7 @@ import { useAuth } from "../Auth/AuthProvider";
 import { useCategories } from "../../utils/categories";
 import { Form, Input, InputNumber, DatePicker, Button } from "antd";
 import { motion } from "framer-motion";
-import {
-  PlusOutlined,
-  WalletOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, WalletOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const TransactionForm = ({ onFormSubmit }) => {
@@ -17,7 +13,7 @@ const TransactionForm = ({ onFormSubmit }) => {
   const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);
   const [transactionType, setTransactionType] = useState("expense");
-  const [selectedCategory, setSelectedCategory] = useState(null); // Stato per la categoria selezionata
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [form] = Form.useForm();
 
   const updateCategories = useCallback(
@@ -40,7 +36,7 @@ const TransactionForm = ({ onFormSubmit }) => {
           amount: parseFloat(values.amount),
           description: values.description,
           date: values.date.toDate(),
-          category: selectedCategory, // Usa la categoria selezionata
+          category: selectedCategory,
         });
         onFormSubmit();
       } catch (error) {
@@ -55,20 +51,19 @@ const TransactionForm = ({ onFormSubmit }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       style={{
-        padding: "20px",
-        maxWidth: "500px",
+        maxWidth: "400px",
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        gap: "10px", // Spaziatura uniforme tra gli elementi
+        gap: "8px",
       }}
     >
-      {/* Selettore tipo transazione */}
+      {/* Tipo di transazione */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          gap: "10px",
+          gap: "8px",
         }}
       >
         <Button
@@ -76,8 +71,9 @@ const TransactionForm = ({ onFormSubmit }) => {
           icon={<ShoppingCartOutlined />}
           style={{
             flex: 1,
-            height: "50px",
-            borderRadius: "12px",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "14px",
             background: transactionType === "expense" ? "#ff4d4f" : undefined,
           }}
           onClick={() => setTransactionType("expense")}
@@ -89,8 +85,9 @@ const TransactionForm = ({ onFormSubmit }) => {
           icon={<WalletOutlined />}
           style={{
             flex: 1,
-            height: "50px",
-            borderRadius: "12px",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "14px",
             background: transactionType === "income" ? "#52c41a" : undefined,
           }}
           onClick={() => setTransactionType("income")}
@@ -99,7 +96,7 @@ const TransactionForm = ({ onFormSubmit }) => {
         </Button>
       </div>
 
-      {/* Formulario */}
+      {/* Form */}
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -110,10 +107,9 @@ const TransactionForm = ({ onFormSubmit }) => {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "20px", // Spaziatura uniforme
+          gap: "12px",
         }}
       >
-        {/* Importo */}
         <Form.Item
           label="Importo (€)"
           name="amount"
@@ -124,15 +120,14 @@ const TransactionForm = ({ onFormSubmit }) => {
             step={0.01}
             style={{
               width: "100%",
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
             placeholder="Es. 50.00"
           />
         </Form.Item>
 
-        {/* Descrizione */}
         <Form.Item
           label="Descrizione"
           name="description"
@@ -141,14 +136,13 @@ const TransactionForm = ({ onFormSubmit }) => {
           <Input
             placeholder="Es. Spesa alimentare, Stipendio"
             style={{
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
           />
         </Form.Item>
 
-        {/* Data */}
         <Form.Item
           label="Data"
           name="date"
@@ -158,14 +152,13 @@ const TransactionForm = ({ onFormSubmit }) => {
             format="DD/MM/YYYY"
             style={{
               width: "100%",
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "16px",
+              padding: "8px",
+              borderRadius: "6px",
+              fontSize: "14px",
             }}
           />
         </Form.Item>
 
-        {/* Categoria */}
         <Form.Item
           label="Categoria"
           name="category"
@@ -175,8 +168,8 @@ const TransactionForm = ({ onFormSubmit }) => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "10px",
-              justifyContent: "center", // Centra i bottoni
+              gap: "8px",
+              justifyContent: "center",
             }}
           >
             {categories.map((category) => (
@@ -186,9 +179,9 @@ const TransactionForm = ({ onFormSubmit }) => {
                   selectedCategory === category.value ? "primary" : "default"
                 }
                 style={{
-                  padding: "10px 15px",
-                  borderRadius: "20px",
-                  fontSize: "14px",
+                  padding: "6px 12px",
+                  borderRadius: "12px",
+                  fontSize: "12px",
                   backgroundColor:
                     selectedCategory === category.value
                       ? "var(--primary-color)"
@@ -211,17 +204,14 @@ const TransactionForm = ({ onFormSubmit }) => {
           </div>
         </Form.Item>
 
-        {/* Pulsante di invio */}
         <Button
           type="primary"
           htmlType="submit"
           block
           style={{
-            height: "50px",
-            borderRadius: "12px",
-            fontSize: "16px",
-            background: "var(--primary-color)",
-            borderColor: "var(--primary-color)",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "14px",
           }}
           icon={<PlusOutlined />}
         >
