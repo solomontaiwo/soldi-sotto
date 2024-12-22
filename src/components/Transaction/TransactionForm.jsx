@@ -3,114 +3,232 @@ import { firestore } from "../../utils/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
 import { useCategories } from "../../utils/categories";
-import { Form, Input, InputNumber, Select, DatePicker, Button, message } from "antd";
+import { Form, Input, InputNumber, DatePicker, Button } from "antd";
+import { motion } from "framer-motion";
+import {
+  PlusOutlined,
+  WalletOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
-
-const { Option } = Select;
 
 const TransactionForm = ({ onFormSubmit }) => {
   const { currentUser } = useAuth();
   const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);
+  const [transactionType, setTransactionType] = useState("expense");
+  const [selectedCategory, setSelectedCategory] = useState(null); // Stato per la categoria selezionata
+  const [form] = Form.useForm();
 
-  const updateCategories = useCallback((type) => {
-    setCategories(type === "expense" ? expenseCategories : incomeCategories);
-  }, [expenseCategories, incomeCategories]);
+  const updateCategories = useCallback(
+    (type) => {
+      setCategories(type === "expense" ? expenseCategories : incomeCategories);
+    },
+    [expenseCategories, incomeCategories]
+  );
 
   useEffect(() => {
-    updateCategories("expense");
-  }, [updateCategories]);
+    updateCategories(transactionType);
+  }, [transactionType, updateCategories]);
 
   const handleSubmit = async (values) => {
     if (currentUser) {
       try {
         await addDoc(collection(firestore, "transactions"), {
           userId: currentUser.uid,
-          type: values.type,
+          type: transactionType,
           amount: parseFloat(values.amount),
           description: values.description,
           date: values.date.toDate(),
-          category: values.category,
+          category: selectedCategory, // Usa la categoria selezionata
         });
-        message.success("Transazione aggiunta con successo!");
         onFormSubmit();
       } catch (error) {
-        message.error("Errore durante l'aggiunta della transazione.");
-        console.error("Errore:", error);
+        console.error("Errore durante l'aggiunta della transazione:", error);
       }
     }
   };
 
   return (
-    <Form
-      onFinish={handleSubmit}
-      layout="vertical"
-      initialValues={{
-        type: "expense",
-        date: dayjs(),
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        padding: "20px",
+        maxWidth: "500px",
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px", // Spaziatura uniforme tra gli elementi
       }}
     >
-      <Form.Item
-        label="Tipo di Transazione"
-        name="type"
-        rules={[{ required: true, message: "Seleziona il tipo di transazione" }]}
-        className="transaction-input"
+      {/* Selettore tipo transazione */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "10px",
+        }}
       >
-        <Select
-          onChange={(value) => updateCategories(value)}
-          className="transaction-select"
+        <Button
+          type={transactionType === "expense" ? "primary" : "default"}
+          icon={<ShoppingCartOutlined />}
+          style={{
+            flex: 1,
+            height: "50px",
+            borderRadius: "12px",
+            background: transactionType === "expense" ? "#ff4d4f" : undefined,
+          }}
+          onClick={() => setTransactionType("expense")}
         >
-          <Option value="expense">Uscita</Option>
-          <Option value="income">Entrata</Option>
-        </Select>
-      </Form.Item>
+          Uscita
+        </Button>
+        <Button
+          type={transactionType === "income" ? "primary" : "default"}
+          icon={<WalletOutlined />}
+          style={{
+            flex: 1,
+            height: "50px",
+            borderRadius: "12px",
+            background: transactionType === "income" ? "#52c41a" : undefined,
+          }}
+          onClick={() => setTransactionType("income")}
+        >
+          Entrata
+        </Button>
+      </div>
 
-      <Form.Item
-        label="Importo (€)"
-        name="amount"
-        rules={[{ required: true, message: "Inserisci l'importo" }]}
+      {/* Formulario */}
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        layout="vertical"
+        initialValues={{
+          date: dayjs(),
+        }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px", // Spaziatura uniforme
+        }}
       >
-        <InputNumber min={0} step={0.01} style={{ width: "100%" }} placeholder="Importo" />
-      </Form.Item>
+        {/* Importo */}
+        <Form.Item
+          label="Importo (€)"
+          name="amount"
+          rules={[{ required: true, message: "Inserisci l'importo" }]}
+        >
+          <InputNumber
+            min={0}
+            step={0.01}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "8px",
+              fontSize: "16px",
+            }}
+            placeholder="Es. 50.00"
+          />
+        </Form.Item>
 
-      <Form.Item
-        label="Descrizione"
-        name="description"
-        rules={[{ required: true, message: "Inserisci una descrizione" }]}
-        className="transaction-input"
-      >
-        <Input placeholder="Es. Spesa, stipendio, kebab, ecc." className="transaction-input" />
-      </Form.Item>
+        {/* Descrizione */}
+        <Form.Item
+          label="Descrizione"
+          name="description"
+          rules={[{ required: true, message: "Inserisci una descrizione" }]}
+        >
+          <Input
+            placeholder="Es. Spesa alimentare, Stipendio"
+            style={{
+              padding: "10px",
+              borderRadius: "8px",
+              fontSize: "16px",
+            }}
+          />
+        </Form.Item>
 
-      <Form.Item
-        label="Data"
-        name="date"
-        rules={[{ required: true, message: "Seleziona la data" }]}
-      >
-        <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} className="transaction-date-picker" />
-      </Form.Item>
+        {/* Data */}
+        <Form.Item
+          label="Data"
+          name="date"
+          rules={[{ required: true, message: "Seleziona la data" }]}
+        >
+          <DatePicker
+            format="DD/MM/YYYY"
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "8px",
+              fontSize: "16px",
+            }}
+          />
+        </Form.Item>
 
-      <Form.Item
-        label="Categoria"
-        name="category"
-        rules={[{ required: true, message: "Seleziona una categoria" }]}
-        className="transaction-input"
-      >
-        <Select placeholder="Seleziona Categoria" className="transaction-select">
-          {categories.map((category) => (
-            <Option key={category.value} value={category.value}>
-              {category.label}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
+        {/* Categoria */}
+        <Form.Item
+          label="Categoria"
+          name="category"
+          rules={[{ required: true, message: "Seleziona una categoria" }]}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+              justifyContent: "center", // Centra i bottoni
+            }}
+          >
+            {categories.map((category) => (
+              <Button
+                key={category.value}
+                type={
+                  selectedCategory === category.value ? "primary" : "default"
+                }
+                style={{
+                  padding: "10px 15px",
+                  borderRadius: "20px",
+                  fontSize: "14px",
+                  backgroundColor:
+                    selectedCategory === category.value
+                      ? "var(--primary-color)"
+                      : "#f0f0f0",
+                  border:
+                    selectedCategory === category.value
+                      ? "2px solid var(--primary-color)"
+                      : "1px solid #d9d9d9",
+                  color: selectedCategory === category.value ? "#fff" : "#333",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setSelectedCategory(category.value);
+                  form.setFieldsValue({ category: category.value });
+                }}
+              >
+                {category.label}
+              </Button>
+            ))}
+          </div>
+        </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit" style={{ width: "100%", padding: "10px 0", backgroundColor: "var(--button-bg-color)", borderColor: "var(--button-bg-color)", color: "#fff" }}>
+        {/* Pulsante di invio */}
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          style={{
+            height: "50px",
+            borderRadius: "12px",
+            fontSize: "16px",
+            background: "var(--primary-color)",
+            borderColor: "var(--primary-color)",
+          }}
+          icon={<PlusOutlined />}
+        >
           Aggiungi Transazione
         </Button>
-      </Form.Item>
-    </Form>
+      </Form>
+    </motion.div>
   );
 };
 
