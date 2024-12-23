@@ -5,7 +5,11 @@ import { useAuth } from "../Auth/AuthProvider";
 import { useCategories } from "../../utils/categories";
 import { Form, Input, InputNumber, DatePicker, Button } from "antd";
 import { motion } from "framer-motion";
-import { PlusOutlined, WalletOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  WalletOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const TransactionForm = ({ onFormSubmit }) => {
@@ -63,7 +67,7 @@ const TransactionForm = ({ onFormSubmit }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          gap: "8px",
+          gap: "5%",
         }}
       >
         <Button
@@ -71,9 +75,6 @@ const TransactionForm = ({ onFormSubmit }) => {
           icon={<ShoppingCartOutlined />}
           style={{
             flex: 1,
-            height: "40px",
-            borderRadius: "8px",
-            fontSize: "14px",
             background: transactionType === "expense" ? "#ff4d4f" : undefined,
           }}
           onClick={() => setTransactionType("expense")}
@@ -85,9 +86,6 @@ const TransactionForm = ({ onFormSubmit }) => {
           icon={<WalletOutlined />}
           style={{
             flex: 1,
-            height: "40px",
-            borderRadius: "8px",
-            fontSize: "14px",
             background: transactionType === "income" ? "#52c41a" : undefined,
           }}
           onClick={() => setTransactionType("income")}
@@ -104,11 +102,6 @@ const TransactionForm = ({ onFormSubmit }) => {
         initialValues={{
           date: dayjs(),
         }}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
       >
         <Form.Item
           label="Importo (€)"
@@ -120,9 +113,6 @@ const TransactionForm = ({ onFormSubmit }) => {
             step={0.01}
             style={{
               width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
             }}
             placeholder="Es. 50.00"
           />
@@ -133,14 +123,7 @@ const TransactionForm = ({ onFormSubmit }) => {
           name="description"
           rules={[{ required: true, message: "Inserisci una descrizione" }]}
         >
-          <Input
-            placeholder="Es. Spesa alimentare, Stipendio"
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
-            }}
-          />
+          <Input placeholder="Es. Spesa alimentare, MCDonald's, ecc." />
         </Form.Item>
 
         <Form.Item
@@ -152,9 +135,6 @@ const TransactionForm = ({ onFormSubmit }) => {
             format="DD/MM/YYYY"
             style={{
               width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
             }}
           />
         </Form.Item>
@@ -168,7 +148,7 @@ const TransactionForm = ({ onFormSubmit }) => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "8px",
+              gap: "16px",
               justifyContent: "center",
             }}
           >
@@ -179,9 +159,6 @@ const TransactionForm = ({ onFormSubmit }) => {
                   selectedCategory === category.value ? "primary" : "default"
                 }
                 style={{
-                  padding: "6px 12px",
-                  borderRadius: "12px",
-                  fontSize: "12px",
                   backgroundColor:
                     selectedCategory === category.value
                       ? "var(--primary-color)"
@@ -210,8 +187,6 @@ const TransactionForm = ({ onFormSubmit }) => {
           block
           style={{
             height: "40px",
-            borderRadius: "8px",
-            fontSize: "14px",
           }}
           icon={<PlusOutlined />}
         >

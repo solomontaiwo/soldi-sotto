@@ -54,9 +54,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
       centered
       onCancel={onClose}
       footer={null}
-      style={{
-        padding: "10px",
-      }}
     >
       <Form
         form={form}
@@ -67,11 +64,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           amount: transaction.amount,
           description: transaction.description,
           date: dayjs(transaction.date.toDate()),
-        }}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
         }}
       >
         {/* Importo */}
@@ -85,9 +77,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             step={0.01}
             style={{
               width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
             }}
             placeholder="Es. 50.00"
           />
@@ -99,14 +88,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           label="Descrizione"
           rules={[{ required: true, message: "Inserisci una descrizione" }]}
         >
-          <Input
-            placeholder="Es. Spesa alimentare, Stipendio"
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
-            }}
-          />
+          <Input placeholder="Es. Spesa alimentare, McDonald's, ecc." />
         </Form.Item>
 
         {/* Data */}
@@ -119,9 +101,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             format="DD/MM/YYYY"
             style={{
               width: "100%",
-              padding: "8px",
-              borderRadius: "6px",
-              fontSize: "14px",
             }}
           />
         </Form.Item>
@@ -136,7 +115,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "8px",
+              gap: "16px",
               justifyContent: "center",
             }}
           >
@@ -147,9 +126,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
                   selectedCategory === category.value ? "primary" : "default"
                 }
                 style={{
-                  padding: "6px 12px",
-                  borderRadius: "12px",
-                  fontSize: "12px",
                   backgroundColor:
                     selectedCategory === category.value
                       ? "var(--primary-color)"
@@ -179,8 +155,6 @@ const EditTransactionModal = ({ transaction, onClose }) => {
           block
           style={{
             height: "40px",
-            borderRadius: "8px",
-            fontSize: "14px",
           }}
         >
           Salva Modifiche
