@@ -29,16 +29,19 @@ SoldiSotto is a web application developed in React, designed to manage personal 
    ```bash
    git clone https://github.com/your-username/SoldiSotto.git
    ```
+
 2. Navigate to the project directory:
 
    ```bash
    cd SoldiSotto
    ```
+
 3. Install dependencies:
 
    ```bash
    npm install
    ```
+
 4. Configure Firebase:
 
    - Create a project on Firebase.
@@ -54,36 +57,42 @@ SoldiSotto is a web application developed in React, designed to manage personal 
    REACT_APP_MESSAGING_SENDER_ID=your-messaging-sender-id
    REACT_APP_APP_ID=your-app-id
    ```
+
 5. Start the application:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
-   The app will be available at `http://localhost:3000`.
+   The app will be available at `http://localhost:5173`.
 
 ## Deployment on GitHub Pages
 
 To deploy this project on GitHub Pages:
 
 1. Install the `gh-pages` package if not already installed:
+
    ```bash
    npm install gh-pages --save-dev
    ```
 
 2. Configure your `package.json` by adding the `"homepage"` field:
+
    ```json
    "homepage": "https://your-username.github.io/repository-name"
    ```
+
    Replace `your-username` with your GitHub username and `repository-name` with the repository name.
 
 3. Add the following `scripts` to `package.json`:
+
    ```json
    "predeploy": "npm run build",
    "deploy": "gh-pages -d build"
    ```
 
 4. Run the deployment command:
+
    ```bash
    npm run deploy
    ```
@@ -131,16 +140,19 @@ SoldiSotto è un'applicazione web sviluppata in React, progettata per gestire le
    ```bash
    git clone https://github.com/tuo-username/SoldiSotto.git
    ```
+
 2. Naviga nella directory del progetto:
 
    ```bash
    cd SoldiSotto
    ```
+
 3. Installa le dipendenze:
 
    ```bash
    npm install
    ```
+
 4. Configura Firebase:
 
    - Crea un progetto su Firebase.
@@ -156,36 +168,42 @@ SoldiSotto è un'applicazione web sviluppata in React, progettata per gestire le
    REACT_APP_MESSAGING_SENDER_ID=tuo-messaging-sender-id
    REACT_APP_APP_ID=tuo-app-id
    ```
+
 5. Avvia l'applicazione:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
-   L'app sarà disponibile su `http://localhost:3000`.
+   L'app sarà disponibile su `http://localhost:5173`.
 
 ## Deploy su GitHub Pages
 
 Per fare il deploy di questo progetto su GitHub Pages:
 
 1. Installa il pacchetto `gh-pages` se non è già installato:
+
    ```bash
    npm install gh-pages --save-dev
    ```
 
 2. Configura il tuo `package.json` aggiungendo il campo `"homepage"`:
+
    ```json
    "homepage": "https://tuo-username.github.io/nome-repository"
    ```
+
    Sostituisci `tuo-username` con il tuo username GitHub e `nome-repository` con il nome della repository.
 
 3. Aggiungi i seguenti `scripts` in `package.json`:
+
    ```json
    "predeploy": "npm run build",
    "deploy": "gh-pages -d build"
    ```
 
 4. Esegui il comando di deploy:
+
    ```bash
    npm run deploy
    ```
