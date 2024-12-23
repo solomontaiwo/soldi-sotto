@@ -38,7 +38,7 @@ import { useMediaQuery } from "react-responsive";
 import { animationConfig } from "../../utils/animationConfig";
 import { firestore } from "../../utils/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
-import LoadingWrapper from "../../utils/loadingWrapper"; // Importa LoadingWrapper
+import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
 import { useTheme } from "../../utils/ThemeProvider";
 

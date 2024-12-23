@@ -7,7 +7,6 @@ import Transactions from "./components/Transaction/TransactionList";
 import Stats from "./components/Stats/Stats";
 import Navbar from "./components/Navbar/Navbar";
 import ProtectedRoute from "./utils/ProtectedRoute";
-import Footer from "./components/Footer/Footer";
 import { ThemeProvider } from "./utils/ThemeProvider";
 import { message } from "antd";
 
