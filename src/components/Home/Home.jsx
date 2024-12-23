@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Modal, Button, Card, Typography, List } from "antd";
 import { useAuth } from "../Auth/AuthProvider";

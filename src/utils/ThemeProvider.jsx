@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { ConfigProvider } from "antd";
 import { theme } from "antd";
+import PropTypes from "prop-types";
 
 // Creazione del contesto per il tema
 const ThemeContext = createContext();
@@ -33,6 +34,9 @@ const setCSSVariables = (themeMode) => {
 
 // Componente principale per il tema
 export const ThemeProvider = ({ children }) => {
+  ThemeProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
   const [themeMode, setThemeMode] = useState("light");
 
   const applySystemTheme = () => {

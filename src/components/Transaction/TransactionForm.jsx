@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { firestore } from "../../utils/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "../Auth/AuthProvider";
@@ -11,8 +11,12 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import PropTypes from 'prop-types';
 
 const TransactionForm = ({ onFormSubmit }) => {
+  TransactionForm.propTypes = {
+    onFormSubmit: PropTypes.func.isRequired, // 'onFormSubmit' deve essere una funzione ed è obbligatorio
+  };
   const { currentUser } = useAuth();
   const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);

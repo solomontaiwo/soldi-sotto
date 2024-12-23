@@ -1,13 +1,29 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 import { firestore } from "../../utils/firebase";
 import { useAuth } from "../Auth/AuthProvider";
+import PropTypes from "prop-types";
 
 const TransactionContext = createContext();
 
 export const useTransactions = () => useContext(TransactionContext);
 
 export const TransactionProvider = ({ children }) => {
+  TransactionProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,9 +32,6 @@ export const TransactionProvider = ({ children }) => {
     if (!currentUser) return;
 
     setLoading(true);
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
     const q = query(
       collection(firestore, "transactions"),

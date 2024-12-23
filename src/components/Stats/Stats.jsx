@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Typography,
@@ -101,14 +101,6 @@ const Stats = () => {
   const handleViewModeChange = (value) => {
     setViewMode(value);
     if (value !== "custom") setCustomRange(null);
-  };
-
-  const handleRangeChange = (dates) => {
-    setCustomRange(
-      dates
-        ? [dates[0].startOf("day").toDate(), dates[1].endOf("day").toDate()]
-        : null
-    );
   };
 
   if (!currentUser) return <Navigate to="/login" replace />;

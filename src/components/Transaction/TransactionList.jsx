@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTransactions } from "../Transaction/TransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
 import {
@@ -44,7 +44,6 @@ import { useTheme } from "../../utils/ThemeProvider";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
 const TransactionList = () => {
@@ -142,14 +141,6 @@ const TransactionList = () => {
     if (value !== "custom") {
       setCustomRange(null);
     }
-  };
-
-  const handleRangeChange = (dates) => {
-    setCustomRange(
-      dates
-        ? [dates[0].startOf("day").toDate(), dates[1].endOf("day").toDate()]
-        : null
-    );
   };
 
   if (!currentUser) {
@@ -276,10 +267,12 @@ const TransactionList = () => {
                     }}
                     actions={[
                       <EditOutlined
+                        key="edit" // Key aggiunto
                         onClick={() => handleEditClick(transaction)}
                         style={{ color: "var(--text-color)" }}
                       />,
                       <DeleteOutlined
+                        key="delete" // Key aggiunto
                         onClick={() => handleDeleteClick(transaction.id)}
                         style={{ color: "#f5222d" }}
                       />,

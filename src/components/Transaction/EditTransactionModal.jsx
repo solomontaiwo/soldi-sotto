@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   Form,
@@ -12,8 +12,23 @@ import { firestore } from "../../utils/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useCategories } from "../../utils/categories";
 import dayjs from "dayjs";
+import PropTypes from "prop-types";
 
 const EditTransactionModal = ({ transaction, onClose }) => {
+  EditTransactionModal.propTypes = {
+    transaction: PropTypes.shape({
+      id: PropTypes.string.isRequired, // `id` deve essere una stringa ed è obbligatoria
+      type: PropTypes.string.isRequired, // `type` deve essere una stringa ed è obbligatoria
+      amount: PropTypes.number.isRequired, // `amount` deve essere un numero ed è obbligatorio
+      description: PropTypes.string.isRequired, // `description` deve essere una stringa ed è obbligatoria
+      date: PropTypes.shape({
+        toDate: PropTypes.func.isRequired, // `date.toDate` deve essere una funzione ed è obbligatoria
+      }).isRequired,
+      category: PropTypes.string.isRequired, // `category` deve essere una stringa ed è obbligatoria
+    }).isRequired,
+    onClose: PropTypes.func.isRequired, // `onClose` deve essere una funzione ed è obbligatoria
+  };
+
   const [form] = Form.useForm();
   const { expenseCategories, incomeCategories } = useCategories();
   const [categories, setCategories] = useState([]);
@@ -42,7 +57,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
       });
       message.success("Transazione aggiornata con successo");
       onClose();
-    } catch (error) {
+    } catch {
       message.error("Errore durante l'aggiornamento della transazione.");
     }
   };
