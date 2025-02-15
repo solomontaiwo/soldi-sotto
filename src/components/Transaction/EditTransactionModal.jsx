@@ -83,17 +83,19 @@ const EditTransactionModal = ({ transaction, onClose }) => {
       >
         {/* Importo */}
         <Form.Item
-          name="amount"
           label="Importo (€)"
-          rules={[{ required: true, message: "Inserisci un importo" }]}
+          name="amount"
+          rules={[{ required: true, message: "Inserisci l'importo" }]}
         >
-          <InputNumber
-            min={0}
-            step={0.01}
-            style={{
-              width: "100%",
+          <Input
+            style={{ width: "100%" }}
+            placeholder="Es. 50,00"
+            onChange={(e) => {
+              let value = e.target.value.replace(",", ".");
+              if (!isNaN(value) && value !== "") {
+                form.setFieldsValue({ amount: value });
+              }
             }}
-            placeholder="Es. 50.00"
           />
         </Form.Item>
 

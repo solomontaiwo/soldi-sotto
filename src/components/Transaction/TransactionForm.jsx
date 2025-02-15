@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 
 const TransactionForm = ({ onFormSubmit }) => {
   TransactionForm.propTypes = {
-    onFormSubmit: PropTypes.func.isRequired, // 'onFormSubmit' deve essere una funzione ed è obbligatorio
+    onFormSubmit: PropTypes.func.isRequired,
   };
   const { currentUser } = useAuth();
   const { expenseCategories, incomeCategories } = useCategories();
@@ -112,13 +112,15 @@ const TransactionForm = ({ onFormSubmit }) => {
           name="amount"
           rules={[{ required: true, message: "Inserisci l'importo" }]}
         >
-          <InputNumber
-            min={0}
-            step={0.01}
-            style={{
-              width: "100%",
+          <Input
+            style={{ width: "100%" }}
+            placeholder="Es. 50,00"
+            onChange={(e) => {
+              let value = e.target.value.replace(",", ".");
+              if (!isNaN(value) && value !== "") {
+                form.setFieldsValue({ amount: value });
+              }
             }}
-            placeholder="Es. 50.00"
           />
         </Form.Item>
 
