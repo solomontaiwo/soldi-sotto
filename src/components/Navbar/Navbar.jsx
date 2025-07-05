@@ -1,161 +1,345 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
-import { signOut } from "firebase/auth";
-import { auth } from "../../utils/firebase";
-import { Layout, Menu, Button, Dropdown, message } from "antd";
+import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { Button, Dropdown, Badge } from "react-bootstrap";
 import { useMediaQuery } from "react-responsive";
-import { useTheme } from "../../utils/ThemeProvider";
 import { motion } from "framer-motion";
 import {
+  FiMenu,
+  FiUser,
   FiLogOut,
-  FiUserPlus,
   FiHome,
   FiList,
-  FiPieChart,
-  FiSun,
-  FiMoon,
-  FiMonitor,
+  FiBarChart,
 } from "react-icons/fi";
 
-const { Header } = Layout;
-
 const Navbar = () => {
-  const { currentUser, loading: authLoading } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(location.pathname);
+  const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      message.success("Logout effettuato con successo!");
-    } catch (error) {
-      console.error("Error signing out: ", error);
-      message.error("Errore durante il logout.");
-    }
+    await logout();
+    navigate("/");
   };
 
-  // Menu items per desktop (icone + testo)
-  const desktopMenuItems = [
-    {
-      key: "/",
-      icon: <FiHome />,
-      label: <Link to="/">Home</Link>,
-    },
-    {
-      key: "/transactions",
-      icon: <FiList />,
-      label: <Link to="/transactions">Transazioni</Link>,
-    },
-    {
-      key: "/stats",
-      icon: <FiPieChart />,
-      label: <Link to="/stats">Statistiche</Link>,
-    },
-  ];
-
-  // Menu items per mobile (solo icone)
-  const mobileMenuItems = [
-    {
-      key: "/",
-      icon: <Link to="/"><FiHome /></Link>,
-    },
-    {
-      key: "/transactions",
-      icon: <Link to="/transactions"><FiList /></Link>,
-    },
-    {
-      key: "/stats",
-      icon: <Link to="/stats"><FiPieChart /></Link>,
-    },
-  ];
-
-  // Menu per il tema
-  const themeMenuItems = [
-    { key: "light", label: "Tema chiaro", icon: <FiSun /> },
-    { key: "dark", label: "Tema scuro", icon: <FiMoon /> },
-    { key: "system", label: "Tema di sistema", icon: <FiMonitor /> },
+  const navigationItems = [
+    { label: "Dashboard", path: "/dashboard", icon: <FiHome /> },
+    { label: "Transazioni", path: "/transactions", icon: <FiList /> },
+    { label: "Analytics", path: "/analytics", icon: <FiBarChart /> },
   ];
 
   return (
-    <Header
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed-top"
       style={{
-        display: "flex",
-        padding: "0 20px",
-        backgroundColor: "var(--background-color)",
-        transition: "background-color 0.3s ease",
+        height: "64px",
+        backgroundColor: "var(--glass-bg)",
+        backdropFilter: "blur(35px)",
+        WebkitBackdropFilter: "blur(35px)",
+        borderBottom: `1px solid var(--glass-border)`,
+        boxShadow: "0 1px 20px rgba(0, 0, 0, 0.08)",
+        zIndex: 1030,
       }}
     >
-      <Link to="/" style={{ marginRight: 20, display: "flex", alignItems: "center" }}>
-        <img src="icon.png" alt="Logo" style={{ height: 40 }} />
-      </Link>
-
-      {/* Menu principale: scegli il menu in base a isMobile */}
-      <Menu
-        mode="horizontal"
-        theme={theme === "dark" ? "dark" : "light"}
-        onClick={(e) => setActiveTab(e.key)}
-        style={{
-          backgroundColor: "transparent",
-          color: theme === "dark" ? "#ffffff" : "#000000",
-          flexGrow: 1,
-          display: "flex",
-        }}
-        items={isMobile ? mobileMenuItems : desktopMenuItems}
-      />
-
-      {!authLoading && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}
-        >
-          {/* Dropdown per il cambio tema */}
-          <Dropdown
-            menu={{
-              items: themeMenuItems,
-              onClick: ({ key }) => toggleTheme(key),
-            }}
-            trigger={["click"]}
-          >
-            <Button
-              icon={theme === "dark" ? <FiMoon /> : <FiSun />}
-              type="text"
-              style={{
-                color: theme === "dark" ? "#ffffff" : "#000000",
-                fontSize: "20px",
-                backgroundColor: "transparent",
-                transition: "color 0.3s ease",
-              }}
-            />
-          </Dropdown>
-
-          {currentUser ? (
-            <Button
-              onClick={handleLogout}
-              type="primary"
-              icon={<FiLogOut />}
-              style={{
-                backgroundColor: "#f5222d",
-                borderColor: "#f5222d",
-                color: "white",
+      <div className="container-fluid h-100">
+        <div className="d-flex align-items-center justify-content-between h-100">
+          {/* Logo */}
+          <div className="d-flex align-items-center gap-2">
+            <Link 
+              to="/" 
+              className="text-decoration-none text-dark fw-bold"
+              style={{ 
+                fontSize: "1.25rem",
+                textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)"
               }}
             >
-              {!isMobile && "Logout"}
-            </Button>
-          ) : (
-            <Button type="primary" icon={<FiUserPlus />}>
-              <Link to="/register" style={{ color: "white" }}>
-                {!isMobile && "Registrati"}
-              </Link>
-            </Button>
+              💰 Soldi Sotto
+            </Link>
+            {isDemo && (
+              <Badge
+                style={{
+                  fontSize: "10px",
+                  padding: "2px 6px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(25, 135, 84, 0.9)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.3)"
+                }}
+              >
+                {transactions.length}/{maxTransactions}
+              </Badge>
+            )}
+          </div>
+
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <div className="d-flex align-items-center gap-4">
+              {(currentUser || isDemo) && navigationItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="text-decoration-none px-3 py-2 rounded-pill transition-all"
+                  style={{
+                    color: location.pathname === item.path ? "#0d6efd" : "#495057",
+                    fontWeight: "500",
+                    fontSize: "16px",
+                    backgroundColor: location.pathname === item.path 
+                      ? "rgba(13, 110, 253, 0.15)" 
+                      : "transparent",
+                    transition: "all 0.2s ease",
+                    textShadow: location.pathname === item.path 
+                      ? "0 1px 2px rgba(13, 110, 253, 0.2)" 
+                      : "none"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (location.pathname !== item.path) {
+                      e.target.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
+                      e.target.style.color = "#0d6efd";
+                      e.target.style.backdropFilter = "blur(10px)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (location.pathname !== item.path) {
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#495057";
+                      e.target.style.backdropFilter = "none";
+                    }
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              
+              {/* Profilo per utenti autenticati */}
+              {currentUser && (
+                <Link
+                  to="/profile"
+                  className="text-decoration-none px-3 py-2 rounded-pill transition-all"
+                  style={{
+                    color: location.pathname === "/profile" ? "#0d6efd" : "#495057",
+                    fontWeight: "500",
+                    fontSize: "16px",
+                    backgroundColor: location.pathname === "/profile" 
+                      ? "rgba(13, 110, 253, 0.15)" 
+                      : "transparent",
+                    transition: "all 0.2s ease",
+                    textShadow: location.pathname === "/profile" 
+                      ? "0 1px 2px rgba(13, 110, 253, 0.2)" 
+                      : "none"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (location.pathname !== "/profile") {
+                      e.target.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
+                      e.target.style.color = "#0d6efd";
+                      e.target.style.backdropFilter = "blur(10px)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (location.pathname !== "/profile") {
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#495057";
+                      e.target.style.backdropFilter = "none";
+                    }
+                  }}
+                >
+                  Profilo
+                </Link>
+              )}
+              
+              {currentUser || isDemo ? (
+                <Button
+                  variant="link"
+                  onClick={handleLogout}
+                  className="text-muted text-decoration-none fw-medium"
+                  style={{ 
+                    fontSize: "16px",
+                    transition: "all 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#dc3545";
+                    e.currentTarget.style.textShadow = "0 1px 2px rgba(220, 53, 69, 0.2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "#6c757d";
+                    e.currentTarget.style.textShadow = "none";
+                  }}
+                >
+                  {isDemo ? "Esci" : "Logout"}
+                </Button>
+              ) : (
+                <div className="d-flex gap-2">
+                  <Link to="/login">
+                    <Button 
+                      variant="link"
+                      className="text-muted text-decoration-none fw-medium"
+                      style={{ fontSize: "16px" }}
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button 
+                      variant="primary"
+                      className="fw-medium"
+                      style={{
+                        borderRadius: "12px",
+                        fontSize: "16px",
+                        padding: "8px 16px",
+                        background: "rgba(13, 110, 253, 0.9)",
+                        backdropFilter: "blur(10px)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)"
+                      }}
+                    >
+                      Registrati
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
-        </motion.div>
-      )}
-    </Header>
+
+          {/* Mobile Navigation */}
+          {isMobile && (
+            <div>
+              {currentUser || isDemo ? (
+                <Dropdown align="end">
+                  <Dropdown.Toggle
+                    as={Button}
+                    variant="link"
+                    className="text-dark border-0 shadow-none"
+                    style={{
+                      fontSize: "20px",
+                      width: "40px",
+                      height: "40px",
+                      padding: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(255, 255, 255, 0.3)",
+                      borderRadius: "10px",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)"
+                    }}
+                  >
+                    <FiMenu />
+                  </Dropdown.Toggle>
+                  
+                  <Dropdown.Menu 
+                    className="border-0 shadow"
+                    style={{ 
+                      borderRadius: "16px",
+                      backgroundColor: "rgba(255, 255, 255, 0.85)",
+                      backdropFilter: "blur(25px)",
+                      WebkitBackdropFilter: "blur(25px)",
+                      border: "1px solid rgba(255, 255, 255, 0.3)",
+                      boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
+                      minWidth: "200px"
+                    }}
+                  >
+                    {navigationItems.map((item) => (
+                      <Dropdown.Item
+                        key={item.path}
+                        as={Link}
+                        to={item.path}
+                        className="d-flex align-items-center gap-2 py-2"
+                        style={{
+                          color: location.pathname === item.path ? "#0d6efd" : "#495057",
+                          backgroundColor: location.pathname === item.path 
+                            ? "rgba(13, 110, 253, 0.1)" 
+                            : "transparent",
+                          borderRadius: "8px",
+                          margin: "2px 8px",
+                          fontSize: "15px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Dropdown.Item>
+                    ))}
+                    
+                    {currentUser && (
+                      <>
+                        <Dropdown.Divider style={{ margin: "8px 0", opacity: 0.3 }} />
+                        <Dropdown.Item
+                          as={Link}
+                          to="/profile"
+                          className="d-flex align-items-center gap-2 py-2"
+                          style={{
+                            color: location.pathname === "/profile" ? "#0d6efd" : "#495057",
+                            backgroundColor: location.pathname === "/profile" 
+                              ? "rgba(13, 110, 253, 0.1)" 
+                              : "transparent",
+                            borderRadius: "8px",
+                            margin: "2px 8px",
+                            fontSize: "15px",
+                            fontWeight: "500"
+                          }}
+                        >
+                          <FiUser />
+                          Profilo & Impostazioni
+                        </Dropdown.Item>
+                      </>
+                    )}
+                    
+                    <Dropdown.Divider style={{ margin: "8px 0", opacity: 0.3 }} />
+                    <Dropdown.Item
+                      onClick={handleLogout}
+                      className="d-flex align-items-center gap-2 py-2 text-danger"
+                      style={{
+                        borderRadius: "8px",
+                        margin: "2px 8px",
+                        fontSize: "15px",
+                        fontWeight: "500"
+                      }}
+                    >
+                      <FiLogOut />
+                      {isDemo ? "Esci" : "Logout"}
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              ) : (
+                <div className="d-flex gap-2">
+                  <Link to="/login">
+                    <Button 
+                      variant="link"
+                      size="sm"
+                      className="text-muted text-decoration-none"
+                      style={{ fontSize: "14px" }}
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button 
+                      variant="primary"
+                      size="sm"
+                      className="fw-medium"
+                      style={{
+                        borderRadius: "12px",
+                        fontSize: "14px",
+                        padding: "6px 12px",
+                        background: "rgba(13, 110, 253, 0.9)",
+                        backdropFilter: "blur(10px)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)"
+                      }}
+                    >
+                      Registrati
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.nav>
   );
 };
 

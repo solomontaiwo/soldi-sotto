@@ -1,4 +1,4 @@
-import { Spin } from "antd";
+import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
 
 const LoadingWrapper = ({ loading, children }) => {
@@ -9,14 +9,12 @@ const LoadingWrapper = ({ loading, children }) => {
   if (loading) {
     return (
       <div
+        className="d-flex justify-content-center align-items-center min-vh-100"
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
+          background: "var(--background-primary)",
         }}
       >
-        <Spin size="large" />
+        <Spinner animation="border" variant="primary" />
       </div>
     );
   }

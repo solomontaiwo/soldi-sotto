@@ -1,32 +1,41 @@
 import { useState, useEffect, useCallback } from "react";
-import { firestore } from "../../utils/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { useAuth } from "../Auth/AuthProvider";
+import { useUnifiedTransactions } from "./UnifiedTransactionProvider";
 import { useCategories } from "../../utils/categories";
-import { Form, Input, InputNumber, DatePicker, Button } from "antd";
+import { useNotification } from "../../utils/notificationUtils";
 import { motion } from "framer-motion";
-import {
-  PlusOutlined,
-  WalletOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
-import dayjs from "dayjs";
+import { Modal, Form, Button, Row, Col } from "react-bootstrap";
+import { FiTrendingUp, FiTrendingDown, FiPlus } from "react-icons/fi";
+import { useMediaQuery } from "react-responsive";
 import PropTypes from 'prop-types';
 
-const TransactionForm = ({ onFormSubmit }) => {
+const TransactionForm = ({ show, onClose, onFormSubmit }) => {
   TransactionForm.propTypes = {
+    show: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
     onFormSubmit: PropTypes.func.isRequired,
   };
-  const { currentUser } = useAuth();
+
+  const { addTransaction } = useUnifiedTransactions();
   const { expenseCategories, incomeCategories } = useCategories();
+  const notification = useNotification();
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [categories, setCategories] = useState([]);
   const [transactionType, setTransactionType] = useState("expense");
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [form] = Form.useForm();
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [formData, setFormData] = useState({
+    amount: "",
+    description: "",
+    date: new Date().toISOString().split('T')[0],
+  });
+  const [loading, setLoading] = useState(false);
 
   const updateCategories = useCallback(
     (type) => {
-      setCategories(type === "expense" ? expenseCategories : incomeCategories);
+      const categoryList = type === "expense" ? expenseCategories : incomeCategories;
+      setCategories(categoryList);
+      if (categoryList.length > 0) {
+        setSelectedCategory(categoryList[0].value);
+      }
     },
     [expenseCategories, incomeCategories]
   );
@@ -35,171 +44,406 @@ const TransactionForm = ({ onFormSubmit }) => {
     updateCategories(transactionType);
   }, [transactionType, updateCategories]);
 
-  const handleSubmit = async (values) => {
-    if (currentUser) {
-      try {
-        await addDoc(collection(firestore, "transactions"), {
-          userId: currentUser.uid,
-          type: transactionType,
-          amount: parseFloat(values.amount),
-          description: values.description,
-          date: values.date.toDate(),
-          category: selectedCategory,
+  // Reset form when modal opens
+  useEffect(() => {
+    if (show) {
+      setFormData({
+        amount: "",
+        description: "",
+        date: new Date().toISOString().split('T')[0],
+      });
+      setTransactionType("expense");
+      setSelectedCategory("");
+    }
+  }, [show]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const success = await addTransaction({
+        type: transactionType,
+        amount: parseFloat(formData.amount),
+        description: formData.description,
+        date: new Date(formData.date),
+        category: selectedCategory,
+      });
+      
+      if (success) {
+        setFormData({
+          amount: "",
+          description: "",
+          date: new Date().toISOString().split('T')[0],
         });
+        setSelectedCategory(categories[0]?.value || "");
         onFormSubmit();
-      } catch (error) {
-        console.error("Errore durante l'aggiunta della transazione:", error);
+        onClose();
       }
+    } catch (error) {
+      console.error("Errore nell'aggiunta della transazione:", error);
+      notification.error("Errore nell'aggiunta della transazione");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleTypeChange = (type) => {
+    setTransactionType(type);
+    updateCategories(type);
+  };
+
+  if (!show) return null;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+    <Modal 
+      show={show} 
+      onHide={onClose} 
+      centered 
+      size="lg"
+      backdrop={false}
+      className="glass-modal"
       style={{
-        maxWidth: "400px",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
+        background: "transparent"
       }}
     >
-      {/* Tipo di transazione */}
       <div
+        className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "5%",
+          background: "rgba(255, 255, 255, 0.2)",
+          backdropFilter: "blur(25px)",
+          WebkitBackdropFilter: "blur(25px)",
+          zIndex: 1055,
+          padding: isMobile ? "20px" : "40px"
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
         }}
       >
-        <Button
-          type={transactionType === "expense" ? "primary" : "default"}
-          icon={<ShoppingCartOutlined />}
-          style={{
-            flex: 1,
-            background: transactionType === "expense" ? "#ff4d4f" : undefined,
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.85, y: 30 }}
+          transition={{ 
+            type: "spring", 
+            damping: 25, 
+            stiffness: 300,
+            duration: 0.4 
           }}
-          onClick={() => setTransactionType("expense")}
-        >
-          Uscita
-        </Button>
-        <Button
-          type={transactionType === "income" ? "primary" : "default"}
-          icon={<WalletOutlined />}
           style={{
-            flex: 1,
-            background: transactionType === "income" ? "#52c41a" : undefined,
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)",
+            backdropFilter: "blur(30px)",
+            WebkitBackdropFilter: "blur(30px)",
+            borderRadius: "28px",
+            border: "1px solid rgba(255, 255, 255, 0.4)",
+            boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1) inset",
+            maxWidth: "650px",
+            width: "100%",
+            maxHeight: "90vh",
+            overflow: "hidden",
+            position: "relative"
           }}
-          onClick={() => setTransactionType("income")}
         >
-          Entrata
-        </Button>
-      </div>
-
-      {/* Form */}
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-        layout="vertical"
-        initialValues={{
-          date: dayjs(),
-        }}
-      >
-        <Form.Item
-          label="Importo (€)"
-          name="amount"
-          rules={[{ required: true, message: "Inserisci l'importo" }]}
-        >
-          <Input
-            style={{ width: "100%" }}
-            placeholder="Es. 50,00"
-            onChange={(e) => {
-              let value = e.target.value.replace(",", ".");
-              if (!isNaN(value) && value !== "") {
-                form.setFieldsValue({ amount: value });
-              }
-            }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Descrizione"
-          name="description"
-          rules={[{ required: true, message: "Inserisci una descrizione" }]}
-        >
-          <Input placeholder="Es. Spesa alimentare, MCDonald's, ecc." />
-        </Form.Item>
-
-        <Form.Item
-          label="Data"
-          name="date"
-          rules={[{ required: true, message: "Seleziona la data" }]}
-        >
-          <DatePicker
-            format="DD/MM/YYYY"
-            style={{
-              width: "100%",
-            }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Categoria"
-          name="category"
-          rules={[{ required: true, message: "Seleziona una categoria" }]}
-        >
+          {/* Decorative elements */}
           <div
             style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "16px",
-              justifyContent: "center",
+              position: "absolute",
+              top: "-50%",
+              right: "-10%",
+              width: "200px",
+              height: "200px",
+              background: "radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)",
+              borderRadius: "50%",
+              pointerEvents: "none"
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-30%",
+              left: "-5%",
+              width: "150px",
+              height: "150px",
+              background: "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
+              borderRadius: "50%",
+              pointerEvents: "none"
+            }}
+          />
+
+          {/* Header */}
+          <div className="d-flex align-items-center justify-content-between p-4 pb-0">
+            <div>
+              <h3 className="fw-bold text-dark mb-1 d-flex align-items-center gap-3">
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    background: "linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 197, 253, 0.15))",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(59, 130, 246, 0.2)"
+                  }}
+                >
+                  ⚡
+                </div>
+                Nuova Transazione
+              </h3>
+              <p className="text-muted mb-0 ms-5 ps-3" style={{ fontSize: "0.95rem" }}>
+                Aggiungi velocemente una nuova transazione
+              </p>
+            </div>
+            <Button
+              variant="link"
+              onClick={onClose}
+              className="text-muted p-0 d-flex align-items-center justify-content-center"
+              style={{ 
+                fontSize: "22px",
+                width: "44px",
+                height: "44px",
+                borderRadius: "16px",
+                background: "rgba(255, 255, 255, 0.6)",
+                backdropFilter: 'blur(10px)',
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
+                e.currentTarget.style.color = "var(--accent-error)";
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.6)";
+                e.currentTarget.style.color = "";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+            >
+              ×
+            </Button>
+          </div>
+
+          {/* Content */}
+          <div 
+            className="p-4 pt-3"
+            style={{
+              maxHeight: "calc(90vh - 120px)",
+              overflowY: "auto",
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(0,0,0,0.2) transparent"
             }}
           >
-            {categories.map((category) => (
-              <Button
-                key={category.value}
-                type={
-                  selectedCategory === category.value ? "primary" : "default"
-                }
-                style={{
-                  backgroundColor:
-                    selectedCategory === category.value
-                      ? "var(--primary-color)"
-                      : "#f0f0f0",
-                  border:
-                    selectedCategory === category.value
-                      ? "2px solid var(--primary-color)"
-                      : "1px solid #d9d9d9",
-                  color: selectedCategory === category.value ? "#fff" : "#333",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setSelectedCategory(category.value);
-                  form.setFieldsValue({ category: category.value });
-                }}
-              >
-                {category.label}
-              </Button>
-            ))}
-          </div>
-        </Form.Item>
+            {/* Transaction Type Selector */}
+            <div className="mb-3">
+              <Form.Label className="fw-semibold text-dark mb-2 small">
+                Tipo di Transazione
+              </Form.Label>
+              <div className="d-flex gap-2">
+                <Button
+                  variant={transactionType === "expense" ? "danger" : "outline-danger"}
+                  onClick={() => handleTypeChange("expense")}
+                  className="flex-fill d-flex align-items-center justify-content-center gap-2 py-2"
+                  style={{
+                    borderRadius: "12px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    background: transactionType === "expense" 
+                      ? "linear-gradient(135deg, var(--accent-error), #c82333)"
+                      : "rgba(255, 255, 255, 0.8)",
+                    border: transactionType === "expense" 
+                      ? "none" 
+                      : "2px solid var(--accent-error)"
+                  }}
+                >
+                  <FiTrendingDown size={16} />
+                  Spesa
+                </Button>
+                <Button
+                  variant={transactionType === "income" ? "success" : "outline-success"}
+                  onClick={() => handleTypeChange("income")}
+                  className="flex-fill d-flex align-items-center justify-content-center gap-2 py-2"
+                  style={{
+                    borderRadius: "12px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    background: transactionType === "income" 
+                      ? "linear-gradient(135deg, var(--accent-success), #157347)"
+                      : "rgba(255, 255, 255, 0.8)",
+                    border: transactionType === "income" 
+                      ? "none" 
+                      : "2px solid var(--accent-success)"
+                  }}
+                >
+                  <FiTrendingUp size={16} />
+                  Entrata
+                </Button>
+              </div>
+            </div>
 
-        <Button
-          type="primary"
-          htmlType="submit"
-          block
-          style={{
-            height: "40px",
-          }}
-          icon={<PlusOutlined />}
-        >
-          Aggiungi Transazione
-        </Button>
-      </Form>
-    </motion.div>
+            {/* Form */}
+            <Form onSubmit={handleSubmit}>
+              {/* Amount and Date Row */}
+              <Row className="mb-3">
+                <Col xs={isMobile ? 12 : 6} className={isMobile ? "mb-3" : ""}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold text-dark small mb-1">
+                      Importo (€)
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0,00"
+                      value={formData.amount}
+                      onChange={(e) => handleInputChange("amount", e.target.value)}
+                      required
+                      className="border-0"
+                      style={{
+                        height: "46px",
+                        borderRadius: "14px",
+                        fontSize: "15px",
+                        background: "rgba(255, 255, 255, 0.85)",
+                        border: "1px solid rgba(0, 0, 0, 0.1)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                        fontWeight: "500"
+                      }}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={isMobile ? 12 : 6}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold text-dark small mb-1">
+                      Data
+                    </Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => handleInputChange("date", e.target.value)}
+                      required
+                      className="border-0"
+                      style={{
+                        height: "46px",
+                        borderRadius: "14px",
+                        fontSize: "15px",
+                        background: "rgba(255, 255, 255, 0.85)",
+                        border: "1px solid rgba(0, 0, 0, 0.1)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+                      }}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              {/* Description */}
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold text-dark small mb-1">
+                  Descrizione
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Es. Spesa alimentare, Stipendio..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  required
+                  className="border-0"
+                  style={{
+                    height: "46px",
+                    borderRadius: "14px",
+                    fontSize: "15px",
+                    background: "rgba(255, 255, 255, 0.85)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    fontWeight: "500"
+                  }}
+                />
+              </Form.Group>
+
+              {/* Category Select */}
+              <Form.Group className="mb-4">
+                <Form.Label className="fw-semibold text-dark small mb-2">
+                  Categoria
+                </Form.Label>
+                <Form.Select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  required
+                  className="border-0"
+                  style={{
+                    height: "46px",
+                    borderRadius: "14px",
+                    fontSize: "15px",
+                    background: "rgba(255, 255, 255, 0.85)",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    fontWeight: "500"
+                  }}
+                >
+                  <option value="">Seleziona una categoria</option>
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              {/* Action Buttons */}
+              <div className="d-flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={onClose}
+                  className="flex-fill py-2"
+                  style={{
+                    borderRadius: "12px",
+                    fontWeight: "500",
+                    fontSize: "14px",
+                    background: "rgba(255, 255, 255, 0.9)",
+                    border: "1px solid rgba(0, 0, 0, 0.15)"
+                  }}
+                >
+                  Annulla
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading || !formData.amount || !formData.description || !selectedCategory}
+                  className="flex-fill border-0 fw-semibold py-2"
+                  style={{
+                    borderRadius: "12px",
+                    fontSize: "14px",
+                    background: transactionType === "expense" 
+                      ? "linear-gradient(135deg, var(--accent-error), #c82333)"
+                      : "linear-gradient(135deg, var(--accent-success), #157347)",
+                    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.15)"
+                  }}
+                >
+                  {loading ? (
+                    <div className="d-flex align-items-center justify-content-center">
+                      <div className="spinner-border spinner-border-sm me-1" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      Aggiungendo...
+                    </div>
+                  ) : (
+                    <div className="d-flex align-items-center justify-content-center gap-1">
+                      <FiPlus size={16} />
+                      Aggiungi {transactionType === "expense" ? "Spesa" : "Entrata"}
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </motion.div>
+      </div>
+    </Modal>
   );
 };
 

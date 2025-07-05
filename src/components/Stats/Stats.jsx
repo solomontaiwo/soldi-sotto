@@ -1,17 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Typography,
-  Row,
-  Col,
-  Button,
-  Statistic,
-  Select,
-  DatePicker,
-  Divider,
-  Empty,
-  Card,
-} from "antd";
+import { Card, Row, Col, Button, Form } from "react-bootstrap";
 import { useAuth } from "../Auth/AuthProvider";
 import { useTransactions } from "../Transaction/TransactionProvider";
 import { Navigate } from "react-router-dom";
@@ -35,11 +24,7 @@ import { animationConfig } from "../../utils/animationConfig";
 import { useMediaQuery } from "react-responsive";
 import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
-import { useTheme } from "../../utils/ThemeProvider";
 import logo from "/icon.png";
-
-const { Title, Text } = Typography;
-const { Option } = Select;
 
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
@@ -52,7 +37,6 @@ const Stats = () => {
 
   const loading = authLoading || transactionsLoading;
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { theme } = useTheme();
 
   useEffect(() => {
     if (!loading && transactions.length > 0) {
@@ -105,10 +89,6 @@ const Stats = () => {
 
   if (!currentUser) return <Navigate to="/login" replace />;
 
-  // Definizione colori della card basati sul tema attivo
-  const cardBackgroundColor = "var(--card-background)";
-  const cardTextColor = "var(--text-color)";
-
   // Calcolo della media giornaliera per entrate e spese
   const daysCount =
     startDate && endDate
@@ -138,30 +118,22 @@ const Stats = () => {
           padding: "20px",
           maxWidth: "1200px",
           margin: "0 auto",
-          color: "var(--text-color)",
+          color: "var(--text-color)"
         }}
       >
         <motion.div
           {...animationConfig}
-          style={{ textAlign: "center", marginBottom: "10px" }}
+          style={{ textAlign: "center", marginBottom: "30px" }}
         >
-          <Title
-            level={2}
-            style={{ color: "var(--primary-color)", textAlign: "center" }}
-          >
+          <h2 className="text-primary fw-bold mb-3" style={{ fontSize: '2.5rem' }}>
             Statistiche
-          </Title>
-          <Text
-            style={{
-              color: "var(--text-color)",
-              textAlign: "center",
-              display: "block",
-              marginBottom: 20,
-            }}
-          >
+          </h2>
+          <p className="text-muted mb-4" style={{ fontSize: '1.1rem' }}>
             Riepilogo delle tue transazioni e statistiche finanziarie, per
             tenere traccia del tuo bilancio.
-          </Text>
+          </p>
+          
+          {/* PDF Export Button */}
           <Button
             onClick={() =>
               generatePDF(
@@ -176,231 +148,159 @@ const Stats = () => {
                 endDate
               )
             }
-            type="primary"
+            variant="primary"
+            className="mb-4"
             style={{
               width: "100%",
               height: isMobile ? "50px" : "60px",
               fontSize: isMobile ? "16px" : "18px",
-              display: "block",
-              margin: "0 auto",
-              marginBottom: 20,
-              backgroundColor: "var(--button-bg-color)",
-              borderColor: "var(--button-bg-color)",
+              borderRadius: "12px",
+              fontWeight: "600"
             }}
           >
-            Scarica Report PDF
+            📄 Scarica Report PDF
           </Button>
-          <Select
+          
+          {/* View Mode Selector */}
+          <Form.Select
             value={viewMode}
-            onChange={handleViewModeChange}
-            style={{ width: "100%" }}
+            onChange={(e) => handleViewModeChange(e.target.value)}
+            className="mb-4"
+            style={{
+              height: "50px",
+              borderRadius: "12px",
+              fontSize: "16px",
+              backgroundColor: "rgba(255, 255, 255, 0.9)"
+            }}
           >
-            <Option value="daily">Oggi</Option>
-            <Option value="weekly">Settimana corrente</Option>
-            <Option value="monthly">Mese corrente</Option>
-            <Option value="annually">Anno corrente</Option>
-            <Option value="custom">Personalizzato</Option>
-          </Select>
-          {viewMode === "custom" && (
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                marginTop: "10px",
-              }}
-            >
-              <DatePicker
-                onChange={(date) =>
-                  setCustomRange([date, customRange ? customRange[1] : null])
-                }
-                placeholder="Data Inizio"
-                style={{ width: "100%" }}
-              />
-              <DatePicker
-                onChange={(date) =>
-                  setCustomRange([customRange ? customRange[0] : null, date])
-                }
-                placeholder="Data Fine"
-                style={{ width: "100%" }}
-              />
-            </div>
-          )}
+            <option value="daily">Oggi</option>
+            <option value="weekly">Settimana corrente</option>
+            <option value="monthly">Mese corrente</option>
+            <option value="annually">Anno corrente</option>
+          </Form.Select>
         </motion.div>
-        {stats && stats.totalIncome !== undefined ? (
-          <>
-            <Row
-              gutter={16}
-              justify="center"
-              style={{ marginBottom: "20px", marginTop: "30px" }}
-            >
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Entrate Totali
-                        </span>
-                      }
-                      value={formatCurrency(stats.totalIncome || 0)}
-                      valueStyle={{ color: "#3f8600" }}
-                    />
-                  </Card>
-                </motion.div>
+
+        {stats ? (
+          <motion.div {...animationConfig}>
+            {/* Main Statistics Cards */}
+            <Row className="g-4 mb-5">
+              <Col xs={12} md={6} lg={3}>
+                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="text-center p-4">
+                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>💰</div>
+                    <h6 className="text-muted mb-2">Entrate Totali</h6>
+                    <h4 className="text-success fw-bold mb-0">{formatCurrency(stats.totalIncome)}</h4>
+                  </Card.Body>
+                </Card>
               </Col>
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Spese Totali
-                        </span>
-                      }
-                      value={formatCurrency(stats.totalExpense || 0)}
-                      valueStyle={{ color: "#cf1322" }}
-                    />
-                  </Card>
-                </motion.div>
+              
+              <Col xs={12} md={6} lg={3}>
+                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="text-center p-4">
+                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>💸</div>
+                    <h6 className="text-muted mb-2">Uscite Totali</h6>
+                    <h4 className="text-danger fw-bold mb-0">{formatCurrency(stats.totalExpense)}</h4>
+                  </Card.Body>
+                </Card>
               </Col>
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Saldo
-                        </span>
-                      }
-                      value={formatCurrency(stats.balance || 0)}
-                      valueStyle={{
-                        color: theme === "dark" ? "#e0e0e0" : "#333333",
-                      }}
-                    />
-                  </Card>
-                </motion.div>
+              
+              <Col xs={12} md={6} lg={3}>
+                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="text-center p-4">
+                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>📊</div>
+                    <h6 className="text-muted mb-2">Bilancio</h6>
+                    <h4 className={`fw-bold mb-0 ${stats.balance >= 0 ? 'text-success' : 'text-danger'}`}>
+                      {formatCurrency(stats.balance)}
+                    </h4>
+                  </Card.Body>
+                </Card>
+              </Col>
+              
+              <Col xs={12} md={6} lg={3}>
+                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="text-center p-4">
+                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>📈</div>
+                    <h6 className="text-muted mb-2">Transazioni</h6>
+                    <h4 className="text-primary fw-bold mb-0">{stats.transactionCount}</h4>
+                  </Card.Body>
+                </Card>
               </Col>
             </Row>
 
-            {/* Nuove metriche in stile card */}
-            <motion.div {...animationConfig}>
-              <Divider>Metriche Aggiuntive</Divider>
-            </motion.div>
-
-            <Row
-              gutter={16}
-              justify="center"
-              style={{ marginBottom: "20px", marginTop: "20px" }}
-            >
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Media Giornaliera Entrate
-                        </span>
-                      }
-                      value={formatCurrency(avgDailyIncome)}
-                      valueStyle={{ color: "#3f8600" }}
-                    />
-                  </Card>
-                </motion.div>
+            {/* Secondary Statistics */}
+            <Row className="g-4 mb-5">
+              <Col xs={12} md={6}>
+                <Card className="border-0 shadow-sm glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="p-4">
+                    <h5 className="text-dark fw-semibold mb-3">📅 Medie Giornaliere</h5>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="text-muted">Entrata media:</span>
+                      <span className="text-success fw-medium">{formatCurrency(avgDailyIncome)}</span>
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="text-muted">Spesa media:</span>
+                      <span className="text-danger fw-medium">{formatCurrency(avgDailyExpense)}</span>
+                    </div>
+                  </Card.Body>
+                </Card>
               </Col>
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Media Giornaliera Spese
-                        </span>
-                      }
-                      value={formatCurrency(avgDailyExpense)}
-                      valueStyle={{ color: "#cf1322" }}
-                    />
-                  </Card>
-                </motion.div>
-              </Col>
-              <Col xs={24} md={8}>
-                <motion.div {...animationConfig}>
-                  <Card
-                    style={{
-                      textAlign: "center",
-                      borderRadius: "8px",
-                      backgroundColor: cardBackgroundColor,
-                      color: cardTextColor,
-                      boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-                      marginBottom: isMobile ? "10px" : "0",
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span style={{ color: "var(--text-color)" }}>
-                          Percentuale di Risparmio
-                        </span>
-                      }
-                      value={`${savingPercentage.toFixed(2)}%`}
-                      valueStyle={{
-                        color: theme === "dark" ? "#e0e0e0" : "#333333",
-                      }}
-                    />
-                  </Card>
-                </motion.div>
+              
+              <Col xs={12} md={6}>
+                <Card className="border-0 shadow-sm glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <Card.Body className="p-4">
+                    <h5 className="text-dark fw-semibold mb-3">💎 Tasso di Risparmio</h5>
+                    <div className="text-center">
+                      <div 
+                        className={`display-6 fw-bold ${savingPercentage >= 0 ? 'text-success' : 'text-danger'}`}
+                      >
+                        {savingPercentage.toFixed(1)}%
+                      </div>
+                      <small className="text-muted">
+                        {savingPercentage >= 0 ? 'Stai risparmiando!' : 'Stai spendendo più di quanto guadagni'}
+                      </small>
+                    </div>
+                  </Card.Body>
+                </Card>
               </Col>
             </Row>
-          </>
+
+            {/* Category Breakdown */}
+            {stats.categoryBreakdown && Object.keys(stats.categoryBreakdown).length > 0 && (
+              <Card className="border-0 shadow-sm mb-4 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card.Body className="p-4">
+                  <h5 className="text-dark fw-semibold mb-4">📋 Spese per Categoria</h5>
+                  <Row className="g-3">
+                    {Object.entries(stats.categoryBreakdown).map(([category, amount]) => (
+                      <Col key={category} xs={12} sm={6} md={4}>
+                        <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                          <span className="text-capitalize fw-medium">{category}</span>
+                          <span className="text-danger fw-bold">{formatCurrency(amount)}</span>
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card.Body>
+              </Card>
+            )}
+          </motion.div>
         ) : (
-          <motion.div
-            {...animationConfig}
-            style={{ textAlign: "center", marginTop: "20px" }}
-          >
-            <Empty description="Nessuna statistica disponibile per il periodo selezionato." />
+          <motion.div {...animationConfig}>
+            <Card className="border-0 shadow-sm text-center glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <Card.Body className="p-5">
+                <div style={{ fontSize: '4rem', marginBottom: '2rem' }}>📊</div>
+                <h4 className="text-muted mb-3">Nessuna transazione trovata</h4>
+                <p className="text-muted mb-4">
+                  Non ci sono transazioni per il periodo selezionato. Prova a cambiare il periodo di visualizzazione o aggiungi delle transazioni.
+                </p>
+                <Button 
+                  variant="primary" 
+                  onClick={() => window.location.href = "/transactions"}
+                  style={{ borderRadius: '12px', padding: '12px 24px' }}
+                >
+                  Aggiungi Transazioni
+                </Button>
+              </Card.Body>
+            </Card>
           </motion.div>
         )}
       </div>

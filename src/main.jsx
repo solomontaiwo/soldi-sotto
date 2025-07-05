@@ -1,13 +1,16 @@
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./main.css";
 import { AuthProvider } from "./components/Auth/AuthProvider";
-import { TransactionProvider } from "./components/Transaction/TransactionProvider"; // Importa il provider
+import { UnifiedTransactionProvider } from "./components/Transaction/UnifiedTransactionProvider";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <TransactionProvider> {/* Avvolgi con TransactionProvider */}
-      <App />
-    </TransactionProvider>
-  </AuthProvider>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <AuthProvider>
+      <UnifiedTransactionProvider>
+        <App />
+      </UnifiedTransactionProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );
