@@ -1,5 +1,5 @@
-import { Card, Row, Col, Alert, Button, Form, ProgressBar } from "react-bootstrap";
-import { FiBarChart, FiTrendingUp, FiTrendingDown, FiPieChart, FiCalendar, FiDollarSign, FiArrowUp, FiArrowDown, FiTarget, FiActivity, FiDownload } from "react-icons/fi";
+import { Card, Row, Col, Alert, Form, ProgressBar } from "react-bootstrap";
+import { FiBarChart, FiTrendingUp, FiTrendingDown, FiPieChart, FiCalendar, FiDollarSign, FiArrowUp, FiArrowDown, FiTarget, FiActivity } from "react-icons/fi";
 // Analytics component - Auth provider not needed for this component
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useMediaQuery } from "react-responsive";
@@ -244,20 +244,6 @@ const TransactionAnalytics = () => {
                 </option>
               ))}
             </Form.Select>
-            
-            <Button
-              variant="outline-primary"
-              onClick={() => alert("Funzionalità di export in arrivo!")}
-              className="d-flex align-items-center gap-2"
-              style={{
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                border: '1px solid rgba(13,110,253,0.2)'
-              }}
-            >
-              <FiDownload size={16} />
-              {!isMobile && "Export"}
-            </Button>
           </div>
         </div>
 

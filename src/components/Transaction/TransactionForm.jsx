@@ -204,29 +204,29 @@ const TransactionForm = ({ show, onClose, onFormSubmit }) => {
             <Button
               variant="link"
               onClick={onClose}
-              className="text-muted p-0 d-flex align-items-center justify-content-center"
+              className="p-0 d-flex align-items-center justify-content-center"
               style={{ 
                 fontSize: "22px",
                 width: "44px",
                 height: "44px",
                 borderRadius: "16px",
-                background: "rgba(255, 255, 255, 0.6)",
-                backdropFilter: 'blur(10px)',
+                background: 'var(--glass-bg, rgba(255,255,255,0.6))',
+                color: 'var(--text-primary, #222)',
                 border: "1px solid rgba(0, 0, 0, 0.08)",
                 transition: "all 0.3s ease"
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
-                e.currentTarget.style.color = "var(--accent-error)";
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
+                e.currentTarget.style.color = "#dc3545";
                 e.currentTarget.style.transform = "scale(1.05)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.6)";
-                e.currentTarget.style.color = "";
+                e.currentTarget.style.background = "var(--glass-bg, rgba(255,255,255,0.6))";
+                e.currentTarget.style.color = "var(--text-primary, #222)";
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              ×
+              <span style={{ color: 'inherit', fontWeight: 700 }}>×</span>
             </Button>
           </div>
 

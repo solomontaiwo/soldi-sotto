@@ -6,7 +6,6 @@ import {
   FiPieChart, 
   FiClock, 
   FiSettings,
-  FiDownload,
   FiUser,
   FiLogOut,
   FiEdit,
@@ -25,7 +24,6 @@ import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { firestore } from "../../utils/firebase";
 import formatCurrency from "../../utils/formatCurrency";
-import { generatePDFReport } from "../../utils/pdfUtils";
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
@@ -71,17 +69,6 @@ const Profile = () => {
   const handleThemeChange = (e) => {
     const selectedTheme = e.target.value;
     toggleTheme(selectedTheme);
-  };
-
-  const handleExportPDF = async () => {
-    try {
-      notification.info("Generazione PDF in corso...");
-      await generatePDFReport(transactions);
-      notification.success("PDF generato con successo!");
-    } catch (error) {
-      console.error("Errore nella generazione PDF:", error);
-      notification.error("Errore nella generazione del PDF");
-    }
   };
 
   const checkUsernameAvailability = async (username) => {
@@ -431,23 +418,6 @@ const Profile = () => {
         transition={{ duration: 0.5, delay: 1.0 }}
         className="d-flex justify-content-center gap-3 flex-wrap"
       >
-        <Button
-          variant="outline-primary"
-          onClick={handleExportPDF}
-          className="d-flex align-items-center gap-2"
-          style={{
-            borderRadius: '20px',
-            minWidth: '160px',
-            padding: '12px 24px',
-            backgroundColor: 'var(--pastel-lavender)',
-            borderColor: 'var(--primary-400)',
-            color: 'var(--primary-600)'
-          }}
-        >
-          <FiDownload size={16} />
-          Esporta PDF
-        </Button>
-        
         <Button
           variant="primary"
           onClick={() => navigate("/dashboard")}

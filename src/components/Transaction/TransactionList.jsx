@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
-import { Button, Modal, Alert, Form, Badge } from "react-bootstrap";
+import { Button, Alert, Form, Badge } from "react-bootstrap";
 import EditTransactionModal from "./EditTransactionModal";
 import { motion, AnimatePresence } from "framer-motion";
 import TransactionForm from "./TransactionForm";
@@ -744,190 +744,64 @@ const TransactionList = () => {
       )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        show={!!deleteConfirm}
-        onHide={() => setDeleteConfirm(null)}
-        backdrop={false}
-        className="glass-modal"
-        style={{
-          background: "transparent"
-        }}
-      >
+      {deleteConfirm && (
         <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
           style={{
-            background: "rgba(255, 255, 255, 0.1)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            zIndex: 1055,
-            padding: "20px"
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setDeleteConfirm(null);
-            }
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.18)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.85 }}
-            transition={{ 
-              type: "spring", 
-              damping: 30, 
-              stiffness: 400,
-              duration: 0.3 
-            }}
+          <div
             style={{
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%)",
-              backdropFilter: "blur(30px)",
-              WebkitBackdropFilter: "blur(30px)",
-              borderRadius: "24px",
-              border: "1px solid rgba(255, 255, 255, 0.5)",
-              boxShadow: "0 20px 40px rgba(239, 68, 68, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.2) inset",
-              maxWidth: "480px",
-              width: "100%",
-              overflow: "hidden",
-              position: "relative"
+              background: "linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.89) 100%)",
+              borderRadius: "28px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.18)",
+              padding: "32px 28px",
+              minWidth: "320px",
+              maxWidth: "95vw",
+              border: "1px solid rgba(0,0,0,0.08)",
+              textAlign: "center"
             }}
           >
-            {/* Decorative danger gradient */}
-            <div
-              style={{
-                position: "absolute",
-                top: "-50%",
-                right: "-20%",
-                width: "200px",
-                height: "200px",
-                background: "radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%)",
-                borderRadius: "50%",
-                pointerEvents: "none"
-              }}
-            />
-
-            {/* Header */}
-            <div className="p-4 pb-3">
-              <div className="text-center mb-3">
-                <div
-                  className="rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3"
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    background: "linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(239, 68, 68, 0.2)",
-                    fontSize: "28px"
-                  }}
-                >
-                  🗑️
-                </div>
-                <h4 className="fw-bold text-dark mb-2">
-                  Elimina Transazione
-                </h4>
-                <p className="text-muted mb-0" style={{ fontSize: "0.95rem" }}>
-                  Sei sicuro di voler eliminare questa transazione? Questa azione non può essere annullata.
-                </p>
+            <div className="mb-3 fw-semibold" style={{ fontSize: "1.1rem" }}>
+              Sei sicuro di voler eliminare questa transazione? Questa azione non può essere annullata.
+            </div>
+            <div className="mb-3">
+              <div className="fw-bold text-dark mb-1">{transactions.find(t => t.id === deleteConfirm)?.description}</div>
+              <div className="text-muted small mb-1">
+                {formatGroupDate(getTransactionDate(transactions.find(t => t.id === deleteConfirm)))} • {getCategoryLabel(transactions.find(t => t.id === deleteConfirm)?.category)}
               </div>
-
-              {/* Transaction Details Preview */}
-              {deleteConfirm && (
-                <div 
-                  className="p-3 rounded-3 mb-4"
-                  style={{
-                    background: "rgba(239, 68, 68, 0.05)",
-                    border: "1px solid rgba(239, 68, 68, 0.1)",
-                    backdropFilter: "blur(10px)"
-                  }}
-                >
-                  {(() => {
-                    const transactionToDelete = transactions.find(t => t.id === deleteConfirm);
-                    if (!transactionToDelete) return null;
-                    
-                    return (
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <div className="fw-semibold text-dark mb-1">
-                            {transactionToDelete.description}
-                          </div>
-                          <small className="text-muted">
-                            {getTransactionDate(transactionToDelete).toLocaleDateString("it-IT")} • {transactionToDelete.category}
-                          </small>
-                        </div>
-                        <div className={`fw-bold ${transactionToDelete.type === 'income' ? 'text-success' : 'text-danger'}`}>
-                          {transactionToDelete.type === 'income' ? '+' : '-'}
-                          {formatCurrency(transactionToDelete.amount)}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="d-flex gap-3">
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => setDeleteConfirm(null)}
-                  className="flex-fill py-3"
-                  style={{
-                    borderRadius: "16px",
-                    fontWeight: "500",
-                    fontSize: "16px",
-                    background: "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(0, 0, 0, 0.1)",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.9)";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  Annulla
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={confirmDelete}
-                  disabled={loading}
-                  className="flex-fill py-3 border-0 fw-semibold"
-                  style={{
-                    borderRadius: "16px",
-                    fontSize: "16px",
-                    background: "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.95))",
-                    boxShadow: "0 8px 25px rgba(239, 68, 68, 0.3)",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!loading) {
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                      e.currentTarget.style.boxShadow = "0 12px 35px rgba(239, 68, 68, 0.4)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 8px 25px rgba(239, 68, 68, 0.3)";
-                  }}
-                >
-                  {loading ? (
-                    <div className="d-flex align-items-center justify-content-center gap-2">
-                      <div className="spinner-border spinner-border-sm" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                      Eliminando...
-                    </div>
-                  ) : (
-                    "Elimina Definitivamente"
-                  )}
-                </Button>
+              <div className="fw-bold" style={{ color: transactions.find(t => t.id === deleteConfirm)?.type === 'income' ? '#198754' : '#dc3545' }}>
+                {transactions.find(t => t.id === deleteConfirm)?.type === 'income' ? '+' : '-'}{formatCurrency(transactions.find(t => t.id === deleteConfirm)?.amount)}
               </div>
             </div>
-          </motion.div>
+            <div className="d-flex gap-2 justify-content-center">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setDeleteConfirm(null)}
+                style={{ borderRadius: "16px", minWidth: "120px" }}
+              >
+                Annulla
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={confirmDelete}
+                style={{ borderRadius: "16px", minWidth: "180px" }}
+              >
+                Elimina Definitivamente
+              </button>
+            </div>
+          </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
 };
