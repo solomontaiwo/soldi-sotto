@@ -3,6 +3,7 @@
   "private": true,
   "version": "3.2.2",
   "type": "module",
+  "homepage": "https://solomontaiwo.github.io/soldi-sotto",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
