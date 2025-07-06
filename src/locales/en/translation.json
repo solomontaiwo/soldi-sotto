@@ -279,8 +279,8 @@
   "login": {
     "title": "Welcome back!",
     "subtitle": "Sign in to your account",
-    "usernameOrEmail": "Username or Email",
-    "usernameOrEmailPlaceholder": "username or email",
+    "usernameOrEmail": "Email",
+    "usernameOrEmailPlaceholder": "Email",
     "usernameOrEmailHelp": "Enter your registration email to sign in",
     "password": "Password",
     "passwordPlaceholder": "enter your password",
