@@ -1,14 +1,87 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <script type="text/javascript">
-      // Verifica se siamo su una pagina di errore 404
-      if (window.location.pathname !== "/soldi-sotto" && !document.referrer.includes("/soldi-sotto")) {
-        // Mantieni il percorso originale senza reindirizzamento infinito
-        var path = window.location.pathname.replace("/soldi-sotto", "");
-        window.location.replace("/soldi-sotto" + path);
-      }
-    </script>
-  </head>
-  <body></body>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+
+  <!-- Icona per il favicon e il PWA -->
+  <link rel="icon" href="/icon.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/icon.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="/icon.png" />
+
+  <!-- Colore per la status bar su Safari iOS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Barra di stato trasparente in Chrome -->
+  <meta name="theme-color" content="#f0f0f0" />
+
+  <!-- Descrizione del sito -->
+  <meta name="description" content="Gestisci le tue finanze in modo semplice e veloce." />
+
+  <!-- Manifest per PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <title>Soldi Sotto</title>
+
+  <!-- Script per applicare il tema salvato prima del caricamento di React -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem("theme") || "system";
+      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const isDarkMode = savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark);
+
+      document.documentElement.classList.toggle("dark-theme", isDarkMode);
+      document.documentElement.classList.toggle("light-theme", !isDarkMode);
+
+      // Aggiorna il colore del meta tag per il caricamento iniziale
+      document
+        .querySelector('meta[name="theme-color"]')
+        .setAttribute("content", isDarkMode ? "#1f1f1f" : "#f0f0f0");
+    })();
+  </script>
+
+  <style>
+    /* Tema scuro di default */
+    :root {
+      --background-color: #1f1f1f;
+      --text-color: #e0e0e0;
+      --primary-color: #1a73e8;
+    }
+
+    /* Tema chiaro */
+    .light-theme {
+      --background-color: #f0f0f0;
+      --text-color: #333333;
+      --primary-color: #007bff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="/src/styles/design-system.css" />
+  
+  <!-- Google Fonts - Inter for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Script principale -->
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
