@@ -28,22 +28,21 @@
   <!-- Script per applicare il tema salvato prima del caricamento di React -->
   <script>
     (function () {
-      const savedTheme = localStorage.getItem("theme") || "system";
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const isDarkMode = savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark);
-
-      document.documentElement.classList.toggle("dark-theme", isDarkMode);
-      document.documentElement.classList.toggle("light-theme", !isDarkMode);
-
-      // Aggiorna il colore del meta tag per il caricamento iniziale
-      document
-        .querySelector('meta[name="theme-color"]')
-        .setAttribute("content", isDarkMode ? "#1f1f1f" : "#f0f0f0");
-      // Aggiorna anche la status bar iOS
-      const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-      if (statusBarMeta) {
-        statusBarMeta.setAttribute("content", isDarkMode ? "black" : "default");
+      function setThemeMeta() {
+        const savedTheme = localStorage.getItem("theme") || "system";
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDarkMode = savedTheme === "dark" || (savedTheme === "system" && systemPrefersDark);
+        document.documentElement.classList.toggle("dark-theme", isDarkMode);
+        document.documentElement.classList.toggle("light-theme", !isDarkMode);
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", isDarkMode ? "#1f1f1f" : "#f0f0f0");
+        const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+        if (statusBarMeta) {
+          statusBarMeta.setAttribute("content", isDarkMode ? "black" : "default");
+        }
       }
+      setThemeMeta();
+      window.addEventListener('storage', setThemeMeta);
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', setThemeMeta);
     })();
   </script>
 
@@ -71,7 +70,7 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
   </style>
-  <script type="module" crossorigin src="/soldi-sotto/assets/index-DCNmr1x3.js"></script>
+  <script type="module" crossorigin src="/soldi-sotto/assets/index-B5Mx-j49.js"></script>
   <link rel="stylesheet" crossorigin href="/soldi-sotto/assets/index-DjYFoaiX.css">
 </head>
 
