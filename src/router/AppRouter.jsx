@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
@@ -50,38 +50,36 @@ const PublicRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <Router basename="/soldi-sotto">
-      <AppLayout>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route 
-              path="/login" 
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/register" 
-              element={
-                <PublicRoute>
-                  <Register />
-                </PublicRoute>
-              } 
-            />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transactions" element={<TransactionList />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/stats" element={<Stats />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </AppLayout>
-    </Router>
+    <AppLayout>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            } 
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/transactions" element={<TransactionList />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/stats" element={<Stats />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 
