@@ -600,7 +600,7 @@ selezionato un elemento della navbar*/
   html {
     /* Migliora il comportamento dello scroll su iOS */
     -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
+    /*overflow-scrolling: touch;*/
   }
   
   body {
@@ -787,8 +787,8 @@ selezionato un elemento della navbar*/
   box-shadow: 0 4px 24px rgba(0,0,0,0.22) !important;
   border-radius: 22px !important;
   color: var(--text-primary) !important;
-  padding: 1.2rem 1.5rem !important;
-  margin-bottom: 1.2rem !important;
+  padding: 0.5rem 0.2rem !important;
+  /* margin-bottom: 1.0rem !important;*/
 }
 
 .dark-theme .recent-transactions-card .list-group-item {
