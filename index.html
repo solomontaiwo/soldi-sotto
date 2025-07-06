@@ -39,6 +39,11 @@
       document
         .querySelector('meta[name="theme-color"]')
         .setAttribute("content", isDarkMode ? "#1f1f1f" : "#f0f0f0");
+      // Aggiorna anche la status bar iOS
+      const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (statusBarMeta) {
+        statusBarMeta.setAttribute("content", isDarkMode ? "black" : "default");
+      }
     })();
   </script>
 
