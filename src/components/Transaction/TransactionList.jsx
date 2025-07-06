@@ -562,109 +562,168 @@ const TransactionList = () => {
                             {transaction.type === "income" ? "💰" : getCategoryEmoji(transaction.category)}
                           </div>
                           
-                          <div className="flex-grow-1" style={{ minWidth: 0, overflow: "hidden" }}>
-                            <div 
-                              className="fw-semibold text-dark mb-1"
-                              style={{
-                                fontSize: isMobile ? "15px" : "14px",
-                                lineHeight: "1.3",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap"
-                              }}
-                            >
-                              {transaction.description}
-                            </div>
-                            
-                            {isMobile ? (
-                              // Mobile: Stack info vertically 
-                              <div>
-                                <div className="text-muted small mb-1" style={{ fontSize: "12px" }}>
-                                  {getTransactionDate(transaction).toLocaleDateString("it-IT", {
-                                    day: "2-digit",
-                                    month: "short"
-                                  })}
+                          {isMobile ? (
+                            // Mobile: Card minimal, dati su una colonna
+                            <div className="d-flex flex-column w-100" style={{ gap: '2px' }}>
+                              {/* Nome transazione */}
+                              <div
+                                className="fw-semibold text-dark"
+                                style={{
+                                  fontSize: "16px",
+                                  lineHeight: "1.3",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  wordBreak: "break-word",
+                                  marginBottom: "2px"
+                                }}
+                              >
+                                {transaction.description}
+                              </div>
+                              {/* Categoria + data */}
+                              <div className="text-muted small d-flex align-items-center justify-content-between" style={{ fontSize: "12px", marginBottom: '6px' }}>
+                                <span>{getCategoryLabel(transaction.category)}</span>
+                                <span style={{fontSize: '11px', opacity: 0.7}}>{getTransactionDate(transaction).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                              </div>
+                              {/* Importo e azioni */}
+                              <div className="d-flex align-items-end justify-content-between mt-1">
+                                <div className="fw-bold" style={{
+                                  fontSize: "17px",
+                                  color: transaction.type === "income" ? "#22c55e" : "#ef4444",
+                                  lineHeight: "1.2"
+                                }}>
+                                  {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount)}
                                 </div>
-                                <div className="text-muted small" style={{ fontSize: "11px", opacity: 0.8 }}>
-                                  {getCategoryLabel(transaction.category)}
+                                <div className="d-flex align-items-center gap-1">
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditTransaction(transaction);
+                                    }}
+                                    className="text-info p-1 d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "26px",
+                                      height: "26px",
+                                      borderRadius: "7px",
+                                      backgroundColor: "rgba(13, 202, 240, 0.08)",
+                                      border: "1px solid rgba(13, 202, 240, 0.13)"
+                                    }}
+                                  >
+                                    <FiEdit2 size={12} />
+                                  </Button>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteClick(transaction.id);
+                                    }}
+                                    className="text-danger p-1 d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "26px",
+                                      height: "26px",
+                                      borderRadius: "7px",
+                                      backgroundColor: "rgba(239, 68, 68, 0.08)",
+                                      border: "1px solid rgba(239, 68, 68, 0.13)"
+                                    }}
+                                  >
+                                    <FiTrash2 size={12} />
+                                  </Button>
                                 </div>
                               </div>
-                            ) : (
-                              // Desktop: Single line
+                            </div>
+                          ) : (
+                            // Desktop: layout attuale
+                            <div className="flex-grow-1" style={{ minWidth: 0, overflow: "hidden" }}>
+                              <div 
+                                className="fw-semibold text-dark mb-1"
+                                style={{
+                                  fontSize: "14px",
+                                  lineHeight: "1.3",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap"
+                                }}
+                              >
+                                {transaction.description}
+                              </div>
                               <div className="text-muted small d-flex align-items-center gap-2">
                                 <span>{getTransactionDate(transaction).toLocaleDateString("it-IT")}</span>
                                 <span>•</span>
                                 <span>{getCategoryLabel(transaction.category)}</span>
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Right: Amount and Actions */}
-                        <div className="d-flex align-items-center gap-2 flex-shrink-0">
-                          <div className="text-end">
-                            <div
-                              className="fw-bold"
-                              style={{
-                                fontSize: isMobile ? "16px" : "15px",
-                                color: transaction.type === "income" ? "#22c55e" : "#ef4444",
-                                lineHeight: "1.2"
-                              }}
-                            >
-                              {transaction.type === "income" ? "+" : "-"}
-                              {formatCurrency(transaction.amount)}
-                            </div>
-                            {isMobile && (
-                              <div className="text-muted small" style={{ fontSize: "10px" }}>
-                                {getTransactionDate(transaction).toLocaleDateString("it-IT", {
-                                  hour: "2-digit",
-                                  minute: "2-digit"
-                                })}
+                        {!isMobile && (
+                          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                            <div className="text-end">
+                              <div
+                                className="fw-bold"
+                                style={{
+                                  fontSize: isMobile ? "16px" : "15px",
+                                  color: transaction.type === "income" ? "#22c55e" : "#ef4444",
+                                  lineHeight: "1.2"
+                                }}
+                              >
+                                {transaction.type === "income" ? "+" : "-"}
+                                {formatCurrency(transaction.amount)}
                               </div>
-                            )}
+                              {isMobile && (
+                                <div className="text-muted small" style={{ fontSize: "10px" }}>
+                                  {getTransactionDate(transaction).toLocaleDateString("it-IT", {
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                            {/* Actions */}
+                            <div className="d-flex align-items-center gap-1">
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditTransaction(transaction);
+                                }}
+                                className="text-info p-1 d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: isMobile ? "32px" : "28px",
+                                  height: isMobile ? "32px" : "28px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "rgba(13, 202, 240, 0.1)",
+                                  border: "1px solid rgba(13, 202, 240, 0.2)"
+                                }}
+                              >
+                                <FiEdit2 size={isMobile ? 14 : 12} />
+                              </Button>
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(transaction.id);
+                                }}
+                                className="text-danger p-1 d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: isMobile ? "32px" : "28px",
+                                  height: isMobile ? "32px" : "28px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "rgba(239, 68, 68, 0.1)",
+                                  border: "1px solid rgba(239, 68, 68, 0.2)"
+                                }}
+                              >
+                                <FiTrash2 size={isMobile ? 14 : 12} />
+                              </Button>
+                            </div>
                           </div>
-                          
-                          {/* Actions */}
-                          <div className="d-flex align-items-center gap-1">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditTransaction(transaction);
-                              }}
-                              className="text-info p-1 d-flex align-items-center justify-content-center"
-                              style={{
-                                width: isMobile ? "32px" : "28px",
-                                height: isMobile ? "32px" : "28px",
-                                borderRadius: "8px",
-                                backgroundColor: "rgba(13, 202, 240, 0.1)",
-                                border: "1px solid rgba(13, 202, 240, 0.2)"
-                              }}
-                            >
-                              <FiEdit2 size={isMobile ? 14 : 12} />
-                            </Button>
-                            
-                            <Button
-                              variant="link"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteClick(transaction.id);
-                              }}
-                              className="text-danger p-1 d-flex align-items-center justify-content-center"
-                              style={{
-                                width: isMobile ? "32px" : "28px",
-                                height: isMobile ? "32px" : "28px",
-                                borderRadius: "8px",
-                                backgroundColor: "rgba(239, 68, 68, 0.1)",
-                                border: "1px solid rgba(239, 68, 68, 0.2)"
-                              }}
-                            >
-                              <FiTrash2 size={isMobile ? 14 : 12} />
-                            </Button>
-                          </div>
-                        </div>
+                        )}
                       </motion.div>
                     ))}
                   </div>

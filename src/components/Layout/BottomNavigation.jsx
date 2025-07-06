@@ -109,6 +109,7 @@ const BottomNavigation = () => {
         alignItems: 'center',
         justifyContent: 'space-around',
         padding: '0 8px',
+        paddingBottom: 'env(safe-area-inset-bottom)',
         zIndex: 1030,
         boxShadow: '0 -4px 25px rgba(0, 0, 0, 0.1)',
         backdropFilter: 'blur(25px)',
