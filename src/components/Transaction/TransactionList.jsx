@@ -527,7 +527,6 @@ const TransactionList = () => {
                         className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 transaction-card"
                         style={{
                           background: "rgba(255, 255, 255, 0.95)",
-                          border: "1px solid rgba(0, 0, 0, 0.08)",
                           backdropFilter: "blur(10px)",
                           WebkitBackdropFilter: "blur(10px)",
                           cursor: "pointer",

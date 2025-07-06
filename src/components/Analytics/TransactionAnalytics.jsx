@@ -226,7 +226,7 @@ const TransactionAnalytics = () => {
             <h2 className="text-dark fw-bold mb-2 d-flex align-items-center gap-2">
               <FiBarChart size={28} />
               {t('analytics.title')}
-            </h2>
+        </h2>
             <p className="text-muted mb-0">
               {t('analytics.subtitle')}
             </p>

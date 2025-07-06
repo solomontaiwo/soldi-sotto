@@ -50,10 +50,10 @@ const PublicRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <AppLayout>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <AppLayout>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
           <Route 
             path="/login" 
             element={
@@ -70,16 +70,16 @@ const AppRouter = () => {
               </PublicRoute>
             } 
           />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/transactions" element={<TransactionList />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </AppLayout>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/transactions" element={<TransactionList />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </AppLayout>
   );
 };
 

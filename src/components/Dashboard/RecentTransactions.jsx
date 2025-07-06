@@ -24,7 +24,7 @@ const RecentTransactions = ({ transactions = [] }) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { t } = useTranslation();
-
+  
   // Mostra solo le ultime 5 transazioni
   const recentTransactions = transactions.slice(0, 5);
 

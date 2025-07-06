@@ -217,13 +217,13 @@ const Login = () => {
             <Form.Group className="mb-3" controlId="loginInput">
               <Form.Label className="fw-semibold small">{t('login.usernameOrEmail')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiUser /></span>
-                <Form.Control
-                  type="text"
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiUser /></span>
+                  <Form.Control
+                    type="text"
                   placeholder={t('login.usernameOrEmailPlaceholder')}
-                  value={loginInput}
+                    value={loginInput}
                   onChange={e => setLoginInput(e.target.value)}
-                  style={{
+                    style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -236,20 +236,20 @@ const Login = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="username"
-                />
-              </div>
+                  />
+                </div>
               <Form.Text className="text-muted small">{t('login.usernameOrEmailHelp')}</Form.Text>
-            </Form.Group>
+              </Form.Group>
             <Form.Group className="mb-3" controlId="password">
               <Form.Label className="fw-semibold small">{t('login.password')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiLock /></span>
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiLock /></span>
+                  <Form.Control
+                    type={showPassword ? "text" : "password"}
                   placeholder={t('login.passwordPlaceholder')}
-                  value={password}
+                    value={password}
                   onChange={e => setPassword(e.target.value)}
-                  style={{
+                    style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -262,10 +262,10 @@ const Login = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="current-password"
-                />
-                <Button
+                  />
+                  <Button
                   variant="outline-secondary"
-                  onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(!showPassword)}
                   style={{
                     border: 'none',
                     background: 'transparent',
@@ -275,15 +275,15 @@ const Login = () => {
                     minHeight: '44px',
                   }}
                   tabIndex={-1}
-                >
+                  >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
-                </Button>
-              </div>
-            </Form.Group>
-            <Button
-              type="submit"
+                  </Button>
+                </div>
+              </Form.Group>
+              <Button
+                type="submit"
               className="w-100 fw-semibold mt-2"
-              style={{
+                style={{
                 borderRadius: '10px',
                 minHeight: '44px',
                 fontSize: '1.08rem',
@@ -296,7 +296,7 @@ const Login = () => {
               disabled={loading}
             >
               <FiLogIn className="me-2" /> {t('login.loginButton')}
-            </Button>
+              </Button>
           </Form>
 
           {/* Register Link */}

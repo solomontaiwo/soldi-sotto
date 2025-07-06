@@ -102,11 +102,11 @@ const Dashboard = () => {
         <div style={{ width: '100%', margin: 0, padding: 0 }}>
           <div className="mb-2">
             <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '1.35rem' }}>
-              {currentUser ? t('welcome', { name: username }) : t('welcome', { name: 'Demo' })}
-            </h2>
+          {currentUser ? t('welcome', { name: username }) : t('welcome', { name: 'Demo' })}
+        </h2>
             <div className="text-primary fw-medium mb-2" style={{ fontSize: '1rem', opacity: 0.85 }}>
-              <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
-            </div>
+          <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
+        </div>
             <h3 className="text-dark fw-semibold mb-2 d-flex align-items-center gap-2" style={{ fontSize: '1.1rem' }}>
               <FiPlus size={18} /> {t('quickActions')}
             </h3>
@@ -155,9 +155,9 @@ const Dashboard = () => {
         </div>
       ) : (
         // DESKTOP: header e transazioni recenti in una sola riga compatta
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-3"
           style={{ flex: 1, minHeight: 0 }}
@@ -180,7 +180,7 @@ const Dashboard = () => {
                 <Row className="g-2">
                   {quickActions.map((action) => (
                     <Col xs={12} sm={12} md={12} lg={12} xxl={12} key={action.key} className="mb-2">
-                      <Card
+        <Card
                         className="border-0 shadow-sm glass-card dashboard-glass"
                         onClick={() => handleQuickActionClick(action)}
                         style={{
@@ -199,7 +199,7 @@ const Dashboard = () => {
                         <Card.Body className="d-flex flex-row align-items-center justify-content-start gap-3 p-3">
                           <div 
                             className="rounded-circle d-flex align-items-center justify-content-center"
-                            style={{ 
+          style={{
                               width: '36px', 
                               height: '36px', 
                               backgroundColor: action.color + '20',
@@ -213,7 +213,7 @@ const Dashboard = () => {
                             <div className="text-muted small" style={{ fontSize: '0.85rem', opacity: 0.8 }}>{action.subtitle}</div>
                           </div>
                         </Card.Body>
-                      </Card>
+        </Card>
                     </Col>
                   ))}
                 </Row>
@@ -224,7 +224,7 @@ const Dashboard = () => {
               <RecentTransactions transactions={transactions} />
             </Col>
           </Row>
-        </motion.div>
+      </motion.div>
       )}
 
       {/* Financial Overview - solo desktop, compatta */}

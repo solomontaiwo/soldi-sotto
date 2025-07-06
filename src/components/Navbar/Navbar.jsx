@@ -165,10 +165,10 @@ const Navbar = () => {
               {/* Pulsanti Back to Home e Register a destra, compatti, e Logout per autenticato */}
               {isDemo && !currentUser && (
                 <>
-                  <Button
+                <Button
                     variant="outline-primary"
                     className="fw-medium"
-                    style={{
+                  style={{ 
                       borderRadius: "10px",
                       fontSize: "15px",
                       padding: "6px 14px",
@@ -181,10 +181,10 @@ const Navbar = () => {
                     onClick={handleBackToHome}
                   >
                     {t('navbar.backToHome')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    className="fw-medium"
+                    </Button>
+                    <Button 
+                      variant="primary"
+                      className="fw-medium"
                     style={{
                       borderRadius: "10px",
                       fontSize: "15px",
@@ -198,13 +198,13 @@ const Navbar = () => {
                   >
                     {t('navbar.register')}
                   </Button>
-                </>
-              )}
+                      </>
+                    )}
               {currentUser && (
-                <Button
+                    <Button 
                   variant="outline-secondary"
-                  className="fw-medium"
-                  style={{
+                      className="fw-medium"
+                      style={{
                     borderRadius: "10px",
                     fontSize: "15px",
                     padding: "6px 14px",
@@ -217,7 +217,7 @@ const Navbar = () => {
                   onClick={handleLogout}
                 >
                   {t('navbar.logout')}
-                </Button>
+                    </Button>
               )}
             </div>
           )}

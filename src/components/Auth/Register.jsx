@@ -223,13 +223,13 @@ const Register = () => {
             <Form.Group className="mb-2" controlId="username">
               <Form.Label className="fw-semibold small">{t('register.username')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiUser /></span>
-                <Form.Control
-                  type="text"
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiUser /></span>
+                    <Form.Control
+                      type="text"
                   placeholder={t('register.usernamePlaceholder')}
-                  value={username}
+                      value={username}
                   onChange={e => setUsername(e.target.value)}
-                  style={{
+                      style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -242,20 +242,20 @@ const Register = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="username"
-                />
-              </div>
+                    />
+                  </div>
               <Form.Text className="text-muted small">{t('register.usernameHelp')}</Form.Text>
-            </Form.Group>
+                </Form.Group>
             <Form.Group className="mb-2" controlId="email">
               <Form.Label className="fw-semibold small">{t('register.email')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiMail /></span>
-                <Form.Control
-                  type="email"
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiMail /></span>
+                    <Form.Control
+                      type="email"
                   placeholder={t('register.emailPlaceholder')}
-                  value={email}
+                      value={email}
                   onChange={e => setEmail(e.target.value)}
-                  style={{
+                      style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -268,20 +268,20 @@ const Register = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="email"
-                />
-              </div>
-            </Form.Group>
+                    />
+                  </div>
+                </Form.Group>
             <Form.Text className="text-muted small">{t('register.usernameMin')}</Form.Text>
             <Form.Group className="mb-2" controlId="password">
               <Form.Label className="fw-semibold small">{t('register.password')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiLock /></span>
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiLock /></span>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
                   placeholder={t('register.passwordPlaceholder')}
-                  value={password}
+                      value={password}
                   onChange={e => setPassword(e.target.value)}
-                  style={{
+                      style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -294,10 +294,10 @@ const Register = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="new-password"
-                />
-                <Button
+                    />
+                    <Button
                   variant="outline-secondary"
-                  onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowPassword(!showPassword)}
                   style={{
                     border: 'none',
                     background: 'transparent',
@@ -307,21 +307,21 @@ const Register = () => {
                     minHeight: '44px',
                   }}
                   tabIndex={-1}
-                >
+                    >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
-                </Button>
-              </div>
-            </Form.Group>
+                    </Button>
+                  </div>
+                </Form.Group>
             <Form.Group className="mb-2" controlId="confirmPassword">
               <Form.Label className="fw-semibold small">{t('register.confirmPassword')}</Form.Label>
               <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiLock /></span>
-                <Form.Control
-                  type={showConfirmPassword ? "text" : "password"}
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem', color: document.documentElement.classList.contains('dark-theme') ? '#fff' : '#222'}}><FiLock /></span>
+                    <Form.Control
+                      type={showConfirmPassword ? "text" : "password"}
                   placeholder={t('register.confirmPasswordPlaceholder')}
-                  value={confirmPassword}
+                      value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  style={{
+                      style={{
                     background: 'rgba(255,255,255,0.7)',
                     border: '1px solid #e5e7eb',
                     borderRadius: '10px',
@@ -334,10 +334,10 @@ const Register = () => {
                     boxShadow: 'none',
                   }}
                   autoComplete="new-password"
-                />
-                <Button
+                    />
+                    <Button
                   variant="outline-secondary"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   style={{
                     border: 'none',
                     background: 'transparent',
@@ -347,15 +347,15 @@ const Register = () => {
                     minHeight: '44px',
                   }}
                   tabIndex={-1}
-                >
+                    >
                   {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                </Button>
-              </div>
-            </Form.Group>
-            <Button
-              type="submit"
+                    </Button>
+                  </div>
+                </Form.Group>
+              <Button
+                type="submit"
               className="w-100 fw-semibold mt-2"
-              style={{
+                style={{
                 borderRadius: '10px',
                 minHeight: '44px',
                 fontSize: '1.08rem',
@@ -372,7 +372,7 @@ const Register = () => {
             <div className="text-center mt-3">
               <span className="text-muted small">{t('register.haveAccount')}</span>{' '}
               <Link to="/login" className="fw-semibold" style={{ color: '#0d6efd', textDecoration: 'none' }}>{t('register.loginNow')}</Link>
-            </div>
+                  </div>
           </Form>
         </div>
       </motion.div>
