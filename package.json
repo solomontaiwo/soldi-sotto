@@ -11,10 +11,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "deploy:full": "npm run config:prod && npm run build && npm run deploy && npm run config:dev",
-    "config:prod": "echo '⚠️  Remember: Update vite.config.js base to /soldi-sotto/ and add basename to BrowserRouter!'",
-    "config:dev": "echo '✅ Back to development mode - vite.config.js base should be /'",
-    "reminder": "echo '📝 DEPLOY REMINDER: Run npm run deploy:full for automatic deployment!'"
+    "deploy:full": "npm run build && npm run deploy"
   },
   "dependencies": {
     "bootstrap": "^5.3.7",

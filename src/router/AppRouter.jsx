@@ -3,7 +3,6 @@ import { Suspense, lazy } from "react";
 import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useAuth } from "../components/Auth/AuthProvider";
-import { useUnifiedTransactions } from "../components/Transaction/UnifiedTransactionProvider";
 import AppLayout from "../components/Layout/AppLayout";
 
 // Lazy load all main pages for better performance
@@ -51,7 +50,7 @@ const PublicRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Router basename="/soldi-sotto">
       <AppLayout>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
