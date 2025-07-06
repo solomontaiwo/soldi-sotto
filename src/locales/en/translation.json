@@ -1,6 +1,6 @@
 {
   "appName": "SoldiSotto",
-  "welcome": "Hello, {{name}}!",
+  "welcome": "Hello!",
   "addTransaction": "Add Transaction",
   "quickActions": "Quick Actions",
   "recentTransactions": {

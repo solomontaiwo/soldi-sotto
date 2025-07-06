@@ -27,7 +27,6 @@ const Dashboard = () => {
   
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [username, setUsername] = useState("");
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -35,9 +34,9 @@ const Dashboard = () => {
       if (currentUser?.uid) {
         const userDoc = await getDoc(doc(firestore, "users", currentUser.uid));
         if (userDoc.exists()) {
-          setUsername(userDoc.data().username || currentUser.displayName || currentUser.email?.split("@")[0] || "");
+          // setUsername(userDoc.data().username || currentUser.displayName || currentUser.email?.split("@")[0] || "");
         } else {
-          setUsername(currentUser.displayName || currentUser.email?.split("@")[0] || "");
+          // setUsername(currentUser.displayName || currentUser.email?.split("@")[0] || "");
         }
       }
     };
@@ -102,7 +101,7 @@ const Dashboard = () => {
         <div style={{ width: '100%', margin: 0, padding: 0 }}>
           <div className="mb-2">
             <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '1.35rem' }}>
-          {currentUser ? t('welcome', { name: username }) : t('welcome', { name: 'Demo' })}
+          {currentUser ? t('welcome') : t('welcome')}
         </h2>
             <div className="text-primary fw-medium mb-2" style={{ fontSize: '1rem', opacity: 0.85 }}>
           <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
@@ -168,7 +167,7 @@ const Dashboard = () => {
               <div className="h-100 d-flex flex-column justify-content-start">
                 <div className="mb-3">
                   <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '2.1rem', marginTop: '0.5rem' }}>
-                    {currentUser ? t('welcome', { name: username }) : t('welcome', { name: 'Demo' })}
+                    {currentUser ? t('welcome') : t('welcome')}
                   </h2>
                   <div className="text-primary fw-medium mb-2" style={{ fontSize: '1.1rem', opacity: 0.85 }}>
                     <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
