@@ -275,7 +275,8 @@ const TransactionList = () => {
                   className="small"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                    color: 'var(--text-secondary)',
+                    color: 'var(--primary-500)',
+                    fontWeight: 600,
                     border: '1px solid rgba(255, 255, 255, 0.3)',
                     backdropFilter: 'blur(10px)',
                     borderRadius: '8px'

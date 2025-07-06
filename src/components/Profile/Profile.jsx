@@ -385,7 +385,7 @@ const Profile = () => {
             <div className="d-flex align-items-center justify-content-between mb-2">
               <div className="fw-medium text-dark">{t('profile.language')}</div>
               <Form.Select
-                value={i18n.language}
+                value={i18n.language.split('-')[0]}
                 onChange={handleLanguageChange}
                 style={{
                   width: "140px",
