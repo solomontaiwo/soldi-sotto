@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
 import { Button, Alert, Form, Badge } from "react-bootstrap";
-import EditTransactionModal from "./EditTransactionModal";
+import TransactionModal from "./TransactionModal";
 import { motion, AnimatePresence } from "framer-motion";
-import TransactionForm from "./TransactionForm";
 import { 
   format, 
   isToday, 
@@ -30,6 +29,8 @@ import {
 } from "react-icons/fi";
 import { useCategories } from "../../utils/categories";
 
+// TransactionList component: displays the list of transactions grouped by date
+// Handles filtering, searching, and deletion of transactions
 const TransactionList = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { 
@@ -74,14 +75,13 @@ const TransactionList = () => {
     setQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
   }, []);
 
-  // Helper function to format date for grouping
+  // Utility functions for date formatting and category lookup
   const formatGroupDate = (date) => {
     if (isToday(date)) return "Oggi";
     if (isYesterday(date)) return "Ieri";
     return format(date, "dd MMMM yyyy", { locale: it });
   };
 
-  // Helper function to convert date consistently
   const getTransactionDate = (transaction) => {
     if (transaction.date?.toDate) {
       return transaction.date.toDate();
@@ -94,7 +94,6 @@ const TransactionList = () => {
     }
   };
 
-  // Group transactions by date
   const groupTransactionsByDate = (transactions) => {
     const groups = {};
     
@@ -115,6 +114,18 @@ const TransactionList = () => {
 
     // Convert to array and sort by date (newest first)
     return Object.values(groups).sort((a, b) => b.date - a.date);
+  };
+
+  const getCategoryEmoji = (category) => {
+    const allCategories = [...expenseCategories, ...incomeCategories];
+    const categoryData = allCategories.find(c => c.value === category);
+    return categoryData ? categoryData.label.split(" ")[0] : "💸";
+  };
+
+  const getCategoryLabel = (category) => {
+    const allCategories = [...expenseCategories, ...incomeCategories];
+    const categoryData = allCategories.find(c => c.value === category);
+    return categoryData ? categoryData.label : category;
   };
 
   // Filter and search logic
@@ -173,18 +184,20 @@ const TransactionList = () => {
     }
   }, [transactions, period, searchTerm, selectedCategory, selectedType]);
 
-  const handleDeleteClick = async (transactionId) => {
+  // Handler for deleting a transaction (shows confirmation dialog)
+  const handleDeleteClick = useCallback(async (transactionId) => {
     setDeleteConfirm(transactionId);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  // Handler for confirming deletion of a transaction
+  const confirmDelete = useCallback(async () => {
     if (deleteConfirm) {
       const success = await deleteTransaction(deleteConfirm);
       if (success) {
         setDeleteConfirm(null);
       }
     }
-  };
+  }, [deleteConfirm, deleteTransaction]);
 
   // Get unique categories from transactions
   const categories = [...new Set(transactions.map(t => t.category))];
@@ -196,19 +209,6 @@ const TransactionList = () => {
     { value: "annually", label: "Anno" },
     { value: "all", label: "Tutto" }
   ];
-
-  // Helper functions
-  const getCategoryEmoji = (category) => {
-    const allCategories = [...expenseCategories, ...incomeCategories];
-    const categoryData = allCategories.find(c => c.value === category);
-    return categoryData ? categoryData.label.split(" ")[0] : "💸";
-  };
-
-  const getCategoryLabel = (category) => {
-    const allCategories = [...expenseCategories, ...incomeCategories];
-    const categoryData = allCategories.find(c => c.value === category);
-    return categoryData ? categoryData.label : category;
-  };
 
   if (loading) {
     return (
@@ -246,7 +246,7 @@ const TransactionList = () => {
     <div 
       className="min-vh-100" 
       style={{ 
-        background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+        background: 'transparent',
         overflowX: 'hidden', // Previene scroll orizzontale
         WebkitOverflowScrolling: 'touch' // Smooth scrolling iOS
       }}
@@ -529,7 +529,7 @@ const TransactionList = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3"
+                        className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 transaction-card"
                         style={{
                           background: "rgba(255, 255, 255, 0.95)",
                           border: "1px solid rgba(0, 0, 0, 0.08)",
@@ -726,22 +726,14 @@ const TransactionList = () => {
       </div>
 
       {/* Modals */}
-      <TransactionForm
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        onFormSubmit={() => {
-          // Aggiorna la lista delle transazioni se necessario
-          // Le transazioni vengono aggiornate automaticamente tramite il provider
+      <TransactionModal
+        show={showModal || !!editTransaction}
+        onClose={() => {
+          setShowModal(false);
+          setEditTransaction(null);
         }}
+        transaction={editTransaction}
       />
-
-      {/* Edit Transaction Modal */}
-      {editTransaction && (
-        <EditTransactionModal
-          transaction={editTransaction}
-          onClose={() => setEditTransaction(null)}
-        />
-      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (

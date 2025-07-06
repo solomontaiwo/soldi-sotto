@@ -5,6 +5,7 @@ import { useMediaQuery } from "react-responsive";
 import { motion } from "framer-motion";
 import formatCurrency from "../../utils/formatCurrency";
 import PropTypes from "prop-types";
+import { useTranslation } from 'react-i18next';
 
 const RecentTransactions = ({ transactions = [] }) => {
   RecentTransactions.propTypes = {
@@ -22,6 +23,7 @@ const RecentTransactions = ({ transactions = [] }) => {
 
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { t } = useTranslation();
   
   // Mostra solo le ultime 5 transazioni
   const recentTransactions = transactions.slice(0, 5);
@@ -57,9 +59,9 @@ const RecentTransactions = ({ transactions = [] }) => {
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
             📋
           </div>
-          <h5 className="text-muted mb-3">Nessuna transazione ancora</h5>
+          <h5 className="text-muted mb-3">{t('recentTransactions.emptyTitle')}</h5>
           <p className="text-muted mb-4">
-            Inizia aggiungendo la tua prima transazione per vedere il riepilogo qui.
+            {t('recentTransactions.emptyDescription')}
           </p>
           <Button
             variant="primary"
@@ -70,7 +72,7 @@ const RecentTransactions = ({ transactions = [] }) => {
               paddingRight: '2rem',
             }}
           >
-            Aggiungi la prima transazione
+            {t('recentTransactions.addFirst')}
           </Button>
         </Card.Body>
       </Card>
@@ -81,7 +83,7 @@ const RecentTransactions = ({ transactions = [] }) => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="text-dark fw-semibold mb-0">
-          Transazioni Recenti
+          {t('recentTransactions.title')}
         </h4>
         
         <Button
@@ -89,13 +91,13 @@ const RecentTransactions = ({ transactions = [] }) => {
           onClick={() => navigate("/transactions")}
           className="text-primary text-decoration-none p-0 d-flex align-items-center gap-2"
         >
-          Vedi tutte
+          {t('recentTransactions.viewAll')}
           <FiArrowRight size={16} />
         </Button>
       </div>
 
       <Card
-        className="border-0 shadow-sm glass-card"
+        className="border-0 shadow-sm recent-transactions-card"
         style={{
           borderRadius: '2rem',
           background: 'rgba(255,255,255,0.04)',
@@ -204,7 +206,7 @@ const RecentTransactions = ({ transactions = [] }) => {
             onClick={() => navigate("/transactions")}
             className="text-primary text-decoration-none small fw-medium"
           >
-            Gestisci tutte le transazioni →
+            {t('recentTransactions.manageAll')} &rarr;
           </Button>
         </Card.Footer>
       </Card>

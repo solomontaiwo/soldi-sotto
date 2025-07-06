@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Card, Row, Col, Button, Form } from "react-bootstrap";
 import { useAuth } from "../Auth/AuthProvider";
@@ -26,6 +27,8 @@ import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
 import logo from "/icon.png";
 
+// Stats component: shows detailed statistics for the selected period
+// Uses useMemo for all heavy calculations for performance
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { transactions, loading: transactionsLoading } = useTransactions();
@@ -87,29 +90,26 @@ const Stats = () => {
     if (value !== "custom") setCustomRange(null);
   };
 
-  if (!currentUser) return <Navigate to="/login" replace />;
-
-  // Calcolo della media giornaliera per entrate e spese
-  const daysCount =
+  // Memoized calculation of days count, average daily income/expense, and saving percentage
+  const daysCount = useMemo(() => (
     startDate && endDate
       ? differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1
-      : 0;
-  const avgDailyIncome = stats
-    ? daysCount > 0
-      ? stats.totalIncome / daysCount
       : 0
-    : 0;
-  const avgDailyExpense = stats
-    ? daysCount > 0
-      ? stats.totalExpense / daysCount
-      : 0
-    : 0;
+  ), [startDate, endDate]);
+  const avgDailyIncome = useMemo(() => {
+    if (!stats || daysCount === 0) return 0;
+    return stats.totalIncome / daysCount;
+  }, [stats, daysCount]);
+  const avgDailyExpense = useMemo(() => {
+    if (!stats || daysCount === 0) return 0;
+    return stats.totalExpense / daysCount;
+  }, [stats, daysCount]);
+  const savingPercentage = useMemo(() => {
+    if (!stats || stats.totalIncome === 0) return 0;
+    return ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100;
+  }, [stats]);
 
-  // Calcolo del risparmio come percentuale delle entrate
-  const savingPercentage =
-    stats && stats.totalIncome > 0
-      ? ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100
-      : 0;
+  if (!currentUser) return <Navigate to="/login" replace />;
 
   return (
     <LoadingWrapper loading={loading}>
@@ -185,7 +185,26 @@ const Stats = () => {
             {/* Main Statistics Cards */}
             <Row className="g-4 mb-5">
               <Col xs={12} md={6} lg={3}>
-                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="text-center p-4">
                     <div className="mb-3" style={{ fontSize: '2.5rem' }}>💰</div>
                     <h6 className="text-muted mb-2">Entrate Totali</h6>
@@ -195,7 +214,26 @@ const Stats = () => {
               </Col>
               
               <Col xs={12} md={6} lg={3}>
-                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="text-center p-4">
                     <div className="mb-3" style={{ fontSize: '2.5rem' }}>💸</div>
                     <h6 className="text-muted mb-2">Uscite Totali</h6>
@@ -205,7 +243,26 @@ const Stats = () => {
               </Col>
               
               <Col xs={12} md={6} lg={3}>
-                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="text-center p-4">
                     <div className="mb-3" style={{ fontSize: '2.5rem' }}>📊</div>
                     <h6 className="text-muted mb-2">Bilancio</h6>
@@ -217,7 +274,26 @@ const Stats = () => {
               </Col>
               
               <Col xs={12} md={6} lg={3}>
-                <Card className="border-0 shadow-sm h-100 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="text-center p-4">
                     <div className="mb-3" style={{ fontSize: '2.5rem' }}>📈</div>
                     <h6 className="text-muted mb-2">Transazioni</h6>
@@ -230,7 +306,26 @@ const Stats = () => {
             {/* Secondary Statistics */}
             <Row className="g-4 mb-5">
               <Col xs={12} md={6}>
-                <Card className="border-0 shadow-sm glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="p-4">
                     <h5 className="text-dark fw-semibold mb-3">📅 Medie Giornaliere</h5>
                     <div className="d-flex justify-content-between align-items-center mb-2">
@@ -246,7 +341,26 @@ const Stats = () => {
               </Col>
               
               <Col xs={12} md={6}>
-                <Card className="border-0 shadow-sm glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <Card 
+                  className="mb-4 shadow-sm glass-card stats-glass"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    border: "1.5px solid rgba(255,255,255,0.35)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                    borderRadius: "22px",
+                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                  }}
+                >
                   <Card.Body className="p-4">
                     <h5 className="text-dark fw-semibold mb-3">💎 Tasso di Risparmio</h5>
                     <div className="text-center">
@@ -266,7 +380,26 @@ const Stats = () => {
 
             {/* Category Breakdown */}
             {stats.categoryBreakdown && Object.keys(stats.categoryBreakdown).length > 0 && (
-              <Card className="border-0 shadow-sm mb-4 glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <Card 
+                className="mb-4 shadow-sm glass-card stats-glass"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  border: "1.5px solid rgba(255,255,255,0.35)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                  borderRadius: "22px",
+                  transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                  e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
+                }}
+              >
                 <Card.Body className="p-4">
                   <h5 className="text-dark fw-semibold mb-4">📋 Spese per Categoria</h5>
                   <Row className="g-3">
@@ -308,4 +441,4 @@ const Stats = () => {
   );
 };
 
-export default Stats;
+export default React.memo(Stats);

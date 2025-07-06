@@ -1,16 +1,15 @@
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./main.css";
 import { AuthProvider } from "./components/Auth/AuthProvider";
 import { UnifiedTransactionProvider } from "./components/Transaction/UnifiedTransactionProvider";
+// Import i18n configuration for internationalization support
+import './utils/i18n';
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-    <AuthProvider>
-      <UnifiedTransactionProvider>
-        <App />
-      </UnifiedTransactionProvider>
-    </AuthProvider>
-  </BrowserRouter>
+  <AuthProvider>
+    <UnifiedTransactionProvider>
+      <App />
+    </UnifiedTransactionProvider>
+  </AuthProvider>
 );

@@ -3,6 +3,7 @@ import { FiTrendingUp, FiTrendingDown, FiDollarSign } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
 import formatCurrency from "../../utils/formatCurrency";
 import PropTypes from "prop-types";
+import { useTranslation } from 'react-i18next';
 
 const FinancialOverview = ({ stats = {} }) => {
   FinancialOverview.propTypes = {
@@ -23,23 +24,25 @@ const FinancialOverview = ({ stats = {} }) => {
     transactionCount = 0,
   } = stats;
 
+  const { t } = useTranslation();
+
   const statisticsData = [
     {
-      title: "Entrate Totali",
+      title: t('financialOverview.totalIncome'),
       value: totalIncome,
       icon: <FiTrendingUp size={24} />,
       color: "#198754",
       isPositive: true,
     },
     {
-      title: "Uscite Totali",
+      title: t('financialOverview.totalExpense'),
       value: totalExpense,
       icon: <FiTrendingDown size={24} />,
       color: "#dc3545",
       isPositive: false,
     },
     {
-      title: "Bilancio",
+      title: t('financialOverview.balance'),
       value: balance,
       icon: <FiDollarSign size={24} />,
       color: balance >= 0 ? "#198754" : "#dc3545",
@@ -50,7 +53,7 @@ const FinancialOverview = ({ stats = {} }) => {
   return (
     <div>
       <h4 className="text-dark fw-semibold mb-3">
-        Panoramica Finanziaria
+        {t('financialOverview.title')}
       </h4>
       
       <Row className="g-3 mb-4">
@@ -121,7 +124,7 @@ const FinancialOverview = ({ stats = {} }) => {
             fontWeight: '500',
           }}
         >
-          📊 {transactionCount} transazioni totali
+          �� {transactionCount} {t('financialOverview.totalTransactions')}
         </div>
       </div>
     </div>

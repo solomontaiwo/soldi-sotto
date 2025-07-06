@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -24,6 +25,53 @@ import {
 import { useAuth } from "../Auth/AuthProvider";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useMediaQuery } from "react-responsive";
+
+// LandingPage component: shows the public landing page with features and demo
+// Features, stats, and demo/premium features are static arrays
+
+const features = [
+  {
+    icon: <FiDollarSign size={32} className="text-success" />,
+    title: "Gestione Completa",
+    description: "Traccia entrate e uscite con categorie personalizzate e descrizioni dettagliate."
+  },
+  {
+    icon: <FiBarChart2 size={32} className="text-primary" />,
+    title: "Statistiche Avanzate",
+    description: "Visualizza i tuoi dati finanziari con grafici e report dettagliati."
+  },
+  {
+    icon: <FiFileText size={32} className="text-info" />,
+    title: "Export PDF",
+    description: "Genera report PDF professionali per periodi personalizzati."
+  },
+  {
+    icon: <FiShield size={32} className="text-warning" />,
+    title: "Sicurezza Totale",
+    description: "I tuoi dati sono protetti con crittografia e backup automatico."
+  },
+];
+
+const stats = [
+  { title: "Utenti Attivi", value: "10,000+", icon: <FiStar /> },
+  { title: "Transazioni", value: "500K+", icon: <FiAward /> },
+  { title: "Tempo Risparmiato", value: "2h/giorno", icon: <FiClock /> },
+];
+
+const demoFeatures = [
+  "✓ Fino a 10 transazioni demo",
+  "✓ Tutte le funzionalità base",
+  "✓ Visualizzazione statistiche",
+  "✓ Nessuna registrazione richiesta",
+];
+
+const premiumFeatures = [
+  "✓ Transazioni illimitate",
+  "✓ Export PDF avanzato",
+  "✓ Statistiche dettagliate",
+  "✓ Backup cloud sicuro",
+  "✓ Supporto prioritario",
+];
 
 const LandingPage = () => {
   const { currentUser } = useAuth();
@@ -55,50 +103,7 @@ const LandingPage = () => {
     navigate("/login");
   };
 
-  const features = [
-    {
-      icon: <FiDollarSign size={32} className="text-success" />,
-      title: "Gestione Completa",
-      description: "Traccia entrate e uscite con categorie personalizzate e descrizioni dettagliate."
-    },
-    {
-      icon: <FiBarChart2 size={32} className="text-primary" />,
-      title: "Statistiche Avanzate",
-      description: "Visualizza i tuoi dati finanziari con grafici e report dettagliati."
-    },
-    {
-      icon: <FiFileText size={32} className="text-info" />,
-      title: "Export PDF",
-      description: "Genera report PDF professionali per periodi personalizzati."
-    },
-    {
-      icon: <FiShield size={32} className="text-warning" />,
-      title: "Sicurezza Totale",
-      description: "I tuoi dati sono protetti con crittografia e backup automatico."
-    },
-  ];
-
-  const stats = [
-    { title: "Utenti Attivi", value: "10,000+", icon: <FiStar /> },
-    { title: "Transazioni", value: "500K+", icon: <FiAward /> },
-    { title: "Tempo Risparmiato", value: "2h/giorno", icon: <FiClock /> },
-  ];
-
-  const demoFeatures = [
-    "✓ Fino a 10 transazioni demo",
-    "✓ Tutte le funzionalità base",
-    "✓ Visualizzazione statistiche",
-    "✓ Nessuna registrazione richiesta",
-  ];
-
-  const premiumFeatures = [
-    "✓ Transazioni illimitate",
-    "✓ Export PDF avanzato",
-    "✓ Statistiche dettagliate",
-    "✓ Backup cloud sicuro",
-    "✓ Supporto prioritario",
-  ];
-
+  // Main render: landing page content and demo/premium features
   return (
     <div 
       style={{ 
@@ -110,7 +115,7 @@ const LandingPage = () => {
       <Container className="py-5">
         <div 
           className="text-center text-white"
-          style={{ paddingTop: isMobile ? "40px" : "80px", paddingBottom: "60px" }}
+          style={{ paddingTop: isMobile ? "40px" : "110px", paddingBottom: "60px" }}
         >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -508,4 +513,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage; 
+export default React.memo(LandingPage); 

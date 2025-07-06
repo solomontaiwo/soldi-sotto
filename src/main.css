@@ -731,3 +731,78 @@ selezionato un elemento della navbar*/
   --timeline-date-color: #e0eaff;
   --timeline-date-border: rgba(80, 120, 200, 0.18);
 }
+
+/* Glass card dark mode migliorato */
+.dark-theme .glass-card, .dark-theme .dashboard-glass, .dark-theme .analytics-glass, .dark-theme .stats-glass {
+  background: linear-gradient(135deg, rgba(51,65,85,0.92) 0%, rgba(30,41,59,0.85) 100%) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border: 1.5px solid rgba(148,163,184,0.22) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .glass-card .card-title, .dark-theme .dashboard-glass .card-title, .dark-theme .analytics-glass .card-title, .dark-theme .stats-glass .card-title {
+  color: #f8fafc !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.dark-theme .glass-card .card-text, .dark-theme .dashboard-glass .card-text, .dark-theme .analytics-glass .card-text, .dark-theme .stats-glass .card-text {
+  color: #cbd5e1 !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.dark-theme .glass-card .btn, .dark-theme .dashboard-glass .btn, .dark-theme .analytics-glass .btn, .dark-theme .stats-glass .btn {
+  background: rgba(59,130,246,0.12) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+}
+
+/* Miglioro contrasto generale testo dark mode */
+.dark-theme, .dark-theme body {
+  color: #f8fafc !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* Evidenzia le transazioni in dark mode come "card" */
+.dark-theme .transaction-card {
+  background: linear-gradient(135deg, rgba(30,41,59,0.92) 0%, rgba(51,65,85,0.85) 100%) !important;
+  border: 1.5px solid rgba(148,163,184,0.13) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18) !important;
+  border-radius: 18px !important;
+  margin-bottom: 1.2rem !important;
+  padding: 1.1rem 1.2rem !important;
+  color: var(--text-primary) !important;
+  transition: box-shadow 0.18s cubic-bezier(.4,2,.6,1);
+}
+
+.dark-theme .transaction-card:hover {
+  box-shadow: 0 6px 24px rgba(59,130,246,0.13) !important;
+}
+
+/* Recent transactions card dark mode */
+.dark-theme .recent-transactions-card {
+  background: linear-gradient(135deg, rgba(30,41,59,0.96) 0%, rgba(51,65,85,0.90) 100%) !important;
+  border: 1.5px solid rgba(148,163,184,0.16) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22) !important;
+  border-radius: 22px !important;
+  color: var(--text-primary) !important;
+  padding: 1.2rem 1.5rem !important;
+  margin-bottom: 1.2rem !important;
+}
+
+.dark-theme .recent-transactions-card .list-group-item {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(148,163,184,0.10) !important;
+  color: var(--text-primary) !important;
+  transition: background 0.18s cubic-bezier(.4,2,.6,1);
+}
+
+.dark-theme .recent-transactions-card .list-group-item:last-child {
+  border-bottom: none !important;
+}
+
+.dark-theme .recent-transactions-card .list-group-item:hover {
+  background: rgba(59,130,246,0.07) !important;
+}

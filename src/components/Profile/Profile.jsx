@@ -18,13 +18,16 @@ import { useTheme } from "../../utils/ThemeProvider";
 import { useNotification } from "../../utils/notificationUtils";
 import { useMediaQuery } from "react-responsive";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { firestore } from "../../utils/firebase";
 import formatCurrency from "../../utils/formatCurrency";
+import React from "react";
 
+// Profile component: shows user profile and statistics
+// Uses useMemo for profileStats and themeOptions for performance
 const Profile = () => {
   const { currentUser, logout } = useAuth();
   const { transactions, getStats } = useUnifiedTransactions();
@@ -45,13 +48,15 @@ const Profile = () => {
   }, [transactions, getStats]);
 
   useEffect(() => {
-    // Carica username corrente
+    // Carica username corrente sempre da Firestore se possibile
     const loadCurrentUsername = async () => {
       if (currentUser?.uid) {
         try {
           const userDoc = await getDoc(doc(firestore, "users", currentUser.uid));
           if (userDoc.exists()) {
-            setCurrentUsername(userDoc.data().username || currentUser.email?.split("@")[0] || "");
+            setCurrentUsername(userDoc.data().username || currentUser.displayName || currentUser.email?.split("@")[0] || "");
+          } else {
+            setCurrentUsername(currentUser.displayName || currentUser.email?.split("@")[0] || "");
           }
         } catch (error) {
           console.error("Errore nel caricamento username:", error);
@@ -93,44 +98,40 @@ const Profile = () => {
       return;
     }
 
-    // Aggiungo conferma prima di procedere
     const confirmed = window.confirm(
       `Sei sicuro di voler cambiare il tuo username da "${currentUsername}" a "${newUsername}"?\n\nQuesta azione non può essere annullata.`
     );
-    
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     setUsernameLoading(true);
-    
+
     try {
-      // Verifica disponibilità
+      // 1. Verifica disponibilità
       const isAvailable = await checkUsernameAvailability(newUsername);
       if (!isAvailable) {
         notification.error("Username già in uso");
         return;
       }
 
-      // Crea nuovo mapping username PRIMA di rimuovere il vecchio
+      // 2. Crea nuovo mapping username
       await setDoc(doc(firestore, "usernames", newUsername.toLowerCase()), {
         uid: currentUser.uid,
         createdAt: new Date()
       });
 
-      // Aggiorna documento utente
-      await updateDoc(doc(firestore, "users", currentUser.uid), {
+      // 3. Aggiorna (o crea) documento utente in Firestore
+      await setDoc(doc(firestore, "users", currentUser.uid), {
         username: newUsername.toLowerCase(),
         displayName: newUsername,
         updatedAt: new Date()
-      });
+      }, { merge: true });
 
-      // Aggiorna profilo Firebase Auth
+      // 4. Aggiorna profilo Firebase Auth
       await updateProfile(currentUser, {
         displayName: newUsername
       });
 
-      // Solo ora rimuovi il vecchio mapping username se diverso
+      // 5. Elimina il vecchio mapping username (se diverso)
       if (currentUsername && currentUsername.toLowerCase() !== newUsername.toLowerCase()) {
         try {
           await deleteDoc(doc(firestore, "usernames", currentUsername.toLowerCase()));
@@ -139,25 +140,26 @@ const Profile = () => {
         }
       }
 
-      // Aggiorna lo stato locale
-      setCurrentUsername(newUsername);
+      // 6. Aggiorna stato locale ricaricando il documento utente
+      const userDoc = await getDoc(doc(firestore, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        setCurrentUsername(userDoc.data().username);
+      } else {
+        setCurrentUsername(newUsername);
+      }
       setNewUsername("");
       notification.success("Username aggiornato con successo!");
-      
     } catch (error) {
       console.error("Errore nell'aggiornamento username:", error);
       let errorMessage = "Errore nell'aggiornamento dell'username";
-      
       if (error.code === "permission-denied") {
         errorMessage = "Permessi insufficienti per aggiornare l'username";
       } else if (error.code === "network-request-failed") {
         errorMessage = "Errore di connessione. Riprova più tardi";
       }
-      
       notification.error(errorMessage);
     } finally {
       setUsernameLoading(false);
-      // Chiudi sempre il modale alla fine dell'operazione
       setShowUsernameModal(false);
     }
   };
@@ -171,7 +173,8 @@ const Profile = () => {
     ? currentUser.email.charAt(0).toUpperCase()
     : "?";
 
-  const profileStats = [
+  // Memoized list of profile statistics
+  const profileStats = useMemo(() => [
     {
       title: "Transazioni Totali",
       value: transactions.length,
@@ -198,17 +201,19 @@ const Profile = () => {
       color: "var(--accent-warning)",
       bgColor: "var(--pastel-cream)"
     },
-  ];
+  ], [transactions.length, userStats.balance, currentUser?.metadata?.creationTime]);
 
-  const themeOptions = [
-    { value: "light", label: "Chiaro", icon: "☀️" },
-    { value: "dark", label: "Scuro", icon: "🌙" },
-    { value: "system", label: "Sistema", icon: "🔄" }
-  ];
+  // Memoized list of theme options for theme switcher
+  const themeOptions = useMemo(() => [
+    { value: "light", label: "Chiaro" },
+    { value: "dark", label: "Scuro" },
+    { value: "system", label: "Sistema" }
+  ], []);
 
+  // Main render: user info, statistics, and theme switcher
   return (
     <div style={{ 
-      padding: isMobile ? '1rem' : '2rem',
+      padding: isMobile ? '1rem 0' : '2rem 0',
       maxWidth: '1000px',
       margin: '0 auto',
       minHeight: '100vh',
@@ -249,7 +254,7 @@ const Profile = () => {
             </div>
             
             <h3 className="text-dark fw-bold mb-3">
-              {currentUser?.email?.split("@")[0] || "Utente"}
+              {currentUsername || "Utente"}
             </h3>
             
             <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
@@ -534,4 +539,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default React.memo(Profile); 

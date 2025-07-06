@@ -9,22 +9,25 @@ const Home = () => {
   const navigate = useNavigate();
   const { currentUser, loading: authLoading } = useAuth();
   const { isDemo, loading: transactionsLoading } = useUnifiedTransactions();
-  const fullLoading = authLoading || transactionsLoading;
 
+  // Se autenticato o demo, reindirizza
   useEffect(() => {
-    // Se l'utente è autenticato o in modalità demo, reindirizza alla dashboard
-    if (!authLoading && (currentUser || isDemo)) {
+    if (currentUser || isDemo) {
       navigate("/dashboard", { replace: true });
     }
-  }, [currentUser, isDemo, authLoading, navigate]);
+  }, [currentUser, isDemo, navigate]);
 
-  // Mostra la landing page per utenti non autenticati e non in demo
-  if (!authLoading && !currentUser && !isDemo) {
+  // Mostra solo il loader finché uno dei due loading è true OPPURE non è ancora chiaro se c'è utente o demo
+  if (authLoading || transactionsLoading || typeof currentUser === "undefined" || typeof isDemo === "undefined") {
+    return <LoadingWrapper loading={true}>{null}</LoadingWrapper>;
+  }
+
+  // Mostra la landing solo se non c'è utente né demo
+  if (!currentUser && !isDemo) {
     return <LandingPage />;
   }
 
-  // Loading state
-  return <LoadingWrapper loading={fullLoading} />;
+  return null;
 };
 
 export default Home;

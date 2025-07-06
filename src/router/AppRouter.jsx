@@ -1,18 +1,23 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { Suspense, lazy } from "react";
 import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useAuth } from "../components/Auth/AuthProvider";
 import { useUnifiedTransactions } from "../components/Transaction/UnifiedTransactionProvider";
+import AppLayout from "../components/Layout/AppLayout";
 
-// Lazy load components for better performance
-const LandingPage = lazy(() => import("../components/Home/LandingPage"));
-const Login = lazy(() => import("../components/Auth/Login"));
-const Register = lazy(() => import("../components/Auth/Register"));
+// Lazy load all main pages for better performance
 const Dashboard = lazy(() => import("../components/Dashboard/Dashboard"));
 const TransactionList = lazy(() => import("../components/Transaction/TransactionList"));
-const TransactionAnalytics = lazy(() => import("../components/Analytics/TransactionAnalytics"));
+const Analytics = lazy(() => import("../components/Analytics/TransactionAnalytics"));
+const Stats = lazy(() => import("../components/Stats/Stats"));
 const Profile = lazy(() => import("../components/Profile/Profile"));
+const Home = lazy(() => import("../components/Home/Home"));
+const LandingPage = lazy(() => import("../components/Home/LandingPage"));
+
+// Lazy load components for better performance
+const Login = lazy(() => import("../components/Auth/Login"));
+const Register = lazy(() => import("../components/Auth/Register"));
 
 // Loading component
 const PageLoader = () => (
@@ -88,82 +93,22 @@ const AuthenticatedOnlyRoute = ({ children }) => {
 
 const AppRouter = () => {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Rotte pubbliche */}
-        <Route 
-          path="/" 
-          element={
-            <PublicRoute>
-              <LandingPage />
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/register" 
-          element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          } 
-        />
-
-        {/* Dashboard - accessibile a tutti (demo e autenticati) */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <DemoAccessibleRoute>
-              <Dashboard />
-            </DemoAccessibleRoute>
-          } 
-        />
-
-        {/* Transazioni - accessibili in modalità demo con limitazioni */}
-        <Route 
-          path="/transactions" 
-          element={
-            <DemoAccessibleRoute>
-              <TransactionList />
-            </DemoAccessibleRoute>
-          } 
-        />
-
-        {/* Analytics - accessibili in modalità demo ma con limitazioni */}
-        <Route 
-          path="/analytics" 
-          element={
-            <DemoAccessibleRoute>
-              <TransactionAnalytics />
-            </DemoAccessibleRoute>
-          } 
-        />
-
-        {/* Rotte solo per utenti autenticati */}
-        <Route 
-          path="/profile" 
-          element={
-            <AuthenticatedOnlyRoute>
-              <Profile />
-            </AuthenticatedOnlyRoute>
-          } 
-        />
-
-        {/* Backward compatibility redirects */}
-        <Route path="/settings" element={<Navigate to="/profile" replace />} />
-        <Route path="/stats" element={<Navigate to="/analytics" replace />} />
-
-        {/* Fallback route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppLayout>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/transactions" element={<TransactionList />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </AppLayout>
+    </Router>
   );
 };
 

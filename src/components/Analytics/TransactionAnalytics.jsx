@@ -9,13 +9,53 @@ import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInter
 import { it } from "date-fns/locale";
 import formatCurrency from "../../utils/formatCurrency";
 import { useCategories } from "../../utils/categories";
+import React from "react";
 
+// TransactionAnalytics component: shows financial analytics and insights
+// Uses useMemo for periods and mainStats for performance
 const TransactionAnalytics = () => {
   const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
   const { expenseCategories, incomeCategories } = useCategories();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [selectedPeriod, setSelectedPeriod] = useState("thisMonth");
+  const [selectedPeriod, setSelectedPeriod] = useState("month");
+  const [customRange, setCustomRange] = useState({ from: "", to: "" });
   const [stats, setStats] = useState({});
+
+  // Memoized list of main statistics to display
+  const mainStats = useMemo(() => [
+    {
+      title: "Entrate Totali",
+      value: stats.totalIncome || 0,
+      icon: <FiTrendingUp size={24} />,
+      color: "var(--accent-success)",
+      bgColor: "var(--pastel-mint)",
+      formatter: formatCurrency
+    },
+    {
+      title: "Uscite Totali",
+      value: stats.totalExpense || 0,
+      icon: <FiTrendingDown size={24} />,
+      color: "var(--accent-error)",
+      bgColor: "var(--pastel-coral)",
+      formatter: formatCurrency
+    },
+    {
+      title: "Bilancio",
+      value: stats.balance || 0,
+      icon: <FiDollarSign size={24} />,
+      color: stats.balance >= 0 ? "var(--accent-success)" : "var(--accent-error)",
+      bgColor: stats.balance >= 0 ? "var(--pastel-mint)" : "var(--pastel-coral)",
+      formatter: formatCurrency
+    },
+    {
+      title: "Tasso Risparmio",
+      value: stats.savingsRate || 0,
+      icon: <FiTarget size={24} />,
+      color: stats.savingsRate >= 20 ? "var(--accent-success)" : stats.savingsRate >= 10 ? "var(--accent-warning)" : "var(--accent-error)",
+      bgColor: stats.savingsRate >= 20 ? "var(--pastel-mint)" : stats.savingsRate >= 10 ? "var(--pastel-cream)" : "var(--pastel-coral)",
+      formatter: (value) => `${value.toFixed(1)}%`
+    }
+  ], [stats]);
 
   // Calcola statistiche avanzate
   const calculateAdvancedStats = useMemo(() => {
@@ -42,6 +82,10 @@ const TransactionAnalytics = () => {
       case "last3Months":
         startDate = startOfMonth(subMonths(now, 2));
         endDate = endOfMonth(now);
+        break;
+      case "custom":
+        startDate = new Date(customRange.from);
+        endDate = new Date(customRange.to);
         break;
       default:
         startDate = startOfMonth(now);
@@ -153,53 +197,11 @@ const TransactionAnalytics = () => {
       startDate,
       endDate
     };
-  }, [transactions, selectedPeriod, expenseCategories, incomeCategories]);
+  }, [transactions, selectedPeriod, expenseCategories, incomeCategories, customRange]);
 
   useEffect(() => {
     setStats(calculateAdvancedStats);
   }, [calculateAdvancedStats]);
-
-  const periods = [
-    { value: "thisMonth", label: "Questo Mese" },
-    { value: "lastMonth", label: "Mese Scorso" },
-    { value: "last3Months", label: "Ultimi 3 Mesi" },
-    { value: "thisYear", label: "Quest'Anno" }
-  ];
-
-  const mainStats = [
-    {
-      title: "Entrate Totali",
-      value: stats.totalIncome || 0,
-      icon: <FiTrendingUp size={24} />,
-      color: "var(--accent-success)",
-      bgColor: "var(--pastel-mint)",
-      formatter: formatCurrency
-    },
-    {
-      title: "Uscite Totali",
-      value: stats.totalExpense || 0,
-      icon: <FiTrendingDown size={24} />,
-      color: "var(--accent-error)",
-      bgColor: "var(--pastel-coral)",
-      formatter: formatCurrency
-    },
-    {
-      title: "Bilancio",
-      value: stats.balance || 0,
-      icon: <FiDollarSign size={24} />,
-      color: stats.balance >= 0 ? "var(--accent-success)" : "var(--accent-error)",
-      bgColor: stats.balance >= 0 ? "var(--pastel-mint)" : "var(--pastel-coral)",
-      formatter: formatCurrency
-    },
-    {
-      title: "Tasso Risparmio",
-      value: stats.savingsRate || 0,
-      icon: <FiTarget size={24} />,
-      color: stats.savingsRate >= 20 ? "var(--accent-success)" : stats.savingsRate >= 10 ? "var(--accent-warning)" : "var(--accent-error)",
-      bgColor: stats.savingsRate >= 20 ? "var(--pastel-mint)" : stats.savingsRate >= 10 ? "var(--pastel-cream)" : "var(--pastel-coral)",
-      formatter: (value) => `${value.toFixed(1)}%`
-    }
-  ];
 
   return (
     <div style={{ 
@@ -221,7 +223,7 @@ const TransactionAnalytics = () => {
             <h2 className="text-dark fw-bold mb-2 d-flex align-items-center gap-2">
               <FiBarChart size={28} />
               Analytics & Insights
-            </h2>
+        </h2>
             <p className="text-muted mb-0">
               Analizza le tue abitudini finanziarie e scopri pattern nascosti
             </p>
@@ -230,30 +232,45 @@ const TransactionAnalytics = () => {
           <div className="d-flex gap-2">
             <Form.Select
               value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              style={{
-                borderRadius: '12px',
-                border: '1px solid rgba(0,0,0,0.1)',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                minWidth: '150px'
-              }}
+              onChange={e => setSelectedPeriod(e.target.value)}
+              style={{ maxWidth: 200, display: "inline-block" }}
             >
-              {periods.map(period => (
-                <option key={period.value} value={period.value}>
-                  {period.label}
-                </option>
-              ))}
+              <option value="month">Questo Mese</option>
+              <option value="lastMonth">Mese Scorso</option>
+              <option value="last3Months">Ultimi 3 Mesi</option>
+              <option value="year">Quest&apos;Anno</option>
+              <option value="custom">Personalizzato...</option>
             </Form.Select>
+            {selectedPeriod === "custom" && (
+              <div className="d-inline-flex align-items-center gap-2 ms-3">
+                <Form.Label className="mb-0 small">Dal</Form.Label>
+                <Form.Control
+                  type="date"
+                  size="sm"
+                  value={customRange.from}
+                  onChange={e => setCustomRange(r => ({ ...r, from: e.target.value }))}
+                  style={{ minWidth: 120 }}
+                />
+                <Form.Label className="mb-0 small">al</Form.Label>
+                <Form.Control
+                  type="date"
+                  size="sm"
+                  value={customRange.to}
+                  onChange={e => setCustomRange(r => ({ ...r, to: e.target.value }))}
+                  style={{ minWidth: 120 }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Demo Alert */}
-        {isDemo && (
+      {/* Demo Alert */}
+      {isDemo && (
                   <Alert variant="info" className="border-0 mb-4" style={{ 
           borderRadius: '2rem',
-          backgroundColor: 'rgba(13, 202, 240, 0.1)',
-          border: '1px solid rgba(13, 202, 240, 0.2)',
-        }}>
+            backgroundColor: 'rgba(13, 202, 240, 0.1)',
+            border: '1px solid rgba(13, 202, 240, 0.2)',
+          }}>
             <Alert.Heading className="h6 fw-bold text-info">
               🎯 Modalità Demo Attiva
             </Alert.Heading>
@@ -263,65 +280,66 @@ const TransactionAnalytics = () => {
             </p>
           </Alert>
         )}
-      </motion.div>
+        </motion.div>
 
       {/* Main Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
         className="mb-5"
-      >
+          >
         <Row className="g-4">
           {mainStats.map((stat, index) => (
             <Col key={index} xs={12} sm={6} lg={3}>
-              <Card 
-                className="h-100 border-0 shadow-sm glass-card"
+            <Card 
+                className="mb-4 shadow-sm glass-card analytics-glass"
                 style={{
-                  borderRadius: '2rem',
-                  background: 'rgba(255,255,255,0.04)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  transition: 'all 0.3s ease'
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  border: "1.5px solid rgba(255,255,255,0.35)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                  borderRadius: "22px",
+                  transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 12px 35px rgba(0, 0, 0, 0.15)';
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
+                  e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '';
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
                 }}
               >
-                <Card.Body className="p-4 text-center">
-                  <div 
-                    className="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                    style={{
-                      width: '60px',
-                      height: '60px',
+              <Card.Body className="p-4 text-center">
+                <div 
+                  className="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                  style={{
+                    width: '60px',
+                    height: '60px',
                       backgroundColor: stat.color + '20',
                       color: stat.color,
-                    }}
-                  >
+                  }}
+                >
                     {stat.icon}
-                  </div>
+                </div>
                   <h5 className="fw-bold text-dark mb-1">{stat.formatter(stat.value)}</h5>
                   <p className="text-muted small mb-0">{stat.title}</p>
-                </Card.Body>
-              </Card>
+              </Card.Body>
+            </Card>
             </Col>
           ))}
         </Row>
-      </motion.div>
+          </motion.div>
 
       {/* Top Categories */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
         className="mb-5"
-      >
+          >
         <Row className="g-4">
           {/* Top Expense Categories */}
           <Col xs={12} lg={6}>
@@ -367,11 +385,11 @@ const TransactionAnalytics = () => {
                   <div className="text-center py-4 text-muted">
                     <FiPieChart size={48} className="mb-3 opacity-50" />
                     <p>Nessuna spesa nel periodo selezionato</p>
-                  </div>
+                </div>
                 )}
               </Card.Body>
             </Card>
-          </Col>
+        </Col>
 
           {/* Top Income Categories */}
           <Col xs={12} lg={6}>
@@ -418,12 +436,12 @@ const TransactionAnalytics = () => {
                   <div className="text-center py-4 text-muted">
                     <FiPieChart size={48} className="mb-3 opacity-50" />
                     <p>Nessuna entrata nel periodo selezionato</p>
-                  </div>
+                </div>
                 )}
               </Card.Body>
             </Card>
-          </Col>
-        </Row>
+        </Col>
+      </Row>
       </motion.div>
 
       {/* Monthly Trend */}
@@ -531,7 +549,7 @@ const TransactionAnalytics = () => {
                 <h5 className="fw-bold text-dark mb-2">Transazione Media</h5>
                 <div className="fw-bold text-warning" style={{ fontSize: '1.5rem' }}>
                   {formatCurrency(stats.avgTransactionAmount || 0)}
-                </div>
+            </div>
                 <small className="text-muted">Importo medio per transazione</small>
               </Card.Body>
             </Card>
@@ -553,10 +571,10 @@ const TransactionAnalytics = () => {
                 <h5 className="fw-bold text-dark mb-2">Transazioni Totali</h5>
                 <div className="fw-bold text-info" style={{ fontSize: '1.5rem' }}>
                   {stats.transactionCount || 0}
-                </div>
+            </div>
                 <small className="text-muted">Nel periodo selezionato</small>
-              </Card.Body>
-            </Card>
+          </Card.Body>
+        </Card>
           </Col>
         </Row>
       </motion.div>
@@ -564,4 +582,4 @@ const TransactionAnalytics = () => {
   );
 };
 
-export default TransactionAnalytics; 
+export default React.memo(TransactionAnalytics); 

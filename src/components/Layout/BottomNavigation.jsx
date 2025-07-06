@@ -9,12 +9,37 @@ import {
   FiUser,
   FiLogOut 
 } from "react-icons/fi";
+import { useEffect, useState } from "react";
 
 const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          if (currentY > lastScrollY && currentY > 40) {
+            setVisible(false); // scroll down
+          } else {
+            setVisible(true); // scroll up
+          }
+          setLastScrollY(currentY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line
+  }, [lastScrollY]);
 
   const handleLogout = async () => {
     await logout();
@@ -81,6 +106,9 @@ const BottomNavigation = () => {
         boxShadow: '0 -4px 25px rgba(0, 0, 0, 0.1)',
         backdropFilter: 'blur(25px)',
         WebkitBackdropFilter: 'blur(25px)',
+        transition: 'transform 0.35s cubic-bezier(.4,2,.6,1)',
+        transform: visible ? 'translateY(0)' : 'translateY(100%)',
+        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
       {navigationItems.map((item) => {
