@@ -114,7 +114,10 @@
     "transactions": "Transazioni",
     "analytics": "Analytics",
     "profile": "Profilo",
-    "logout": "Logout"
+    "logout": "Logout",
+    "register": "Registrati",
+    "backToHome": "Torna alla Home",
+    "demoExitConfirm": "Uscirai dalla modalità demo e tornerai alla pagina iniziale. Continuare?"
   },
   "landing": {
     "heroTitle": "Soldi Sotto",
@@ -272,5 +275,36 @@
     "success": "Successo",
     "warning": "Attenzione",
     "info": "Informazione"
+  },
+  "login": {
+    "title": "Bentornato!",
+    "subtitle": "Accedi con il tuo account",
+    "usernameOrEmail": "Username o Email",
+    "usernameOrEmailPlaceholder": "username o email",
+    "usernameOrEmailHelp": "Inserisci la email di registrazione per accedere",
+    "password": "Password",
+    "passwordPlaceholder": "inserisci la tua password",
+    "loginButton": "Accedi",
+    "noAccount": "Non hai un account?",
+    "registerNow": "Registrati ora",
+    "backToHome": "Torna alla Home"
+  },
+  "register": {
+    "title": "Crea Account",
+    "subtitle": "Inizia il tuo viaggio finanziario",
+    "username": "Username",
+    "usernamePlaceholder": "scegli un username",
+    "usernameHelp": "Min. 3 caratteri",
+    "usernameMin": "Min. 3 caratteri",
+    "email": "Email",
+    "emailPlaceholder": "la tua email",
+    "password": "Password",
+    "passwordPlaceholder": "crea una password",
+    "confirmPassword": "Conferma Password",
+    "confirmPasswordPlaceholder": "ripeti la password",
+    "registerButton": "Crea Account",
+    "haveAccount": "Hai già un account?",
+    "loginNow": "Accedi ora",
+    "backToHome": "Torna alla Home"
   }
 } 

@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Form, Button, Alert } from "react-bootstrap";
 import { FiUser, FiLock, FiEye, FiEyeOff, FiArrowLeft, FiLogIn } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
   const [loginInput, setLoginInput] = useState(""); // Può essere email o username
@@ -18,6 +19,7 @@ const Login = () => {
   const navigate = useNavigate();
   const notification = useNotification();
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { t } = useTranslation();
 
   // Funzione per determinare se l'input è un email
   const isEmail = (input) => {
@@ -97,8 +99,8 @@ const Login = () => {
     <div 
       className="min-vh-100 d-flex align-items-center justify-content-center"
       style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: isMobile ? '20px' : '40px',
+        background: "var(--background-primary, #f8fafc)",
+        padding: isMobile ? '8px' : '24px',
         position: "relative"
       }}
     >
@@ -108,7 +110,7 @@ const Login = () => {
         transition={{ duration: 0.4 }}
         style={{
           width: "100%",
-          maxWidth: "440px",
+          maxWidth: "370px",
           position: "relative"
         }}
       >
@@ -117,41 +119,44 @@ const Login = () => {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-4"
+          className="mb-3"
         >
           <Button
             variant="link"
             onClick={() => navigate("/")}
-            className="text-decoration-none p-0 d-flex align-items-center gap-2 text-white"
+            className="text-decoration-none p-0 d-flex align-items-center gap-2"
             style={{ 
-              fontSize: "14px",
-              background: "rgba(255, 255, 255, 0.15)",
-              borderRadius: "12px",
-              padding: "8px 16px",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
+              fontSize: "13px",
+              background: "rgba(255,255,255,0.18)",
+              borderRadius: "10px",
+              padding: "6px 14px",
+              border: "1px solid rgba(0,0,0,0.07)",
+              color: "#222",
+              backdropFilter: "blur(8px)",
               transition: "all 0.2s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
+              e.currentTarget.style.background = "rgba(0,0,0,0.08)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+              e.currentTarget.style.background = "rgba(255,255,255,0.18)";
             }}
           >
-            <FiArrowLeft size={16} />
-            Torna alla Home
+            <FiArrowLeft size={15} />
+            {t('login.backToHome')}
           </Button>
         </motion.div>
 
         {/* Main Container */}
         <div
           style={{
-            background: "rgba(255, 255, 255, 0.95)",
-            borderRadius: "24px",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
-            padding: isMobile ? "24px" : "32px",
+            background: "rgba(255,255,255,0.72)",
+            borderRadius: "18px",
+            border: "1px solid rgba(0,0,0,0.06)",
+            boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+            padding: isMobile ? "16px" : "22px",
             position: "relative",
+            backdropFilter: "blur(12px)",
             willChange: "transform"
           }}
         >
@@ -160,24 +165,24 @@ const Login = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-center mb-4"
+            className="text-center mb-3"
           >
-            <div className="d-flex align-items-center justify-content-center gap-3 mb-3">
+            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
               <div
                 className="rounded-circle d-flex align-items-center justify-content-center"
                 style={{
-                  width: "52px",
-                  height: "52px",
-                  background: "linear-gradient(135deg, #667eea, #764ba2)",
-                  color: "white",
-                  fontSize: "24px"
+                  width: "38px",
+                  height: "38px",
+                  background: "rgba(13,110,253,0.13)",
+                  color: "#0d6efd",
+                  fontSize: "18px"
                 }}
               >
                 💰
               </div>
               <div className="text-start">
-                <h2 className="fw-bold text-dark mb-0">Bentornato!</h2>
-                <small className="text-muted">Accedi con il tuo account</small>
+                <h2 className="fw-semibold text-dark mb-0" style={{fontSize:'1.25rem'}}>{t('login.title')}</h2>
+                <small className="text-muted" style={{fontSize:'0.95rem'}}>{t('login.subtitle')}</small>
               </div>
             </div>
           </motion.div>
@@ -187,16 +192,16 @@ const Login = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-4"
+              className="mb-3"
             >
               <Alert 
                 variant="danger" 
                 className="border-0"
                 style={{
-                  background: "rgba(239, 68, 68, 0.1)",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(239, 68, 68, 0.2)",
-                  padding: "12px 16px"
+                  background: "rgba(239, 68, 68, 0.08)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(239, 68, 68, 0.13)",
+                  padding: "8px 12px"
                 }}
               >
                 <div className="d-flex align-items-center gap-2">
@@ -208,161 +213,97 @@ const Login = () => {
           )}
 
           {/* Login Form */}
-          <Form onSubmit={handleSubmit}>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+          <Form onSubmit={handleSubmit} autoComplete="on">
+            <Form.Group className="mb-3" controlId="loginInput">
+              <Form.Label className="fw-semibold small">{t('login.usernameOrEmail')}</Form.Label>
+              <div className="input-group">
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiUser /></span>
+                <Form.Control
+                  type="text"
+                  placeholder={t('login.usernameOrEmailPlaceholder')}
+                  value={loginInput}
+                  onChange={e => setLoginInput(e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.7)',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '10px',
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    fontSize: '1rem',
+                    minHeight: '44px',
+                    padding: '0.5rem 1rem',
+                    color: '#222',
+                    boxShadow: 'none',
+                  }}
+                  autoComplete="username"
+                />
+              </div>
+              <Form.Text className="text-muted small">{t('login.usernameOrEmailHelp')}</Form.Text>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label className="fw-semibold small">{t('login.password')}</Form.Label>
+              <div className="input-group">
+                <span className="input-group-text bg-transparent border-end-0" style={{padding:'0.5rem 0.7rem', fontSize:'1.1rem'}}><FiLock /></span>
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t('login.passwordPlaceholder')}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.7)',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '10px',
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    fontSize: '1rem',
+                    minHeight: '44px',
+                    padding: '0.5rem 1rem',
+                    color: '#222',
+                    boxShadow: 'none',
+                  }}
+                  autoComplete="current-password"
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#888',
+                    fontSize: '1.1rem',
+                    borderRadius: '0 10px 10px 0',
+                    minHeight: '44px',
+                  }}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </Button>
+              </div>
+            </Form.Group>
+            <Button
+              type="submit"
+              className="w-100 fw-semibold mt-2"
+              style={{
+                borderRadius: '10px',
+                minHeight: '44px',
+                fontSize: '1.08rem',
+                background: 'rgba(13,110,253,0.93)',
+                color: '#fff',
+                border: 'none',
+                boxShadow: '0 1px 6px rgba(13,110,253,0.07)',
+                transition: 'all 0.2s',
+              }}
+              disabled={loading}
             >
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold text-dark small mb-2">
-                  Username o Email
-                </Form.Label>
-                <div className="position-relative">
-                  <FiUser 
-                    className="position-absolute top-50 translate-middle-y text-muted"
-                    style={{ left: "14px", zIndex: 10 }}
-                    size={16}
-                  />
-                  <Form.Control
-                    type="text"
-                    placeholder="username o email"
-                    value={loginInput}
-                    onChange={(e) => setLoginInput(e.target.value)}
-                    required
-                    className="border-0"
-                    style={{
-                      paddingLeft: "44px",
-                      height: "48px",
-                      borderRadius: "12px",
-                      fontSize: "15px",
-                      background: "rgba(248, 249, 250, 0.8)",
-                      border: "1px solid rgba(0, 0, 0, 0.08)",
-                      fontWeight: "500"
-                    }}
-                  />
-                </div>
-                <Form.Text className="text-muted small">
-                  Inserisci la email di registrazione per accedere
-                </Form.Text>
-              </Form.Group>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold text-dark small mb-2">
-                  Password
-                </Form.Label>
-                <div className="position-relative">
-                  <FiLock 
-                    className="position-absolute top-50 translate-middle-y text-muted"
-                    style={{ left: "14px", zIndex: 10 }}
-                    size={16}
-                  />
-                  <Form.Control
-                    type={showPassword ? "text" : "password"}
-                    placeholder="inserisci la tua password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="border-0"
-                    style={{
-                      paddingLeft: "44px",
-                      paddingRight: "44px",
-                      height: "48px",
-                      borderRadius: "12px",
-                      fontSize: "15px",
-                      background: "rgba(248, 249, 250, 0.8)",
-                      border: "1px solid rgba(0, 0, 0, 0.08)",
-                      fontWeight: "500"
-                    }}
-                  />
-                  <Button
-                    variant="link"
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="position-absolute top-50 translate-middle-y border-0 text-muted p-0"
-                    style={{ right: "14px", zIndex: 10 }}
-                  >
-                    {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                  </Button>
-                </div>
-              </Form.Group>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-100 border-0 fw-semibold mb-4"
-                style={{
-                  height: "50px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #667eea, #764ba2)",
-                  fontSize: "16px",
-                  transition: "transform 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  if (!loading) {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                {loading ? (
-                  <div className="d-flex align-items-center justify-content-center">
-                    <div className="spinner-border spinner-border-sm me-2" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    Accesso in corso...
-                  </div>
-                ) : (
-                  <div className="d-flex align-items-center justify-content-center gap-2">
-                    <FiLogIn size={18} />
-                    Accedi
-                  </div>
-                )}
-              </Button>
-            </motion.div>
+              <FiLogIn className="me-2" /> {t('login.loginButton')}
+            </Button>
           </Form>
 
           {/* Register Link */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-center"
-          >
-            <p className="text-muted mb-0 small">
-              Non hai un account?{" "}
-              <Link 
-                to="/register" 
-                className="text-decoration-none fw-semibold"
-                style={{ 
-                  color: "#667eea",
-                  transition: "color 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "#764ba2";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "#667eea";
-                }}
-              >
-                Registrati ora
-              </Link>
-            </p>
-          </motion.div>
+          <div className="text-center mt-3">
+            <span className="text-muted small">{t('login.noAccount')}</span>{' '}
+            <Link to="/register" className="fw-semibold" style={{ color: '#0d6efd', textDecoration: 'none' }}>{t('login.registerNow')}</Link>
+          </div>
         </div>
       </motion.div>
     </div>

@@ -10,6 +10,7 @@ import { it } from "date-fns/locale";
 import formatCurrency from "../../utils/formatCurrency";
 import { useCategories } from "../../utils/categories";
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
 // TransactionAnalytics component: shows financial analytics and insights
 // Uses useMemo for periods and mainStats for performance
@@ -20,11 +21,12 @@ const TransactionAnalytics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [customRange, setCustomRange] = useState({ from: "", to: "" });
   const [stats, setStats] = useState({});
+  const { t } = useTranslation();
 
   // Memoized list of main statistics to display
   const mainStats = useMemo(() => [
     {
-      title: "Entrate Totali",
+      title: t('analytics.totalIncome'),
       value: stats.totalIncome || 0,
       icon: <FiTrendingUp size={24} />,
       color: "var(--accent-success)",
@@ -32,7 +34,7 @@ const TransactionAnalytics = () => {
       formatter: formatCurrency
     },
     {
-      title: "Uscite Totali",
+      title: t('analytics.totalExpense'),
       value: stats.totalExpense || 0,
       icon: <FiTrendingDown size={24} />,
       color: "var(--accent-error)",
@@ -40,7 +42,7 @@ const TransactionAnalytics = () => {
       formatter: formatCurrency
     },
     {
-      title: "Bilancio",
+      title: t('analytics.balance'),
       value: stats.balance || 0,
       icon: <FiDollarSign size={24} />,
       color: stats.balance >= 0 ? "var(--accent-success)" : "var(--accent-error)",
@@ -48,14 +50,14 @@ const TransactionAnalytics = () => {
       formatter: formatCurrency
     },
     {
-      title: "Tasso Risparmio",
+      title: t('analytics.savingsRate'),
       value: stats.savingsRate || 0,
       icon: <FiTarget size={24} />,
       color: stats.savingsRate >= 20 ? "var(--accent-success)" : stats.savingsRate >= 10 ? "var(--accent-warning)" : "var(--accent-error)",
       bgColor: stats.savingsRate >= 20 ? "var(--pastel-mint)" : stats.savingsRate >= 10 ? "var(--pastel-cream)" : "var(--pastel-coral)",
       formatter: (value) => `${value.toFixed(1)}%`
     }
-  ], [stats]);
+  ], [stats, t]);
 
   // Calcola statistiche avanzate
   const calculateAdvancedStats = useMemo(() => {
@@ -76,6 +78,7 @@ const TransactionAnalytics = () => {
         break;
       }
       case "thisYear":
+      case "year":
         startDate = startOfYear(now);
         endDate = endOfYear(now);
         break;
@@ -222,10 +225,10 @@ const TransactionAnalytics = () => {
           <div>
             <h2 className="text-dark fw-bold mb-2 d-flex align-items-center gap-2">
               <FiBarChart size={28} />
-              Analytics & Insights
-        </h2>
+              {t('analytics.title')}
+            </h2>
             <p className="text-muted mb-0">
-              Analizza le tue abitudini finanziarie e scopri pattern nascosti
+              {t('analytics.subtitle')}
             </p>
           </div>
           
@@ -235,15 +238,15 @@ const TransactionAnalytics = () => {
               onChange={e => setSelectedPeriod(e.target.value)}
               style={{ maxWidth: 200, display: "inline-block" }}
             >
-              <option value="month">Questo Mese</option>
-              <option value="lastMonth">Mese Scorso</option>
-              <option value="last3Months">Ultimi 3 Mesi</option>
-              <option value="year">Quest&apos;Anno</option>
-              <option value="custom">Personalizzato...</option>
+              <option value="month">{t('analytics.thisMonth')}</option>
+              <option value="lastMonth">{t('analytics.lastMonth')}</option>
+              <option value="last3Months">{t('analytics.last3Months')}</option>
+              <option value="year">{t('analytics.thisYear')}</option>
+              <option value="custom">{t('analytics.custom')}</option>
             </Form.Select>
             {selectedPeriod === "custom" && (
               <div className="d-inline-flex align-items-center gap-2 ms-3">
-                <Form.Label className="mb-0 small">Dal</Form.Label>
+                <Form.Label className="mb-0 small">{t('analytics.from')}</Form.Label>
                 <Form.Control
                   type="date"
                   size="sm"
@@ -251,7 +254,7 @@ const TransactionAnalytics = () => {
                   onChange={e => setCustomRange(r => ({ ...r, from: e.target.value }))}
                   style={{ minWidth: 120 }}
                 />
-                <Form.Label className="mb-0 small">al</Form.Label>
+                <Form.Label className="mb-0 small">{t('analytics.to')}</Form.Label>
                 <Form.Control
                   type="date"
                   size="sm"
@@ -272,11 +275,10 @@ const TransactionAnalytics = () => {
             border: '1px solid rgba(13, 202, 240, 0.2)',
           }}>
             <Alert.Heading className="h6 fw-bold text-info">
-              🎯 Modalità Demo Attiva
+              🎯 {t('analytics.demoMode')}
             </Alert.Heading>
             <p className="mb-0">
-              Visualizzi analytics demo con {transactions.length}/{maxTransactions} transazioni. 
-              Registrati per analytics complete e storiche!
+              {t('analytics.demoDescription', { current: transactions.length, max: maxTransactions })}
             </p>
           </Alert>
         )}
@@ -356,7 +358,7 @@ const TransactionAnalytics = () => {
               <Card.Body className="p-4">
                 <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
                   <FiTrendingDown className="text-danger" size={20} />
-                  Top Categorie Spesa
+                  {t('analytics.topExpenseCategories')}
                 </h5>
                 
                 {stats.topExpenseCategories?.length > 0 ? (
@@ -376,7 +378,7 @@ const TransactionAnalytics = () => {
                             style={{ height: '6px', borderRadius: '3px' }}
                             className="mb-1"
                           />
-                          <small className="text-muted">{cat.percentage.toFixed(1)}% del totale</small>
+                          <small className="text-muted">{cat.percentage.toFixed(1)}% {t('analytics.ofTotal')}</small>
                         </div>
                       </div>
                     ))}
@@ -384,7 +386,7 @@ const TransactionAnalytics = () => {
                 ) : (
                   <div className="text-center py-4 text-muted">
                     <FiPieChart size={48} className="mb-3 opacity-50" />
-                    <p>Nessuna spesa nel periodo selezionato</p>
+                    <p>{t('analytics.noExpenseData')}</p>
                 </div>
                 )}
               </Card.Body>
@@ -406,7 +408,7 @@ const TransactionAnalytics = () => {
               <Card.Body className="p-4">
                 <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
                   <FiTrendingUp className="text-success" size={20} />
-                  Top Categorie Entrata
+                  {t('analytics.topIncomeCategories')}
                 </h5>
                 
                 {stats.topIncomeCategories?.length > 0 ? (
@@ -427,7 +429,7 @@ const TransactionAnalytics = () => {
                             style={{ height: '6px', borderRadius: '3px' }}
                             className="mb-1"
                           />
-                          <small className="text-muted">{cat.percentage.toFixed(1)}% del totale</small>
+                          <small className="text-muted">{cat.percentage.toFixed(1)}% {t('analytics.ofTotal')}</small>
                         </div>
                       </div>
                     ))}
@@ -435,7 +437,7 @@ const TransactionAnalytics = () => {
                 ) : (
                   <div className="text-center py-4 text-muted">
                     <FiPieChart size={48} className="mb-3 opacity-50" />
-                    <p>Nessuna entrata nel periodo selezionato</p>
+                    <p>{t('analytics.noIncomeData')}</p>
                 </div>
                 )}
               </Card.Body>
@@ -464,7 +466,7 @@ const TransactionAnalytics = () => {
           <Card.Body className="p-4">
             <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
               <FiActivity className="text-primary" size={20} />
-              Trend Ultimi 6 Mesi
+              {t('analytics.monthlyTrend')}
             </h5>
             
             {stats.monthlyTrend?.length > 0 ? (
@@ -497,7 +499,7 @@ const TransactionAnalytics = () => {
             ) : (
               <div className="text-center py-4 text-muted">
                 <FiActivity size={48} className="mb-3 opacity-50" />
-                <p>Dati insufficienti per mostrare il trend</p>
+                <p>{t('analytics.insufficientData')}</p>
               </div>
             )}
           </Card.Body>
@@ -524,11 +526,11 @@ const TransactionAnalytics = () => {
             >
               <Card.Body className="p-4 text-center">
                 <FiCalendar className="text-primary mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">Spesa Media Giornaliera</h5>
+                <h5 className="fw-bold text-dark mb-2">{t('analytics.avgDailyExpense')}</h5>
                 <div className="fw-bold text-primary" style={{ fontSize: '1.5rem' }}>
                   {formatCurrency(stats.avgDailyExpense || 0)}
                 </div>
-                <small className="text-muted">Nel periodo selezionato</small>
+                <small className="text-muted">{t('analytics.inSelectedPeriod')}</small>
               </Card.Body>
             </Card>
           </Col>
@@ -546,11 +548,11 @@ const TransactionAnalytics = () => {
             >
               <Card.Body className="p-4 text-center">
                 <FiDollarSign className="text-warning mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">Transazione Media</h5>
+                <h5 className="fw-bold text-dark mb-2">{t('analytics.avgTransaction')}</h5>
                 <div className="fw-bold text-warning" style={{ fontSize: '1.5rem' }}>
                   {formatCurrency(stats.avgTransactionAmount || 0)}
             </div>
-                <small className="text-muted">Importo medio per transazione</small>
+                <small className="text-muted">{t('analytics.avgTransactionDescription')}</small>
               </Card.Body>
             </Card>
           </Col>
@@ -568,11 +570,11 @@ const TransactionAnalytics = () => {
             >
               <Card.Body className="p-4 text-center">
                 <FiActivity className="text-info mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">Transazioni Totali</h5>
+                <h5 className="fw-bold text-dark mb-2">{t('analytics.totalTransactions')}</h5>
                 <div className="fw-bold text-info" style={{ fontSize: '1.5rem' }}>
                   {stats.transactionCount || 0}
             </div>
-                <small className="text-muted">Nel periodo selezionato</small>
+                <small className="text-muted">{t('analytics.inSelectedPeriod')}</small>
           </Card.Body>
         </Card>
           </Col>

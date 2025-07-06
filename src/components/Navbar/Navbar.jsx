@@ -12,23 +12,32 @@ import {
   FiList,
   FiBarChart,
 } from "react-icons/fi";
+import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
-  const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
+  const { isDemo, transactions, maxTransactions, clearTransactions } = useUnifiedTransactions();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
+  const handleBackToHome = async () => {
+    if (window.confirm(t('navbar.demoExitConfirm'))) {
+      await clearTransactions();
+      window.location.replace('/');
+    }
+  };
+
   const navigationItems = [
-    { label: "Dashboard", path: "/dashboard", icon: <FiHome /> },
-    { label: "Transazioni", path: "/transactions", icon: <FiList /> },
-    { label: "Analytics", path: "/analytics", icon: <FiBarChart /> },
+    { label: t('navbar.dashboard'), path: "/dashboard", icon: <FiHome /> },
+    { label: t('navbar.transactions'), path: "/transactions", icon: <FiList /> },
+    { label: t('navbar.analytics'), path: "/analytics", icon: <FiBarChart /> },
   ];
 
   return (
@@ -48,15 +57,23 @@ const Navbar = () => {
       }}
     >
       <div className="container-fluid h-100">
-        <div className="d-flex align-items-center justify-content-between h-100">
-          {/* Logo */}
+        <div className="d-flex align-items-center justify-content-between h-100 w-100">
+          {/* Logo a sinistra */}
           <div className="d-flex align-items-center gap-2">
             <Link 
               to="/" 
               className="text-decoration-none text-dark fw-bold"
               style={{ 
-                fontSize: "1.25rem",
-                textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)"
+                fontSize: "1.35rem",
+                textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                whiteSpace: 'nowrap',
+                letterSpacing: '0.01em',
+                lineHeight: 1.1,
+                minWidth: '120px',
+                maxWidth: '220px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                marginRight: '8px'
               }}
             >
               💰 Soldi Sotto
@@ -76,10 +93,9 @@ const Navbar = () => {
               </Badge>
             )}
           </div>
-
-          {/* Desktop Navigation */}
+          {/* Tutto il resto a destra */}
           {!isMobile && (
-            <div className="d-flex align-items-center gap-4">
+            <div className="d-flex align-items-center gap-2 ms-auto">
               {(currentUser || isDemo) && navigationItems.map((item) => (
                 <Link
                   key={item.path}
@@ -115,8 +131,6 @@ const Navbar = () => {
                   {item.label}
                 </Link>
               ))}
-              
-              {/* Profilo per utenti autenticati */}
               {currentUser && (
                 <Link
                   to="/profile"
@@ -148,58 +162,65 @@ const Navbar = () => {
                     }
                   }}
                 >
-                  Profilo
+                  {t('navbar.profile')}
                 </Link>
               )}
-              
-              {currentUser || isDemo ? (
+              {/* Pulsanti Back to Home e Register a destra, compatti, e Logout per autenticato */}
+              {isDemo && !currentUser && (
+                <>
+                  <Button
+                    variant="outline-primary"
+                    className="fw-medium"
+                    style={{
+                      borderRadius: "10px",
+                      fontSize: "15px",
+                      padding: "6px 14px",
+                      border: "1.2px solid #0d6efd",
+                      background: "rgba(13,110,253,0.06)",
+                      color: "#0d6efd",
+                      minWidth: '0',
+                      transition: 'all 0.2s',
+                    }}
+                    onClick={handleBackToHome}
+                  >
+                    {t('navbar.backToHome')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="fw-medium"
+                    style={{
+                      borderRadius: "10px",
+                      fontSize: "15px",
+                      padding: "6px 14px",
+                      background: "rgba(13, 110, 253, 0.9)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      minWidth: '0',
+                    }}
+                    onClick={() => navigate('/register')}
+                  >
+                    {t('navbar.register')}
+                  </Button>
+                </>
+              )}
+              {currentUser && (
                 <Button
-                  variant="link"
+                  variant="outline-secondary"
+                  className="fw-medium"
+                  style={{
+                    borderRadius: "10px",
+                    fontSize: "15px",
+                    padding: "6px 14px",
+                    border: "1.2px solid #6c757d",
+                    background: "rgba(108,117,125,0.06)",
+                    color: "#495057",
+                    minWidth: '0',
+                    transition: 'all 0.2s',
+                  }}
                   onClick={handleLogout}
-                  className="text-muted text-decoration-none fw-medium"
-                  style={{ 
-                    fontSize: "16px",
-                    transition: "all 0.2s ease"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#dc3545";
-                    e.currentTarget.style.textShadow = "0 1px 2px rgba(220, 53, 69, 0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "#6c757d";
-                    e.currentTarget.style.textShadow = "none";
-                  }}
                 >
-                  {isDemo ? "Esci" : "Logout"}
+                  {t('navbar.logout')}
                 </Button>
-              ) : (
-                <div className="d-flex gap-2">
-                  <Link to="/login">
-                    <Button 
-                      variant="link"
-                      className="text-muted text-decoration-none fw-medium"
-                      style={{ fontSize: "16px" }}
-                    >
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button 
-                      variant="primary"
-                      className="fw-medium"
-                      style={{
-                        borderRadius: "12px",
-                        fontSize: "16px",
-                        padding: "8px 16px",
-                        background: "rgba(13, 110, 253, 0.9)",
-                        backdropFilter: "blur(10px)",
-                        border: "1px solid rgba(255, 255, 255, 0.2)"
-                      }}
-                    >
-                      Registrati
-                    </Button>
-                  </Link>
-                </div>
               )}
             </div>
           )}
@@ -207,7 +228,7 @@ const Navbar = () => {
           {/* Mobile Navigation */}
           {isMobile && (
             <div>
-              {currentUser || isDemo ? (
+              {(currentUser || isDemo) ? (
                 <Dropdown align="end">
                   <Dropdown.Toggle
                     as={Button}
@@ -283,25 +304,50 @@ const Navbar = () => {
                           }}
                         >
                           <FiUser />
-                          Profilo & Impostazioni
+                          {t('navbar.profile')}
                         </Dropdown.Item>
                       </>
                     )}
                     
-                    <Dropdown.Divider style={{ margin: "8px 0", opacity: 0.3 }} />
-                    <Dropdown.Item
-                      onClick={handleLogout}
-                      className="d-flex align-items-center gap-2 py-2 text-danger"
-                      style={{
-                        borderRadius: "8px",
-                        margin: "2px 8px",
-                        fontSize: "15px",
-                        fontWeight: "500"
-                      }}
-                    >
-                      <FiLogOut />
-                      {isDemo ? "Esci" : "Logout"}
-                    </Dropdown.Item>
+                    {/* Pulsante Registrati solo per utente demo su mobile */}
+                    {isDemo && !currentUser && (
+                      <>
+                        <Dropdown.Divider style={{ margin: "8px 0", opacity: 0.3 }} />
+                        <Dropdown.Item
+                          onClick={() => navigate('/register')}
+                          className="d-flex align-items-center gap-2 py-2 fw-medium text-primary"
+                          style={{
+                            borderRadius: "8px",
+                            margin: "2px 8px",
+                            fontSize: "15px",
+                            fontWeight: "600"
+                          }}
+                        >
+                          <FiUser />
+                          {t('navbar.register')}
+                        </Dropdown.Item>
+                      </>
+                    )}
+                    
+                    {/* Logout solo se autenticato (mai in demo) */}
+                    {currentUser && (
+                      <>
+                        <Dropdown.Divider style={{ margin: "8px 0", opacity: 0.3 }} />
+                        <Dropdown.Item
+                          onClick={handleLogout}
+                          className="d-flex align-items-center gap-2 py-2 text-danger"
+                          style={{
+                            borderRadius: "8px",
+                            margin: "2px 8px",
+                            fontSize: "15px",
+                            fontWeight: "500"
+                          }}
+                        >
+                          <FiLogOut />
+                          {t('navbar.logout')}
+                        </Dropdown.Item>
+                      </>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown>
               ) : (

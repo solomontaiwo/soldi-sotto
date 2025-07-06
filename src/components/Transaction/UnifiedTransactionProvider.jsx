@@ -18,6 +18,7 @@ import {
 import { firestore } from "../../utils/firebase";
 import { useNotification } from "../../utils/notificationUtils";
 import PropTypes from "prop-types";
+import { useTranslation } from 'react-i18next';
 
 const UnifiedTransactionContext = createContext();
 
@@ -33,6 +34,7 @@ const FirebaseTransactionWrapper = ({ children }) => {
   const { transactions, loading } = useTransactions();
   const [isProcessing, setIsProcessing] = useState(false);
   const notification = useNotification();
+  const { t } = useTranslation();
 
   // Aggiunge transazione Firebase
   const addTransaction = useCallback(async (transactionData) => {
@@ -44,16 +46,16 @@ const FirebaseTransactionWrapper = ({ children }) => {
         userId: currentUser.uid,
         ...transactionData,
       });
-      notification.success("Transazione aggiunta con successo!");
+      notification.success(t('notifications.addSuccess'));
       return true;
     } catch (error) {
       console.error("Errore nell'aggiunta della transazione:", error);
-      notification.error("Errore nell'aggiunta della transazione");
+      notification.error(t('notifications.addError'));
       return false;
     } finally {
       setIsProcessing(false);
     }
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   // Aggiorna transazione Firebase
   const updateTransaction = useCallback(async (transactionId, updatedData) => {
@@ -63,16 +65,16 @@ const FirebaseTransactionWrapper = ({ children }) => {
     try {
       const transactionRef = doc(firestore, "transactions", transactionId);
       await updateDoc(transactionRef, updatedData);
-      notification.success("Transazione aggiornata con successo!");
+      notification.success(t('notifications.updateSuccess'));
       return true;
     } catch (error) {
       console.error("Errore nell'aggiornamento della transazione:", error);
-      notification.error("Errore nell'aggiornamento della transazione");
+      notification.error(t('notifications.updateError'));
       return false;
     } finally {
       setIsProcessing(false);
     }
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   // Elimina transazione Firebase
   const deleteTransaction = useCallback(async (transactionId) => {
@@ -82,16 +84,16 @@ const FirebaseTransactionWrapper = ({ children }) => {
     try {
       const transactionRef = doc(firestore, "transactions", transactionId);
       await deleteDoc(transactionRef);
-      notification.success("Transazione eliminata con successo!");
+      notification.success(t('notifications.deleteSuccess'));
       return true;
     } catch (error) {
       console.error("Errore nell'eliminazione della transazione:", error);
-      notification.error("Errore nell'eliminazione della transazione");
+      notification.error(t('notifications.deleteError'));
       return false;
     } finally {
       setIsProcessing(false);
     }
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   // Statistiche Firebase
   const getStats = useCallback(() => {

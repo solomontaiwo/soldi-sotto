@@ -10,6 +10,7 @@ import {
   FiLogOut 
 } from "react-icons/fi";
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -18,6 +19,7 @@ const BottomNavigation = () => {
   const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let ticking = false;
@@ -50,32 +52,37 @@ const BottomNavigation = () => {
     {
       key: "/dashboard",
       icon: <FiHome size={20} />,
-      label: "Home",
+      label: t('navbar.dashboard'),
       path: "/dashboard",
     },
     {
       key: "/transactions",
       icon: <FiList size={20} />,
-      label: "Transazioni",
+      label: t('navbar.transactions'),
       path: "/transactions",
       badge: isDemo ? `${transactions.length}/${maxTransactions}` : null,
     },
     {
       key: "/analytics",
       icon: <FiBarChart size={20} />,
-      label: "Analytics",
+      label: t('navbar.analytics'),
       path: "/analytics",
     },
-    // Ultimo item: Profile se autenticato, Logout se demo
+    // Ultimo item: Profile se autenticato, Registrati se demo, Logout se nessuno
     ...(currentUser ? [{
       key: "/profile",
       icon: <FiUser size={20} />,
-      label: "Profilo",
+      label: t('navbar.profile'),
       path: "/profile",
+    }] : isDemo ? [{
+      key: "register",
+      icon: <FiUser size={20} />,
+      label: t('navbar.register'),
+      action: () => navigate('/register'),
     }] : [{
       key: "logout",
       icon: <FiLogOut size={20} />,
-      label: "Esci",
+      label: t('navbar.logout'),
       action: handleLogout,
     }]),
   ];

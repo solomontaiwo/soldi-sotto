@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useNotification } from "../../utils/notificationUtils";
 import PropTypes from "prop-types";
+import { useTranslation } from 'react-i18next';
 
 const DemoContext = createContext();
 
@@ -23,6 +24,7 @@ export const DemoProvider = ({ children }) => {
   const [demoTransactions, setDemoTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const notification = useNotification();
+  const { t } = useTranslation();
 
   // Carica le transazioni demo dal localStorage
   const loadDemoTransactions = useCallback(() => {
@@ -60,7 +62,7 @@ export const DemoProvider = ({ children }) => {
   // Aggiunge una nuova transazione demo
   const addDemoTransaction = useCallback(async (transactionData) => {
     if (demoTransactions.length >= MAX_DEMO_TRANSACTIONS) {
-      notification.warning(`Hai raggiunto il limite di ${MAX_DEMO_TRANSACTIONS} transazioni nella modalità demo. Registrati per funzionalità complete!`);
+      notification.warning(t('demo.limitReached', { limit: MAX_DEMO_TRANSACTIONS }));
       return false;
     }
 
@@ -74,9 +76,9 @@ export const DemoProvider = ({ children }) => {
     setDemoTransactions(updatedTransactions);
     saveDemoTransactions(updatedTransactions);
     
-    notification.success("Transazione aggiunta in modalità demo!");
+    notification.success(t('demo.transactionAdded'));
     return true;
-  }, [demoTransactions, saveDemoTransactions, notification]);
+  }, [demoTransactions, saveDemoTransactions, notification, t]);
 
   // Aggiorna una transazione demo esistente
   const updateDemoTransaction = useCallback(async (transactionId, updatedData) => {
@@ -87,9 +89,9 @@ export const DemoProvider = ({ children }) => {
     );
     setDemoTransactions(updatedTransactions);
     saveDemoTransactions(updatedTransactions);
-    notification.success("Transazione aggiornata!");
+    notification.success(t('demo.transactionUpdated'));
     return true;
-  }, [demoTransactions, saveDemoTransactions, notification]);
+  }, [demoTransactions, saveDemoTransactions, notification, t]);
 
   // Elimina una transazione demo
   const deleteDemoTransaction = useCallback(async (transactionId) => {
@@ -98,16 +100,16 @@ export const DemoProvider = ({ children }) => {
     );
     setDemoTransactions(updatedTransactions);
     saveDemoTransactions(updatedTransactions);
-    notification.success("Transazione eliminata!");
+    notification.success(t('demo.transactionDeleted'));
     return true;
-  }, [demoTransactions, saveDemoTransactions, notification]);
+  }, [demoTransactions, saveDemoTransactions, notification, t]);
 
   // Pulisce tutte le transazioni demo
   const clearDemoTransactions = useCallback(() => {
     setDemoTransactions([]);
     localStorage.removeItem(DEMO_STORAGE_KEY);
-    notification.success("Tutte le transazioni demo sono state rimosse!");
-  }, [notification]);
+    notification.success(t('demo.allTransactionsCleared'));
+  }, [notification, t]);
 
   // Controlla se l'utente può aggiungere più transazioni
   const canAddMoreTransactions = demoTransactions.length < MAX_DEMO_TRANSACTIONS;
@@ -143,35 +145,35 @@ export const DemoProvider = ({ children }) => {
         id: "demo-1",
         type: "income",
         amount: 2500,
-        description: "Stipendio",
+        description: t('demo.sampleSalary'),
         date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        category: "salary",
+        category: "stipendio",
         createdAt: new Date(),
       },
       {
         id: "demo-2",
         type: "expense",
         amount: 50,
-        description: "Spesa alimentare",
+        description: t('demo.sampleGroceries'),
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        category: "groceries",
+        category: "supermercato",
         createdAt: new Date(),
       },
       {
         id: "demo-3",
         type: "expense",
         amount: 25,
-        description: "Benzina",
+        description: t('demo.sampleFuel'),
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        category: "transport",
+        category: "trasporti",
         createdAt: new Date(),
       },
     ];
 
     setDemoTransactions(sampleTransactions);
     saveDemoTransactions(sampleTransactions);
-    notification.info("Sono state aggiunte alcune transazioni di esempio!");
-  }, [saveDemoTransactions, notification]);
+    notification.info(t('demo.sampleTransactionsAdded'));
+  }, [saveDemoTransactions, notification, t]);
 
   return (
     <DemoContext.Provider

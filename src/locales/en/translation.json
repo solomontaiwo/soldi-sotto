@@ -114,7 +114,10 @@
     "transactions": "Transactions",
     "analytics": "Analytics",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "register": "Register",
+    "backToHome": "Back to Home",
+    "demoExitConfirm": "You will exit demo mode and return to the landing page. Continue?"
   },
   "landing": {
     "heroTitle": "Soldi Sotto",
@@ -272,5 +275,36 @@
     "success": "Success",
     "warning": "Warning",
     "info": "Info"
+  },
+  "login": {
+    "title": "Welcome back!",
+    "subtitle": "Sign in to your account",
+    "usernameOrEmail": "Username or Email",
+    "usernameOrEmailPlaceholder": "username or email",
+    "usernameOrEmailHelp": "Enter your registration email to sign in",
+    "password": "Password",
+    "passwordPlaceholder": "enter your password",
+    "loginButton": "Login",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now",
+    "backToHome": "Back to Home"
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Start your financial journey",
+    "username": "Username",
+    "usernamePlaceholder": "choose a username",
+    "usernameHelp": "Min. 3 characters",
+    "usernameMin": "Min. 3 characters",
+    "email": "Email",
+    "emailPlaceholder": "your email",
+    "password": "Password",
+    "passwordPlaceholder": "create a password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "repeat your password",
+    "registerButton": "Create Account",
+    "haveAccount": "Already have an account?",
+    "loginNow": "Login now",
+    "backToHome": "Back to Home"
   }
 } 

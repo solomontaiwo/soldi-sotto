@@ -25,13 +25,14 @@ import { updateProfile } from "firebase/auth";
 import { firestore } from "../../utils/firebase";
 import formatCurrency from "../../utils/formatCurrency";
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
 // Profile component: shows user profile and statistics
 // Uses useMemo for profileStats and themeOptions for performance
 const Profile = () => {
   const { currentUser, logout } = useAuth();
   const { transactions, getStats } = useUnifiedTransactions();
-  const { theme, toggleTheme, currentEffectiveTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const notification = useNotification();
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -40,6 +41,7 @@ const Profile = () => {
   const [newUsername, setNewUsername] = useState("");
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [currentUsername, setCurrentUsername] = useState("");
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (getStats) {
@@ -88,18 +90,18 @@ const Profile = () => {
 
   const handleUsernameChange = async () => {
     if (!newUsername.trim() || newUsername.length < 3) {
-      notification.error("L'username deve essere di almeno 3 caratteri");
+      notification.error(t('profile.usernameMinLength'));
       return;
     }
 
     if (newUsername.toLowerCase() === currentUsername.toLowerCase()) {
-      notification.info("L'username è uguale a quello attuale");
+      notification.info(t('profile.usernameSame'));
       setShowUsernameModal(false);
       return;
     }
 
     const confirmed = window.confirm(
-      `Sei sicuro di voler cambiare il tuo username da "${currentUsername}" a "${newUsername}"?\n\nQuesta azione non può essere annullata.`
+      t('profile.usernameConfirm', { currentUsername, newUsername })
     );
     if (!confirmed) return;
 
@@ -109,7 +111,7 @@ const Profile = () => {
       // 1. Verifica disponibilità
       const isAvailable = await checkUsernameAvailability(newUsername);
       if (!isAvailable) {
-        notification.error("Username già in uso");
+        notification.error(t('profile.usernameUnavailable'));
         return;
       }
 
@@ -148,14 +150,14 @@ const Profile = () => {
         setCurrentUsername(newUsername);
       }
       setNewUsername("");
-      notification.success("Username aggiornato con successo!");
+      notification.success(t('profile.usernameSuccess'));
     } catch (error) {
       console.error("Errore nell'aggiornamento username:", error);
-      let errorMessage = "Errore nell'aggiornamento dell'username";
+      let errorMessage = t('profile.usernameError');
       if (error.code === "permission-denied") {
-        errorMessage = "Permessi insufficienti per aggiornare l'username";
+        errorMessage = t('profile.usernamePermissionError');
       } else if (error.code === "network-request-failed") {
-        errorMessage = "Errore di connessione. Riprova più tardi";
+        errorMessage = t('profile.usernameNetworkError');
       }
       notification.error(errorMessage);
     } finally {
@@ -167,7 +169,7 @@ const Profile = () => {
   // Calcola la data di registrazione
   const registrationDate = currentUser?.metadata?.creationTime 
     ? new Date(currentUser.metadata.creationTime).toLocaleDateString("it-IT")
-    : "Data non disponibile";
+    : t('profile.dateNotAvailable');
 
   const userInitials = currentUser?.email 
     ? currentUser.email.charAt(0).toUpperCase()
@@ -176,7 +178,7 @@ const Profile = () => {
   // Memoized list of profile statistics
   const profileStats = useMemo(() => [
     {
-      title: "Transazioni Totali",
+      title: t('profile.totalTransactions'),
       value: transactions.length,
       icon: <FiPieChart size={20} />,
       suffix: "",
@@ -184,7 +186,7 @@ const Profile = () => {
       bgColor: "var(--pastel-sky)"
     },
     {
-      title: "Bilancio Attuale",
+      title: t('profile.currentBalance'),
       value: userStats.balance || 0,
       icon: <FiTrendingUp size={20} />,
       formatter: (value) => formatCurrency(value),
@@ -192,23 +194,33 @@ const Profile = () => {
       bgColor: userStats.balance >= 0 ? "var(--pastel-mint)" : "var(--pastel-coral)"
     },
     {
-      title: "Giorni Attivo",
+      title: t('profile.daysActive'),
       value: currentUser?.metadata?.creationTime 
         ? Math.floor((Date.now() - new Date(currentUser.metadata.creationTime)) / (1000 * 60 * 60 * 24))
         : 0,
       icon: <FiClock size={20} />,
-      suffix: " giorni",
+      suffix: ` ${t('profile.days')}`,
       color: "var(--accent-warning)",
       bgColor: "var(--pastel-cream)"
     },
-  ], [transactions.length, userStats.balance, currentUser?.metadata?.creationTime]);
+  ], [transactions.length, userStats.balance, currentUser?.metadata?.creationTime, t]);
 
   // Memoized list of theme options for theme switcher
   const themeOptions = useMemo(() => [
-    { value: "light", label: "Chiaro" },
-    { value: "dark", label: "Scuro" },
-    { value: "system", label: "Sistema" }
-  ], []);
+    { value: "light", label: t('profile.themeLight') },
+    { value: "dark", label: t('profile.themeDark') },
+    { value: "system", label: t('profile.themeSystem') }
+  ], [t]);
+
+  // Memoized list of language options
+  const languageOptions = [
+    { value: 'it', label: 'Italiano' },
+    { value: 'en', label: 'English' }
+  ];
+  const handleLanguageChange = (e) => {
+    i18n.changeLanguage(e.target.value);
+    localStorage.setItem('appLanguage', e.target.value);
+  };
 
   // Main render: user info, statistics, and theme switcher
   return (
@@ -254,7 +266,7 @@ const Profile = () => {
             </div>
             
             <h3 className="text-dark fw-bold mb-3">
-              {currentUsername || "Utente"}
+              {currentUsername || t('profile.user')}
             </h3>
             
             <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
@@ -267,7 +279,7 @@ const Profile = () => {
             <div className="d-flex align-items-center justify-content-center gap-2">
               <FiCalendar className="text-muted" size={16} />
               <span className="text-muted">
-                Registrato il {registrationDate}
+                {t('profile.registeredOn')} {registrationDate}
               </span>
             </div>
           </Card.Body>
@@ -283,7 +295,7 @@ const Profile = () => {
       >
         <h4 className="text-dark fw-semibold mb-4 d-flex align-items-center gap-2">
           <FiTrendingUp size={20} />
-          Le Tue Statistiche
+          {t('profile.statsTitle')}
         </h4>
         
         <Row className="g-3">
@@ -339,13 +351,13 @@ const Profile = () => {
       >
         <h4 className="text-dark fw-semibold mb-3 d-flex align-items-center gap-2">
           <FiSettings size={20} />
-          Impostazioni
+          {t('profile.settingsTitle')}
         </h4>
         <div className="d-flex flex-column gap-4">
           {/* Apparenza */}
           <div>
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <div className="fw-medium text-dark">Tema Applicazione</div>
+              <div className="fw-medium text-dark">{t('profile.theme')}</div>
               <Form.Select
                 value={theme}
                 onChange={handleThemeChange}
@@ -365,13 +377,39 @@ const Profile = () => {
                 ))}
               </Form.Select>
             </div>
-            <div className="text-muted small mb-2">Tema attuale: {currentEffectiveTheme === "dark" ? "Scuro" : "Chiaro"}</div>
+            <div className="text-muted small mb-2">{t('profile.currentTheme')}: {theme === "dark" ? t('profile.themeDark') : theme === "light" ? t('profile.themeLight') : t('profile.themeSystem')}</div>
+            <hr className="my-2" style={{ opacity: 0.12 }} />
+          </div>
+          {/* Lingua applicazione */}
+          <div>
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <div className="fw-medium text-dark">{t('profile.language')}</div>
+              <Form.Select
+                value={i18n.language}
+                onChange={handleLanguageChange}
+                style={{
+                  width: "140px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  background: "transparent",
+                  border: "1px solid var(--border-primary)",
+                  color: "var(--text-primary)"
+                }}
+              >
+                {languageOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+            <div className="text-muted small mb-2">{t('profile.currentLanguage')}: {i18n.language === 'it' ? 'Italiano' : 'English'}</div>
             <hr className="my-2" style={{ opacity: 0.12 }} />
           </div>
           {/* Account */}
           <div>
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <div className="fw-medium text-dark">Username</div>
+              <div className="fw-medium text-dark">{t('profile.username')}</div>
               <Button
                 variant="outline-primary"
                 size="sm"
@@ -383,10 +421,10 @@ const Profile = () => {
                 style={{ borderRadius: "8px", fontSize: "14px", background: "transparent", border: "1px solid var(--primary-300)", color: "var(--primary-600)" }}
               >
                 <FiEdit size={12} />
-                Modifica
+                {t('profile.edit')}
               </Button>
             </div>
-            <div className="text-muted small mb-2">Username attuale: {currentUsername}</div>
+            <div className="text-muted small mb-2">{t('profile.currentUsername')}: {currentUsername}</div>
             <hr className="my-2" style={{ opacity: 0.12 }} />
           </div>
         </div>
@@ -408,10 +446,10 @@ const Profile = () => {
         }}>
           <div className="d-flex align-items-center gap-2 mb-1" style={{ fontWeight: 500, color: "var(--primary-600)" }}>
             <FiUser size={16} />
-            Account: {currentUser?.email}
+            {t('profile.account')}: {currentUser?.email}
           </div>
           <div className="text-muted small">
-            Le tue impostazioni vengono salvate automaticamente. I tuoi dati sono protetti con crittografia end-to-end.
+            {t('profile.accountInfo')}
           </div>
         </div>
       </motion.div>
@@ -434,7 +472,7 @@ const Profile = () => {
             border: 'none'
           }}
         >
-          Torna alla Dashboard
+          {t('profile.backToDashboard')}
         </Button>
         
         <Button
@@ -451,7 +489,7 @@ const Profile = () => {
           }}
         >
           <FiLogOut size={16} />
-          Logout
+          {t('logout')}
         </Button>
       </motion.div>
 
@@ -471,7 +509,7 @@ const Profile = () => {
         >
           <Modal.Title className="d-flex align-items-center gap-2">
             <FiEdit size={20} />
-            Modifica Username
+            {t('profile.editUsername')}
           </Modal.Title>
         </Modal.Header>
         
@@ -479,13 +517,13 @@ const Profile = () => {
           <Form>
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold text-dark">
-                Nuovo Username
+                {t('profile.newUsername')}
               </Form.Label>
               <Form.Control
                 type="text"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Inserisci il nuovo username"
+                placeholder={t('profile.usernamePlaceholder')}
                 disabled={usernameLoading}
                 style={{
                   borderRadius: "8px",
@@ -494,7 +532,7 @@ const Profile = () => {
                 }}
               />
               <Form.Text className="text-muted">
-                L&apos;username deve essere di almeno 3 caratteri e sarà verificata la disponibilità
+                {t('profile.usernameHelp')}
               </Form.Text>
             </Form.Group>
           </Form>
@@ -512,7 +550,7 @@ const Profile = () => {
             disabled={usernameLoading}
           >
             <FiX size={16} className="me-1" />
-            Annulla
+            {t('cancel')}
           </Button>
           <Button 
             variant="primary" 
@@ -522,14 +560,14 @@ const Profile = () => {
             {usernameLoading ? (
               <>
                 <div className="spinner-border spinner-border-sm me-2" role="status">
-                  <span className="visually-hidden">Loading...</span>
+                  <span className="visually-hidden">{t('loading')}</span>
                 </div>
-                Aggiornamento...
+                {t('profile.updating')}
               </>
             ) : (
               <>
                 <FiCheck size={16} className="me-1" />
-                Conferma
+                {t('confirm')}
               </>
             )}
           </Button>

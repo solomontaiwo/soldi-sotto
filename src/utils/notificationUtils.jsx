@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 const NotificationContext = createContext();
 
@@ -12,6 +13,7 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const [toasts, setToasts] = useState([]);
+  const { t } = useTranslation();
 
   const addToast = useCallback((message, type = 'info', duration = 4000) => {
     const id = Date.now() + Math.random();
@@ -81,10 +83,10 @@ export const NotificationProvider = ({ children }) => {
             >
               <span className="me-2">{getToastIcon(toast.type)}</span>
               <strong className="me-auto">
-                {toast.type === 'success' && 'Successo'}
-                {toast.type === 'danger' && 'Errore'}
-                {toast.type === 'warning' && 'Attenzione'}
-                {toast.type === 'info' && 'Informazione'}
+                {toast.type === 'success' && t('notifications.success')}
+                {toast.type === 'danger' && t('notifications.error')}
+                {toast.type === 'warning' && t('notifications.warning')}
+                {toast.type === 'info' && t('notifications.info')}
               </strong>
             </Toast.Header>
             <Toast.Body style={{ paddingTop: 0 }}>

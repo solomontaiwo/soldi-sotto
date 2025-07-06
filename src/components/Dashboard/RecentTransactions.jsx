@@ -24,7 +24,7 @@ const RecentTransactions = ({ transactions = [] }) => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { t } = useTranslation();
-  
+
   // Mostra solo le ultime 5 transazioni
   const recentTransactions = transactions.slice(0, 5);
 
@@ -44,6 +44,12 @@ const RecentTransactions = ({ transactions = [] }) => {
     ) : (
       <FiTrendingDown style={{ color: "#dc3545" }} />
     );
+  };
+
+  // Funzione per ottenere la label tradotta della categoria
+  const getCategoryLabel = (category) => {
+    if (!category) return '';
+    return t('categories.' + category);
   };
 
   if (recentTransactions.length === 0) {
@@ -163,7 +169,7 @@ const RecentTransactions = ({ transactions = [] }) => {
                           <>
                             <span>•</span>
                             <span style={{ textTransform: 'capitalize' }}>
-                              {transaction.category}
+                              {getCategoryLabel(transaction.category)}
                             </span>
                           </>
                         )}

@@ -7,6 +7,7 @@ import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import { FiTrendingUp, FiTrendingDown, FiPlus, FiSave } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 // Modale unica per aggiunta e modifica transazione
 const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
@@ -24,6 +25,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   // Stato form
   const [formData, setFormData] = useState({
@@ -99,7 +101,6 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
               category: formData.category,
             })
         );
-        if (success) notification.success("Transazione aggiornata con successo!");
       } else {
         success = await (onSubmit
           ? onSubmit(formData)
@@ -111,7 +112,6 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
               category: formData.category,
             })
         );
-        if (success) notification.success("Transazione aggiunta con successo!");
       }
       if (success) {
         onClose();
@@ -191,12 +191,12 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
               >
                 {isEdit ? "✏️" : "⚡"}
               </div>
-              {isEdit ? "Modifica Transazione" : "Nuova Transazione"}
+              {isEdit ? t('transactionModal.editTitle') : t('transactionModal.newTitle')}
             </h3>
             <p className="text-muted mb-0 ms-5 ps-3" style={{ fontSize: "0.95rem" }}>
               {isEdit
-                ? "Modifica i dettagli della transazione"
-                : "Aggiungi velocemente una nuova transazione"}
+                ? t('transactionModal.editSubtitle')
+                : t('transactionModal.newSubtitle')}
             </p>
           </div>
           <Button
@@ -241,7 +241,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
           {/* Transaction Type Selector */}
           <div className="mb-3">
             <Form.Label className="fw-semibold text-dark mb-2 small">
-              Tipo di Transazione
+              {t('transactionModal.type')}
             </Form.Label>
             <div className="d-flex gap-2">
               <Button
@@ -261,7 +261,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                 }}
               >
                 <FiTrendingDown size={16} />
-                Spesa
+                {t('transactionModal.expense')}
               </Button>
               <Button
                 variant={formData.type === "income" ? "success" : "outline-success"}
@@ -280,7 +280,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                 }}
               >
                 <FiTrendingUp size={16} />
-                Entrata
+                {t('transactionModal.income')}
               </Button>
             </div>
           </div>
@@ -292,13 +292,13 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
               <Col xs={isMobile ? 12 : 6} className={isMobile ? "mb-3" : ""}>
                 <Form.Group>
                   <Form.Label className="fw-semibold text-dark small mb-1">
-                    Importo (€)
+                    {t('transactionModal.amount')}
                   </Form.Label>
                   <Form.Control
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="0,00"
+                    placeholder={t('transactionModal.amountPlaceholder')}
                     value={formData.amount}
                     onChange={(e) => handleInputChange("amount", e.target.value)}
                     required
@@ -318,7 +318,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
               <Col xs={isMobile ? 12 : 6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold text-dark small mb-1">
-                    Data
+                    {t('transactionModal.date')}
                   </Form.Label>
                   <Form.Control
                     type="date"
@@ -343,11 +343,11 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
             {/* Description */}
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold text-dark small mb-1">
-                Descrizione
+                {t('transactionModal.description')}
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Es. Spesa alimentare, Stipendio..."
+                placeholder={t('transactionModal.descriptionPlaceholder')}
                 value={formData.description}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 required
@@ -367,7 +367,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
             {/* Category Select */}
             <Form.Group className="mb-4">
               <Form.Label className="fw-semibold text-dark small mb-2">
-                Categoria
+                {t('transactionModal.category')}
               </Form.Label>
               <Form.Select
                 value={formData.category}
@@ -384,7 +384,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                   fontWeight: "500"
                 }}
               >
-                <option value="">Seleziona una categoria</option>
+                <option value="">{t('transactionModal.selectCategory')}</option>
                 {categories.map((category) => (
                   <option key={category.value} value={category.value}>
                     {category.label}
@@ -408,7 +408,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                   border: "1px solid rgba(0, 0, 0, 0.15)"
                 }}
               >
-                Annulla
+                {t('transactionModal.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -428,12 +428,12 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                     <div className="spinner-border spinner-border-sm me-1" role="status">
                       <span className="visually-hidden">Loading...</span>
                     </div>
-                    {isEdit ? "Salvando..." : "Aggiungendo..."}
+                    {isEdit ? t('transactionModal.saving') : t('transactionModal.adding')}
                   </div>
                 ) : (
                   <div className="d-flex align-items-center justify-content-center gap-1">
                     {isEdit ? <FiSave size={16} /> : <FiPlus size={16} />}
-                    {isEdit ? "Salva Modifiche" : `Aggiungi ${formData.type === "expense" ? "Spesa" : "Entrata"}`}
+                    {isEdit ? t('transactionModal.saveChanges') : t('transactionModal.addButton', { type: formData.type === "expense" ? t('transactionModal.expense') : t('transactionModal.income') })}
                   </div>
                 )}
               </Button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
 import { Button, Alert, Form, Badge } from "react-bootstrap";
@@ -28,6 +28,7 @@ import {
   FiEdit2,
 } from "react-icons/fi";
 import { useCategories } from "../../utils/categories";
+import { useTranslation } from 'react-i18next';
 
 // TransactionList component: displays the list of transactions grouped by date
 // Handles filtering, searching, and deletion of transactions
@@ -54,31 +55,24 @@ const TransactionList = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
 
+  const { t } = useTranslation();
+
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const loading = authLoading || transactionsLoading;
 
   // Frasi motivazionali a rotazione
-  const motivationalQuotes = [
-    "Ogni euro risparmiato è un euro guadagnato.",
-    "Il miglior investimento sei tu.",
-    "Piccoli passi, grandi risultati.",
-    "Gestire le tue finanze è il primo passo verso la libertà.",
-    "Non contare i centesimi, falli contare!",
-    "La ricchezza si costruisce un giorno alla volta.",
-    "Il futuro appartiene a chi lo pianifica.",
-    "Risparmiare oggi per vivere meglio domani.",
-    "Non è quanto guadagni, ma quanto risparmi che conta.",
-    "La disciplina finanziaria è la chiave del successo."
-  ];
+  const motivationalQuotes = useMemo(() => t('dashboard.motivationalQuotes', { returnObjects: true }), [t]);
   const [quote, setQuote] = useState("");
   useEffect(() => {
-    setQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
-  }, []);
+    if (motivationalQuotes && motivationalQuotes.length > 0) {
+      setQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
+    }
+  }, [motivationalQuotes]);
 
   // Utility functions for date formatting and category lookup
   const formatGroupDate = (date) => {
-    if (isToday(date)) return "Oggi";
-    if (isYesterday(date)) return "Ieri";
+    if (isToday(date)) return t('transactions.today');
+    if (isYesterday(date)) return t('transactions.yesterday');
     return format(date, "dd MMMM yyyy", { locale: it });
   };
 
@@ -203,11 +197,11 @@ const TransactionList = () => {
   const categories = [...new Set(transactions.map(t => t.category))];
 
   const periodOptions = [
-    { value: "daily", label: "Oggi" },
-    { value: "weekly", label: "Settimana" },
-    { value: "monthly", label: "Mese" },
-    { value: "annually", label: "Anno" },
-    { value: "all", label: "Tutto" }
+    { value: "daily", label: t('transactions.filters.today') },
+    { value: "weekly", label: t('transactions.filters.week') },
+    { value: "monthly", label: t('transactions.filters.month') },
+    { value: "annually", label: t('transactions.filters.year') },
+    { value: "all", label: t('transactions.filters.all') }
   ];
 
   if (loading) {
@@ -218,9 +212,9 @@ const TransactionList = () => {
       >
         <div className="text-center">
           <div className="spinner-border mb-3" style={{ color: 'var(--primary-500)' }} role="status">
-            <span className="visually-hidden">Caricamento...</span>
+            <span className="visually-hidden">{t('loading')}</span>
           </div>
-          <h5 className="text-dark">Caricamento transazioni...</h5>
+          <h5 className="text-dark">{t('transactions.loadingTransactions')}</h5>
         </div>
       </div>
     );
@@ -233,8 +227,8 @@ const TransactionList = () => {
         style={{ background: 'var(--gradient-soft-blue)' }}
       >
         <div className="text-center">
-          <h2 className="display-6 text-dark mb-3">Accesso richiesto</h2>
-          <p className="lead text-muted">Effettua il login per visualizzare le tue transazioni</p>
+          <h2 className="display-6 text-dark mb-3">{t('transactions.accessRequired')}</h2>
+          <p className="lead text-muted">{t('transactions.loginRequired')}</p>
         </div>
       </div>
     );
@@ -271,7 +265,7 @@ const TransactionList = () => {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <div>
               <h1 className={`fw-bold text-dark mb-1 ${isMobile ? "h4" : "h2"}`}>
-                💳 Le tue Transazioni
+                💳 {t('transactions.title')}
               </h1>
               <div className="text-primary fw-medium mb-2" style={{ fontSize: isMobile ? '1rem' : '1.15rem', opacity: 0.85 }}>
                 <span style={{ fontStyle: 'italic' }}>{quote}</span>
@@ -291,7 +285,7 @@ const TransactionList = () => {
                 </Badge>
                 {filteredTransactions.length !== transactions.length && (
                   <span className="text-muted small">
-                    di {transactions.length}
+                    {t('transactions.of')} {transactions.length}
                   </span>
                 )}
               </div>
@@ -315,7 +309,7 @@ const TransactionList = () => {
               }}
             >
               <FiPlus size={isMobile ? 16 : 18} />
-              {!isMobile && <span>Aggiungi</span>}
+              {!isMobile && <span>{t('addTransaction')}</span>}
             </Button>
           </div>
 
@@ -328,7 +322,7 @@ const TransactionList = () => {
             <Form.Control
               type="text"
               className="ps-5 border-0"
-              placeholder="Cerca transazioni..."
+              placeholder={t('searchTransactions')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
@@ -386,8 +380,8 @@ const TransactionList = () => {
               }}
             >
               <FiFilter size={16} />
-              {!isMobile && "Filtri"}
-              {isMobile && (showFilters ? "Nascondi Filtri" : "Mostra Filtri")}
+              {!isMobile && t('transactions.filters.label')}
+              {isMobile && (showFilters ? t('transactions.filters.hide') : t('transactions.filters.show'))}
             </Button>
           </div>
 
@@ -405,7 +399,7 @@ const TransactionList = () => {
               <div className="d-flex align-items-center gap-2">
                 <span>🎯</span>
                 <span>
-                  <strong>Modalità Demo</strong> - {transactions.length}/{maxTransactions} transazioni
+                  <strong>{t('transactions.demoMode')}</strong> - {transactions.length}/{maxTransactions} {t('transactions.transactions')}
                 </span>
               </div>
             </Alert>
@@ -435,9 +429,9 @@ const TransactionList = () => {
                         boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                       }}
                     >
-                      <option value="all">Tutti</option>
-                      <option value="income">Entrate</option>
-                      <option value="expense">Uscite</option>
+                      <option value="all">{t('transactions.filters.allTypes')}</option>
+                      <option value="income">{t('income')}</option>
+                      <option value="expense">{t('expense')}</option>
                     </Form.Select>
                   </div>
                   <div className={isMobile ? 'w-100' : 'col-6'}>
@@ -697,11 +691,11 @@ const TransactionList = () => {
             >
               <span style={{ fontSize: '3rem' }}>💳</span>
             </div>
-            <h3 className="text-dark fw-bold mb-2">Nessuna transazione trovata</h3>
+            <h3 className="text-dark fw-bold mb-2">{t('transactions.empty.title')}</h3>
             <p className="text-muted mb-4">
               {searchTerm || selectedCategory !== "all" || selectedType !== "all" 
-                ? "Prova a modificare i filtri di ricerca"
-                : "Inizia aggiungendo la tua prima transazione"
+                ? t('transactions.empty.tryFilters')
+                : t('transactions.empty.addFirst')
               }
             </p>
             <Button
@@ -764,7 +758,7 @@ const TransactionList = () => {
             }}
           >
             <div className="mb-3 fw-semibold" style={{ fontSize: "1.1rem" }}>
-              Sei sicuro di voler eliminare questa transazione? Questa azione non può essere annullata.
+              {t('confirmDelete')}
             </div>
             <div className="mb-3">
               <div className="fw-bold text-dark mb-1">{transactions.find(t => t.id === deleteConfirm)?.description}</div>
@@ -781,14 +775,14 @@ const TransactionList = () => {
                 onClick={() => setDeleteConfirm(null)}
                 style={{ borderRadius: "16px", minWidth: "120px" }}
               >
-                Annulla
+                {t('cancel')}
               </button>
               <button
                 className="btn btn-danger"
                 onClick={confirmDelete}
                 style={{ borderRadius: "16px", minWidth: "180px" }}
               >
-                Elimina Definitivamente
+                {t('transactions.deleteConfirm')}
               </button>
             </div>
           </div>

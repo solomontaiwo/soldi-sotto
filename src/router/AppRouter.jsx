@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useAuth } from "../components/Auth/AuthProvider";
@@ -49,48 +49,6 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-const ProtectedRoute = ({ children, requiresAuth = false }) => {
-  ProtectedRoute.propTypes = {
-    children: PropTypes.node.isRequired,
-    requiresAuth: PropTypes.bool,
-  };
-  
-  const { currentUser, loading } = useAuth();
-  const { isDemo } = useUnifiedTransactions();
-  
-  if (loading) return <PageLoader />;
-  
-  // Se richiede autenticazione e l'utente non è loggato
-  if (requiresAuth && !currentUser) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  // Se l'utente non è loggato e non è in modalità demo, mostra landing
-  if (!currentUser && !isDemo) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
-};
-
-const DemoAccessibleRoute = ({ children }) => {
-  DemoAccessibleRoute.propTypes = {
-    children: PropTypes.node.isRequired,
-  };
-  
-  // Questa route è accessibile sia a utenti demo che autenticati
-  return <ProtectedRoute requiresAuth={false}>{children}</ProtectedRoute>;
-};
-
-const AuthenticatedOnlyRoute = ({ children }) => {
-  AuthenticatedOnlyRoute.propTypes = {
-    children: PropTypes.node.isRequired,
-  };
-  
-  // Questa route è accessibile solo a utenti autenticati
-  return <ProtectedRoute requiresAuth={true}>{children}</ProtectedRoute>;
-};
-
 const AppRouter = () => {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -98,6 +56,22 @@ const AppRouter = () => {
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              } 
+            />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<TransactionList />} />
             <Route path="/analytics" element={<Analytics />} />
