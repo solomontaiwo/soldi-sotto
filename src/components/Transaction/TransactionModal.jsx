@@ -8,6 +8,8 @@ import { FiTrendingUp, FiTrendingDown, FiPlus, FiSave } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // Modale unica per aggiunta e modifica transazione
 const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
@@ -133,6 +135,33 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
   };
 
   if (!show) return null;
+
+  if (loading) {
+    // Skeleton ultra-minimal per la modale
+    return (
+      <Modal show={show} onHide={onClose} centered size="lg" backdrop={true} className="glass-modal">
+        <div className="p-4">
+          <div className="mb-3">
+            <Skeleton height={24} width={180} style={{ marginBottom: 12 }} />
+            <Skeleton height={18} width={120} />
+          </div>
+          <div className="mb-3">
+            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
+          </div>
+          <div className="mb-3">
+            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
+          </div>
+          <div className="mb-3">
+            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
+          </div>
+          <div className="d-flex justify-content-end gap-2 mt-4">
+            <Skeleton height={38} width={120} style={{ borderRadius: 20 }} />
+            <Skeleton height={38} width={180} style={{ borderRadius: 20 }} />
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal 

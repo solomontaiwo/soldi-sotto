@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
-import { Button, Alert, Form, Badge } from "react-bootstrap";
+import { Button, Alert, Form } from "react-bootstrap";
 import TransactionModal from "./TransactionModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -17,7 +17,6 @@ import {
   startOfYear,
   endOfYear,
 } from "date-fns";
-import { it } from "date-fns/locale";
 import { useMediaQuery } from "react-responsive";
 import formatCurrency from "../../utils/formatCurrency";
 import { 
@@ -29,6 +28,11 @@ import {
 } from "react-icons/fi";
 import { useCategories } from "../../utils/categories";
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import 'dayjs/locale/it';
+import 'dayjs/locale/en';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // TransactionList component: displays the list of transactions grouped by date
 // Handles filtering, searching, and deletion of transactions
@@ -55,7 +59,7 @@ const TransactionList = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const loading = authLoading || transactionsLoading;
@@ -71,9 +75,10 @@ const TransactionList = () => {
 
   // Utility functions for date formatting and category lookup
   const formatGroupDate = (date) => {
+    const lang = i18n.language || 'it';
     if (isToday(date)) return t('transactions.today');
     if (isYesterday(date)) return t('transactions.yesterday');
-    return format(date, "dd MMMM yyyy", { locale: it });
+    return dayjs(date).locale(lang).format(lang === 'it' ? 'DD MMMM YYYY' : 'MMM DD, YYYY');
   };
 
   const getTransactionDate = (transaction) => {
@@ -205,17 +210,34 @@ const TransactionList = () => {
   ];
 
   if (loading) {
+    // Skeleton ultra-minimal per 6 gruppi (giorni)
     return (
-      <div 
-        className="d-flex justify-content-center align-items-center vh-100"
-        style={{ background: 'var(--gradient-soft-blue)' }}
-      >
-        <div className="text-center">
-          <div className="spinner-border mb-3" style={{ color: 'var(--primary-500)' }} role="status">
-            <span className="visually-hidden">{t('loading')}</span>
+      <div className="container mt-4">
+        {[...Array(6)].map((_, groupIdx) => (
+          <div key={groupIdx} className="mb-5">
+            <div className="d-flex align-items-center gap-3 mb-3">
+              <div className="flex-grow-1" style={{ height: "2px", background: 'rgba(0, 0, 0, 0.1)', borderRadius: '1px' }} />
+              <span className="fw-medium px-3 py-1 timeline-date-badge" style={{ background: 'rgba(255,255,255,0.65)', color: 'var(--timeline-date-color, var(--text-secondary))', borderRadius: '1rem', fontSize: '0.875rem', border: '1px solid var(--timeline-date-border, rgba(0,0,0,0.08))', backdropFilter: 'blur(8px)' }}>
+                <Skeleton width={90} height={18} />
+              </span>
+              <div className="flex-grow-1" style={{ height: "2px", background: 'rgba(0, 0, 0, 0.1)', borderRadius: '1px' }} />
+            </div>
+            <div className="d-flex flex-column gap-3">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 transaction-card" style={{ background: "rgba(255,255,255,0.95)", minHeight: 60 }}>
+                  <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
+                    <Skeleton circle width={40} height={40} style={{ marginRight: 16 }} />
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <Skeleton height={16} width={120} style={{ marginBottom: 6 }} />
+                      <Skeleton height={12} width={80} />
+                    </div>
+                  </div>
+                  <Skeleton height={18} width={60} />
+                </div>
+              ))}
+            </div>
           </div>
-          <h5 className="text-dark">{t('transactions.loadingTransactions')}</h5>
-        </div>
+        ))}
       </div>
     );
   }
@@ -271,24 +293,11 @@ const TransactionList = () => {
                 <span style={{ fontStyle: 'italic' }}>{quote}</span>
               </div>
               <div className="d-flex align-items-center gap-2">
-                <Badge 
-                  className="small"
-                  style={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                    color: 'var(--primary-500)',
-                    fontWeight: 600,
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '8px'
-                  }}
-                >
+                <span style={{ fontSize: '1rem', color: '#6c757d', fontWeight: 400, display: 'flex', alignItems: 'center', gap: 4 }}>
                   {filteredTransactions.length}
-                </Badge>
-                {filteredTransactions.length !== transactions.length && (
-                  <span className="text-muted small">
-                    {t('transactions.of')} {transactions.length}
-                  </span>
-                )}
+                  <span style={{ margin: '0 2px' }}>{t('of')}</span>
+                  {transactions.length}
+                </span>
               </div>
             </div>
             
@@ -583,7 +592,7 @@ const TransactionList = () => {
                               {/* Categoria + data */}
                               <div className="text-muted small d-flex align-items-center justify-content-between" style={{ fontSize: "12px", marginBottom: '6px' }}>
                                 <span>{getCategoryLabel(transaction.category)}</span>
-                                <span style={{fontSize: '11px', opacity: 0.7}}>{getTransactionDate(transaction).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                                <span style={{fontSize: '11px', opacity: 0.7}}>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'DD MMM YYYY' : 'MMM DD, YYYY')}</span>
                               </div>
                               {/* Importo e azioni */}
                               <div className="d-flex align-items-end justify-content-between mt-1">
@@ -650,7 +659,7 @@ const TransactionList = () => {
                                 {transaction.description}
                               </div>
                               <div className="text-muted small d-flex align-items-center gap-2">
-                                <span>{getTransactionDate(transaction).toLocaleDateString("it-IT")}</span>
+                                <span>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'DD MMM YYYY' : 'MMM DD, YYYY')}</span>
                                 <span>•</span>
                                 <span>{getCategoryLabel(transaction.category)}</span>
                               </div>
@@ -675,10 +684,7 @@ const TransactionList = () => {
                               </div>
                               {isMobile && (
                                 <div className="text-muted small" style={{ fontSize: "10px" }}>
-                                  {getTransactionDate(transaction).toLocaleDateString("it-IT", {
-                                    hour: "2-digit",
-                                    minute: "2-digit"
-                                  })}
+                                  {dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'HH:mm' : 'HH:mm')}
                                 </div>
                               )}
                             </div>

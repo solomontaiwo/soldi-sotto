@@ -26,12 +26,15 @@ import { firestore } from "../../utils/firebase";
 import formatCurrency from "../../utils/formatCurrency";
 import React from "react";
 import { useTranslation } from 'react-i18next';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // Profile component: shows user profile and statistics
 // Uses useMemo for profileStats and themeOptions for performance
 const Profile = () => {
-  const { currentUser, logout } = useAuth();
-  const { transactions, getStats } = useUnifiedTransactions();
+  const { currentUser, loading: userLoading, logout } = useAuth();
+  const { transactions, getStats, loading: transactionsLoading } = useUnifiedTransactions();
+  const loading = userLoading || transactionsLoading;
   const { theme, toggleTheme } = useTheme();
   const notification = useNotification();
   const navigate = useNavigate();
@@ -223,6 +226,31 @@ const Profile = () => {
   };
 
   // Main render: user info, statistics, and theme switcher
+  if (loading) {
+    // Skeleton ultra-minimal per avatar, statistiche e box principali
+    return (
+      <div className="container py-4">
+        <div className="d-flex align-items-center gap-3 mb-4">
+          <Skeleton circle width={64} height={64} />
+          <div className="flex-grow-1">
+            <Skeleton height={22} width={180} style={{ marginBottom: 8 }} />
+            <Skeleton height={16} width={120} />
+          </div>
+        </div>
+        <div className="row g-4 mb-4">
+          {[...Array(3)].map((_, i) => (
+            <div className="col-12 col-md-4" key={i}>
+              <Skeleton height={90} borderRadius={18} />
+            </div>
+          ))}
+        </div>
+        <div className="mb-4">
+          <Skeleton height={180} borderRadius={24} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
       padding: isMobile ? '1rem 0' : '2rem 0',

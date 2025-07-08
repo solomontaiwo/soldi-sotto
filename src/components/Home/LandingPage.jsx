@@ -25,6 +25,7 @@ import {
 import { useAuth } from "../Auth/AuthProvider";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useMediaQuery } from "react-responsive";
+import { useTranslation } from 'react-i18next';
 
 // LandingPage component: shows the public landing page with features and demo
 // Features, stats, and demo/premium features are static arrays
@@ -79,6 +80,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isStartingDemo, setIsStartingDemo] = useState(false);
+  const { t } = useTranslation();
 
   const handleStartDemo = async () => {
     setIsStartingDemo(true);
@@ -248,9 +250,9 @@ const LandingPage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center mb-5"
           >
-            <h2 className="fw-bold text-dark mb-4">Funzionalità Principali</h2>
+            <h2 className="fw-bold text-dark mb-4">{t('landing.mainFeatures')}</h2>
             <p className="text-muted fs-5">
-              Tutto quello che ti serve per gestire le tue finanze in modo professionale
+              {t('landing.mainFeaturesDescription')}
             </p>
           </motion.div>
 

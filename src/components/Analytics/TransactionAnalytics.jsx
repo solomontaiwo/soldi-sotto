@@ -10,12 +10,14 @@ import { it } from "date-fns/locale";
 import formatCurrency from "../../utils/formatCurrency";
 import { useCategories } from "../../utils/categories";
 import React from "react";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { useTranslation } from 'react-i18next';
 
 // TransactionAnalytics component: shows financial analytics and insights
 // Uses useMemo for periods and mainStats for performance
 const TransactionAnalytics = () => {
-  const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
+  const { isDemo, transactions, maxTransactions, loading } = useUnifiedTransactions();
   const { expenseCategories, incomeCategories } = useCategories();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [selectedPeriod, setSelectedPeriod] = useState("month");
@@ -205,6 +207,31 @@ const TransactionAnalytics = () => {
   useEffect(() => {
     setStats(calculateAdvancedStats);
   }, [calculateAdvancedStats]);
+
+  if (loading) {
+    // Skeleton ultra-minimal per box statistiche e grafici
+    return (
+      <div className="container py-4">
+        <div className="row g-4 mb-4">
+          {[...Array(3)].map((_, i) => (
+            <div className="col-12 col-md-4" key={i}>
+              <Skeleton height={90} borderRadius={18} />
+            </div>
+          ))}
+        </div>
+        <div className="mb-4">
+          <Skeleton height={260} borderRadius={24} />
+        </div>
+        <div className="row g-4">
+          {[...Array(2)].map((_, i) => (
+            <div className="col-12 col-md-6" key={i}>
+              <Skeleton height={180} borderRadius={18} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 

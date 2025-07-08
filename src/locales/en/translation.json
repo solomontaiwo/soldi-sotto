@@ -126,6 +126,7 @@
     "register": "Register Free",
     "login": "Login",
     "mainFeatures": "Main Features",
+    "mainFeaturesDescription": "Everything you need to manage your finances professionally",
     "startToday": "Start Today",
     "chooseHowToStart": "Choose how to start your journey to financial freedom",
     "demo": "Free Demo",
@@ -306,5 +307,20 @@
     "haveAccount": "Already have an account?",
     "loginNow": "Login now",
     "backToHome": "Back to Home"
-  }
+  },
+  "errors": {
+    "loginError": "Error during login",
+    "emailNotFound": "Email not found",
+    "usernameNotFound": "Username not found",
+    "wrongPassword": "Incorrect password",
+    "invalidEmail": "Invalid email",
+    "tooManyRequests": "Too many attempts. Try again later",
+    "invalidCredentials": "Invalid credentials",
+    "registrationError": "Error during registration",
+    "emailAlreadyInUse": "Email already in use",
+    "weakPassword": "Password too weak",
+    "operationNotAllowed": "Operation not allowed",
+    "accountCreatedSuccess": "Account created successfully!"
+  },
+  "of": "of"
 } 

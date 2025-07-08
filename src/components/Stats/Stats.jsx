@@ -26,6 +26,8 @@ import { useMediaQuery } from "react-responsive";
 import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
 import logo from "/icon.png";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // Stats component: shows detailed statistics for the selected period
 // Uses useMemo for all heavy calculations for performance
@@ -110,6 +112,31 @@ const Stats = () => {
   }, [stats]);
 
   if (!currentUser) return <Navigate to="/login" replace />;
+
+  if (loading) {
+    // Skeleton ultra-minimal per box statistiche e grafici
+    return (
+      <div className="container py-4">
+        <div className="row g-4 mb-4">
+          {[...Array(3)].map((_, i) => (
+            <div className="col-12 col-md-4" key={i}>
+              <Skeleton height={90} borderRadius={18} />
+            </div>
+          ))}
+        </div>
+        <div className="mb-4">
+          <Skeleton height={260} borderRadius={24} />
+        </div>
+        <div className="row g-4">
+          {[...Array(2)].map((_, i) => (
+            <div className="col-12 col-md-6" key={i}>
+              <Skeleton height={180} borderRadius={18} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <LoadingWrapper loading={loading}>

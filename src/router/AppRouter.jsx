@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { lazy } from "react";
 import { Spinner } from "react-bootstrap";
+import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { useAuth } from "../components/Auth/AuthProvider";
 import AppLayout from "../components/Layout/AppLayout";
@@ -20,14 +21,19 @@ const Register = lazy(() => import("../components/Auth/Register"));
 
 // Loading component
 const PageLoader = () => (
-  <div 
-    className="d-flex justify-content-center align-items-center vh-100"
-    style={{ 
-      background: "var(--background-primary)"
-    }}
-  >
-    <Spinner animation="border" variant="primary" />
-  </div>
+  <AnimatePresence>
+    <motion.div
+      key="pageloader"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="d-flex justify-content-center align-items-center vh-100"
+      style={{ background: "var(--background-primary)" }}
+    >
+      <Spinner animation="border" variant="primary" />
+    </motion.div>
+  </AnimatePresence>
 );
 
 // Route guards
@@ -49,37 +55,53 @@ const PublicRoute = ({ children }) => {
 };
 
 const AppRouter = () => {
+  const location = useLocation();
+
+  const routes = [
+    { path: "/", element: <Home /> },
+    { path: "/login", element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ) },
+    { path: "/register", element: (
+      <PublicRoute>
+        <Register />
+      </PublicRoute>
+    ) },
+    { path: "/dashboard", element: <Dashboard /> },
+    { path: "/transactions", element: <TransactionList /> },
+    { path: "/analytics", element: <Analytics /> },
+    { path: "/stats", element: <Stats /> },
+    { path: "/profile", element: <Profile /> },
+    { path: "/landing", element: <LandingPage /> },
+    { path: "*", element: <Navigate to="/" replace /> },
+  ];
+
   return (
-      <AppLayout>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/register" 
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } 
-          />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transactions" element={<TransactionList />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/stats" element={<Stats />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </AppLayout>
+    <AppLayout>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {routes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -24 }}
+                  transition={{ duration: 0.28, ease: 'easeInOut' }}
+                  style={{ minHeight: '100vh' }}
+                >
+                  {element}
+                </motion.div>
+              }
+            />
+          ))}
+        </Routes>
+      </AnimatePresence>
+    </AppLayout>
   );
 };
 

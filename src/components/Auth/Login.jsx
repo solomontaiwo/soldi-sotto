@@ -68,23 +68,23 @@ const Login = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error("Errore durante il login:", error);
-      let errorMessage = "Errore durante l'accesso";
+      let errorMessage = t('errors.loginError');
       
       switch (error.code) {
         case "auth/user-not-found":
-          errorMessage = isEmail(loginInput) ? "Email non trovata" : "Username non trovato";
+          errorMessage = isEmail(loginInput) ? t('errors.emailNotFound') : t('errors.usernameNotFound');
           break;
         case "auth/wrong-password":
-          errorMessage = "Password non corretta";
+          errorMessage = t('errors.wrongPassword');
           break;
         case "auth/invalid-email":
-          errorMessage = "Email non valida";
+          errorMessage = t('errors.invalidEmail');
           break;
         case "auth/too-many-requests":
-          errorMessage = "Troppi tentativi. Riprova più tardi";
+          errorMessage = t('errors.tooManyRequests');
           break;
         case "auth/invalid-credential":
-          errorMessage = "Credenziali non valide";
+          errorMessage = t('errors.invalidCredentials');
           break;
         default:
           errorMessage = error.message;

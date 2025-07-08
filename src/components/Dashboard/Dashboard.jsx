@@ -22,7 +22,8 @@ const Dashboard = () => {
   const { 
     transactions, 
     isDemo, 
-    canAddMoreTransactions
+    canAddMoreTransactions,
+    loading: transactionsLoading
   } = useUnifiedTransactions();
   
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -85,30 +86,28 @@ const Dashboard = () => {
   // Main render: greeting, motivational quote, quick actions, and recent transactions
   return (
     <div style={{ 
-      padding: isMobile ? '0.5rem 0.5rem 1.5rem 0.5rem' : '2.5rem 0 0 0',
+      padding: isMobile ? '1.2rem 0.5rem 2.5rem 0.5rem' : '2.5rem 0 0 0',
       maxWidth: '1200px',
       margin: '0 auto',
       color: 'var(--text-primary)',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: isMobile ? '0.5rem' : '1.5rem',
+      gap: isMobile ? '1.5rem' : '1.5rem',
       minHeight: 0,
       background: 'var(--background-primary)',
     }}>
       {/* MOBILE: Titolo + motivazionale + Quick Actions + Recent Transactions */}
       {isMobile ? (
         <div style={{ width: '100%', margin: 0, padding: 0 }}>
-          <div className="mb-2">
+          <div className="mb-4">
             <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '1.35rem' }}>
-          {currentUser ? t('welcome') : t('welcome')}
+          {currentUser ? <span style={{ fontSize: '1.5rem' }}>👋</span> : <span style={{ fontSize: '1.5rem' }}>👋</span>} {t('welcome')}
         </h2>
             <div className="text-primary fw-medium mb-2" style={{ fontSize: '1rem', opacity: 0.85 }}>
           <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
         </div>
-            <h3 className="text-dark fw-semibold mb-2 d-flex align-items-center gap-2" style={{ fontSize: '1.1rem' }}>
-              <FiPlus size={18} /> {t('quickActions')}
-            </h3>
+            {/* Quick Actions title rimosso per minimalismo */}
             <Row className="g-2">
               {quickActions.map((action) => (
                 <Col xs={12} key={action.key}>
@@ -150,7 +149,8 @@ const Dashboard = () => {
               ))}
             </Row>
           </div>
-          <RecentTransactions transactions={transactions} />
+          <RecentTransactions transactions={transactions} loading={transactionsLoading} />
+          <div style={{ height: isMobile ? 24 : 0 }} />
         </div>
       ) : (
         // DESKTOP: header e transazioni recenti in una sola riga compatta
@@ -167,15 +167,13 @@ const Dashboard = () => {
               <div className="h-100 d-flex flex-column justify-content-start">
                 <div className="mb-3">
                   <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '2.1rem', marginTop: '0.5rem' }}>
-                    {currentUser ? t('welcome') : t('welcome')}
+                    {currentUser ? <span style={{ fontSize: '1.5rem' }}>👋</span> : <span style={{ fontSize: '1.5rem' }}>👋</span>} {t('welcome')}
                   </h2>
                   <div className="text-primary fw-medium mb-2" style={{ fontSize: '1.1rem', opacity: 0.85 }}>
                     <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
                   </div>
                 </div>
-                <h3 className="text-dark fw-semibold mb-2 d-flex align-items-center gap-2" style={{ fontSize: '1.15rem' }}>
-                  <FiPlus size={20} /> {t('quickActions')}
-                </h3>
+                {/* Quick Actions title rimosso per minimalismo */}
                 <Row className="g-2">
                   {quickActions.map((action) => (
                     <Col xs={12} sm={12} md={12} lg={12} xxl={12} key={action.key} className="mb-2">
@@ -220,7 +218,7 @@ const Dashboard = () => {
             </Col>
             {/* Recent Transactions a destra, allineate in alto */}
             <Col xs={12} lg={6} style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'flex-start' }}>
-              <RecentTransactions transactions={transactions} />
+              <RecentTransactions transactions={transactions} loading={transactionsLoading} />
             </Col>
           </Row>
       </motion.div>

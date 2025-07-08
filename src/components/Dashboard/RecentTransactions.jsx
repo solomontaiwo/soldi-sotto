@@ -6,8 +6,10 @@ import { motion } from "framer-motion";
 import formatCurrency from "../../utils/formatCurrency";
 import PropTypes from "prop-types";
 import { useTranslation } from 'react-i18next';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
-const RecentTransactions = ({ transactions = [] }) => {
+const RecentTransactions = ({ transactions = [], loading = false }) => {
   RecentTransactions.propTypes = {
     transactions: PropTypes.arrayOf(
       PropTypes.shape({
@@ -19,14 +21,21 @@ const RecentTransactions = ({ transactions = [] }) => {
         category: PropTypes.string,
       })
     ),
+    loading: PropTypes.bool,
   };
 
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { t } = useTranslation();
   
-  // Mostra solo le ultime 5 transazioni
-  const recentTransactions = transactions.slice(0, 5);
+  // Ordina le transazioni per data e ora (più recenti prima) e mostra solo le ultime 5
+  const recentTransactions = [...transactions]
+    .sort((a, b) => {
+      const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+      const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+      return dateB.getTime() - dateA.getTime();
+    })
+    .slice(0, 5);
 
   const formatDate = (date) => {
     // Gestisce sia oggetti Date che timestamp Firebase
@@ -51,6 +60,32 @@ const RecentTransactions = ({ transactions = [] }) => {
     if (!category) return '';
     return t('categories.' + category);
   };
+
+  if (loading) {
+    // Skeleton ultra-minimal per 5 transazioni
+    return (
+      <Card
+        className="border-0 shadow-sm"
+        style={{
+          borderRadius: '2rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        }}
+      >
+        <Card.Body className="p-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="d-flex align-items-center mb-3" style={{ minHeight: 56 }}>
+              <Skeleton circle width={40} height={40} style={{ marginRight: 16 }} />
+              <div className="flex-grow-1">
+                <Skeleton height={16} width={120} style={{ marginBottom: 6 }} />
+                <Skeleton height={12} width={80} />
+              </div>
+              <Skeleton height={18} width={60} />
+            </div>
+          ))}
+        </Card.Body>
+      </Card>
+    );
+  }
 
   if (recentTransactions.length === 0) {
     return (
@@ -87,11 +122,10 @@ const RecentTransactions = ({ transactions = [] }) => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-2">
         <h4 className="text-dark fw-semibold mb-0">
           {t('recentTransactions.title')}
         </h4>
-        
         <Button
           variant="link"
           onClick={() => navigate("/transactions")}
@@ -101,6 +135,14 @@ const RecentTransactions = ({ transactions = [] }) => {
           <FiArrowRight size={16} />
         </Button>
       </div>
+      {/* Counter minimalista sotto il titolo */}
+      {transactions.length > 0 && (
+        <div style={{ fontSize: '1rem', color: '#6c757d', fontWeight: 400, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span>{Math.min(transactions.length, 5)}</span>
+          <span style={{ margin: '0 2px' }}>{t('of')}</span>
+          <span>{transactions.length}</span>
+        </div>
+      )}
 
       <Card
         className="border-0 shadow-sm recent-transactions-card"

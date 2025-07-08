@@ -73,24 +73,24 @@ const Register = () => {
         createdAt: new Date()
       });
 
-      notification.success("Account creato con successo!");
+      notification.success(t('errors.accountCreatedSuccess'));
       navigate("/dashboard");
     } catch (error) {
       console.error("Errore durante la registrazione:", error);
-      let errorMessage = "Errore durante la registrazione";
+      let errorMessage = t('errors.registrationError');
       
       switch (error.code) {
         case "auth/email-already-in-use":
-          errorMessage = "Email già in uso";
+          errorMessage = t('errors.emailAlreadyInUse');
           break;
         case "auth/invalid-email":
-          errorMessage = "Email non valida";
+          errorMessage = t('errors.invalidEmail');
           break;
         case "auth/weak-password":
-          errorMessage = "Password troppo debole";
+          errorMessage = t('errors.weakPassword');
           break;
         case "auth/operation-not-allowed":
-          errorMessage = "Operazione non consentita";
+          errorMessage = t('errors.operationNotAllowed');
           break;
         default:
           errorMessage = error.message;

@@ -1,6 +1,6 @@
 {
   "appName": "SoldiSotto",
-  "welcome": "Ciao, {{name}}!",
+  "welcome": "Ciao!",
   "addTransaction": "Aggiungi Transazione",
   "quickActions": "Azioni Rapide",
   "recentTransactions": {
@@ -126,6 +126,7 @@
     "register": "Registrati Gratis",
     "login": "Accedi",
     "mainFeatures": "Funzionalità Principali",
+    "mainFeaturesDescription": "Tutto quello che ti serve per gestire le tue finanze in modo professionale",
     "startToday": "Inizia Oggi Stesso",
     "chooseHowToStart": "Scegli come iniziare il tuo viaggio verso la libertà finanziaria",
     "demo": "Demo Gratuita",
@@ -306,5 +307,20 @@
     "haveAccount": "Hai già un account?",
     "loginNow": "Accedi ora",
     "backToHome": "Torna alla Home"
-  }
+  },
+  "errors": {
+    "loginError": "Errore durante l'accesso",
+    "emailNotFound": "Email non trovata",
+    "usernameNotFound": "Username non trovato",
+    "wrongPassword": "Password non corretta",
+    "invalidEmail": "Email non valida",
+    "tooManyRequests": "Troppi tentativi. Riprova più tardi",
+    "invalidCredentials": "Credenziali non valide",
+    "registrationError": "Errore durante la registrazione",
+    "emailAlreadyInUse": "Email già in uso",
+    "weakPassword": "Password troppo debole",
+    "operationNotAllowed": "Operazione non consentita",
+    "accountCreatedSuccess": "Account creato con successo!"
+  },
+  "of": "di"
 } 
