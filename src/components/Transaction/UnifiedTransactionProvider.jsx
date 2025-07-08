@@ -14,6 +14,7 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { firestore } from "../../utils/firebase";
 import { useNotification } from "../../utils/notificationUtils";
@@ -45,6 +46,7 @@ const FirebaseTransactionWrapper = ({ children }) => {
       await addDoc(collection(firestore, "transactions"), {
         userId: currentUser.uid,
         ...transactionData,
+        createdAt: serverTimestamp(), // Salva timestamp di creazione
       });
       notification.success(t('notifications.addSuccess'));
       return true;

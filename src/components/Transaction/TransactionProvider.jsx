@@ -36,7 +36,7 @@ export const TransactionProvider = ({ children }) => {
     const q = query(
       collection(firestore, "transactions"),
       where("userId", "==", currentUser.uid),
-      orderBy("date", "desc")
+      orderBy("createdAt", "desc") // Ordina per data/ora di creazione
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
