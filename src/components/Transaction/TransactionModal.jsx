@@ -91,13 +91,23 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Normalizza l'importo sostituendo la virgola con il punto
+      const normalizedAmount = formData.amount.replace(',', '.');
+      const amountValue = parseFloat(normalizedAmount);
+      
+      if (isNaN(amountValue) || amountValue <= 0) {
+        notification.error("Inserisci un importo valido");
+        setLoading(false);
+        return;
+      }
+
       let success = false;
       if (isEdit) {
         success = await (onSubmit
           ? onSubmit(formData)
           : updateTransaction(transaction.id, {
               type: formData.type,
-              amount: parseFloat(formData.amount),
+              amount: amountValue,
               description: formData.description,
               date: new Date(formData.date),
               category: formData.category,
@@ -108,7 +118,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
           ? onSubmit(formData)
           : addTransaction({
               type: formData.type,
-              amount: parseFloat(formData.amount),
+              amount: amountValue,
               description: formData.description,
               date: new Date(formData.date),
               category: formData.category,
@@ -324,12 +334,29 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                     {t('transactionModal.amount')}
                   </Form.Label>
                   <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
+                    type="text"
+                    inputMode="decimal"
                     placeholder={t('transactionModal.amountPlaceholder')}
                     value={formData.amount}
-                    onChange={(e) => handleInputChange("amount", e.target.value)}
+                    onChange={(e) => {
+                      // Permette solo numeri, virgola e punto
+                      const value = e.target.value;
+                      const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+                      
+                      // Assicura che ci sia al massimo un separatore decimale
+                      const parts = sanitizedValue.split(/[,.]/);
+                      if (parts.length <= 2) {
+                        handleInputChange("amount", sanitizedValue);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Converte la virgola in punto quando l'utente esce dal campo
+                      const value = e.target.value;
+                      if (value && value.includes(',')) {
+                        const normalizedValue = value.replace(',', '.');
+                        handleInputChange("amount", normalizedValue);
+                      }
+                    }}
                     required
                     className="border-0"
                     style={{
