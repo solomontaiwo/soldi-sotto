@@ -27,13 +27,13 @@ SoldiSotto is a web application developed in React, designed to manage personal 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/SoldiSotto.git
+   git clone https://github.com/solomontaiwo/soldi-sotto.git
    ```
 
 2. Navigate to the project directory:
 
    ```bash
-   cd SoldiSotto
+   cd soldi-sotto
    ```
 
 3. Install dependencies:
@@ -138,13 +138,13 @@ SoldiSotto è un'applicazione web sviluppata in React, progettata per gestire le
 1. Clona la repository:
 
    ```bash
-   git clone https://github.com/tuo-username/SoldiSotto.git
+   git clone https://github.com/solomontaiwo/soldi-sotto.git
    ```
 
 2. Naviga nella directory del progetto:
 
    ```bash
-   cd SoldiSotto
+   cd soldi-sotto
    ```
 
 3. Installa le dipendenze:
