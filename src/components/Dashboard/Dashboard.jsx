@@ -1,238 +1,182 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Row, Col } from "react-bootstrap";
-import { FiPieChart, FiList, FiPlus } from "react-icons/fi";
-import { motion } from "framer-motion";
 import { useAuth } from "../Auth/AuthProvider";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
-import { useMediaQuery } from "react-responsive";
 import TransactionModal from "../Transaction/TransactionModal";
-import RecentTransactions from "./RecentTransactions";
 import React from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "../../utils/firebase";
-import { useTranslation } from 'react-i18next';
-
-// Dashboard component: main homepage with quick actions and recent transactions
-// Uses useMemo for static data and React.memo for performance
+import { useTranslation } from "react-i18next";
+import { FiBarChart2, FiList, FiPlus, FiPieChart } from "react-icons/fi";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import RecentTransactions from "./RecentTransactions";
+import formatCurrency from "../../utils/formatCurrency";
+import { calculateStats, getPeriodRange } from "../../utils/statsUtils";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { 
-    transactions, 
-    isDemo, 
+  const {
+    transactions,
+    isDemo,
     canAddMoreTransactions,
-    loading: transactionsLoading
+    loading: transactionsLoading,
   } = useUnifiedTransactions();
-  
+
   const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const loadUsername = async () => {
-      if (currentUser?.uid) {
-        const userDoc = await getDoc(doc(firestore, "users", currentUser.uid));
-        if (userDoc.exists()) {
-          // setUsername(userDoc.data().username || currentUser.displayName || currentUser.email?.split("@")[0] || "");
-        } else {
-          // setUsername(currentUser.displayName || currentUser.email?.split("@")[0] || "");
-        }
+  const periodPref = useMemo(() => {
+    const saved = localStorage.getItem("analytics-period");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return { period: "monthly" };
       }
-    };
-    loadUsername();
-  }, [currentUser]);
+    }
+    return { period: "monthly" };
+  }, []);
 
-  // Memoized list of quick actions for the user
-  const quickActions = useMemo(() => [
-    {
-      key: "add-transaction",
-      title: `➕ ${t('addTransaction')}`,
-      subtitle: t('whatToRegister'),
-      icon: <FiPlus size={24} />,
-      color: "var(--accent-primary)",
-      bgColor: "var(--pastel-sky)",
-      action: () => setShowQuickAdd(true),
-      disabled: isDemo && !canAddMoreTransactions,
-      primary: true
-    },
-    {
-      key: "view-transactions",
-      title: `📋 ${t('manageAll')}`,
-      subtitle: t('yourTransactions'),
-      icon: <FiList size={24} />,
-      color: "var(--accent-info)",
-      bgColor: "var(--pastel-sky)",
-      action: () => navigate("/transactions"),
-    },
-    {
-      key: "view-analytics",
-      title: `📊 ${t('navbar.analytics')}`,
-      subtitle: t('landing.mainFeatures'),
-      icon: <FiPieChart size={24} />,
-      color: "var(--accent-warning)",
-      bgColor: "var(--pastel-cream)",
-      action: () => navigate("/analytics"),
-    },
-  ], [isDemo, canAddMoreTransactions, navigate, t]);
+  const { start: periodStart, end: periodEnd } = getPeriodRange(periodPref.period || "monthly", periodPref.customRange);
+  const filtered = useMemo(
+    () =>
+      transactions.filter((t) => {
+        const date = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+        return date >= periodStart && date <= periodEnd;
+      }),
+    [transactions, periodStart, periodEnd]
+  );
 
-  // Handler for quick action click
-  const handleQuickActionClick = (action) => {
-    if (action.disabled) return;
-    action.action();
-  };
+  const stats = filtered.length ? calculateStats(filtered, periodStart, periodEnd) : { totalIncome: 0, totalExpense: 0, balance: 0 };
 
-  // Main render: greeting, motivational quote, quick actions, and recent transactions
+  const quickActions = useMemo(
+    () => [
+      {
+        key: "add-transaction",
+        title: t("addTransaction"),
+        subtitle: t("whatToRegister"),
+        icon: <FiPlus />,
+        action: () => setShowQuickAdd(true),
+        disabled: isDemo && !canAddMoreTransactions,
+      },
+      {
+        key: "view-transactions",
+        title: t("manageAll"),
+        subtitle: t("yourTransactions"),
+        icon: <FiList />,
+        action: () => navigate("/transactions"),
+      },
+      {
+        key: "view-analytics",
+        title: t("navbar.analytics"),
+        subtitle: t("landing.mainFeatures"),
+        icon: <FiBarChart2 />,
+        action: () => navigate("/analytics"),
+      },
+    ],
+    [isDemo, canAddMoreTransactions, navigate, t]
+  );
+
   return (
-    <div style={{
-      padding: isMobile ? '0 0 80px 0' : '0 0 24px 0',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      color: 'var(--text-primary)',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1.5rem',
-      minHeight: 0,
-      background: 'var(--background-primary)',
-    }}>
-      {/* MOBILE: Titolo + motivazionale + Quick Actions + Recent Transactions */}
-      {isMobile ? (
-        <div style={{ width: '100%', margin: 0, padding: 0 }}>
-          <div className="mb-4">
-            <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '1.35rem' }}>
-          {currentUser ? <span style={{ fontSize: '1.5rem' }}>👋</span> : <span style={{ fontSize: '1.5rem' }}>👋</span>} {t('welcome')}
-        </h2>
-            <div className="text-primary fw-medium mb-2" style={{ fontSize: '1rem', opacity: 0.85 }}>
-          <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
+    <div className="page-shell">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-2xl border border-border bg-card/70 p-5">
+        <div className="space-y-1">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Soldi Sotto</p>
+          <h2 className="text-3xl font-bold flex items-center gap-2">
+            {currentUser ? "👋" : "👋"} {t("welcome")}
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">{t("motivationalQuote")}</p>
         </div>
-            {/* Quick Actions title rimosso per minimalismo */}
-            <Row className="g-2">
-              {quickActions.map((action) => (
-                <Col xs={12} key={action.key}>
-                  <Card
-                    className="border-0 shadow-sm glass-card dashboard-glass"
-                    onClick={() => handleQuickActionClick(action)}
-                    style={{
-                      background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                      backdropFilter: "blur(18px)",
-                      WebkitBackdropFilter: "blur(18px)",
-                      border: "1.5px solid rgba(255,255,255,0.25)",
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-                      borderRadius: "18px",
-                      minHeight: 60,
-                      marginBottom: 0,
-                      overflow: 'hidden',
-                      padding: 0,
-                    }}
-                  >
-                    <Card.Body className="d-flex flex-row align-items-center justify-content-start gap-3 p-3">
-                      <div 
-                        className="rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ 
-                          width: '36px', 
-                          height: '36px', 
-                          backgroundColor: action.color + '20',
-                          color: action.color 
-                        }}
-                      >
-                        {action.icon}
-                      </div>
-                      <div className="flex-grow-1">
-                        <div className="fw-semibold text-dark" style={{ fontSize: '1rem', lineHeight: '1.2' }}>{action.title}</div>
-                        <div className="text-muted small" style={{ fontSize: '0.85rem', opacity: 0.8 }}>{action.subtitle}</div>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
-          <RecentTransactions transactions={transactions} loading={transactionsLoading} />
+        <div className="flex flex-wrap gap-2 md:gap-3">
+          <Button variant="outline" size="lg" onClick={() => navigate("/analytics")} className="gap-2 px-4">
+            <FiPieChart className="h-4 w-4" />
+            {t("navbar.analytics")}
+          </Button>
+          <Button size="lg" onClick={() => setShowQuickAdd(true)} disabled={isDemo && !canAddMoreTransactions} className="gap-2 px-4">
+            <FiPlus className="h-4 w-4" /> {t("addTransaction")}
+          </Button>
         </div>
-      ) : (
-        // DESKTOP: header e transazioni recenti in una sola riga compatta
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-3"
-          style={{ flex: 1, minHeight: 0 }}
-        >
-          <Row className={'g-3 align-items-start'} style={{ height: '100%' }}>
-            {/* Header + Quick Actions a sinistra */}
-            <Col xs={12} md={6} lg={6} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div className="h-100 d-flex flex-column justify-content-start">
-                <div className="mb-3">
-                  <h2 className="text-dark fw-bold mb-1" style={{ fontSize: '2.1rem', marginTop: '0.5rem' }}>
-                    {currentUser ? <span style={{ fontSize: '1.5rem' }}>👋</span> : <span style={{ fontSize: '1.5rem' }}>👋</span>} {t('welcome')}
-                  </h2>
-                  <div className="text-primary fw-medium mb-2" style={{ fontSize: '1.1rem', opacity: 0.85 }}>
-                    <span style={{ fontStyle: 'italic' }}>{t('motivationalQuote')}</span>
-                  </div>
-                </div>
-                {/* Quick Actions title rimosso per minimalismo */}
-                <Row className="g-2">
-                  {quickActions.map((action) => (
-                    <Col xs={12} sm={12} md={12} lg={12} xxl={12} key={action.key} className="mb-2">
-        <Card
-                        className="border-0 shadow-sm glass-card dashboard-glass"
-                        onClick={() => handleQuickActionClick(action)}
-                        style={{
-                          background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                          backdropFilter: "blur(18px)",
-                          WebkitBackdropFilter: "blur(18px)",
-                          border: "1.5px solid rgba(255,255,255,0.25)",
-                          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-                          borderRadius: "18px",
-                          minHeight: 60,
-                          marginBottom: 0,
-                          overflow: 'hidden',
-                          padding: 0,
-                        }}
-                      >
-                        <Card.Body className="d-flex flex-row align-items-center justify-content-start gap-3 p-3">
-                          <div 
-                            className="rounded-circle d-flex align-items-center justify-content-center"
-          style={{
-                              width: '36px', 
-                              height: '36px', 
-                              backgroundColor: action.color + '20',
-                              color: action.color 
-                            }}
-                          >
-                            {action.icon}
-                          </div>
-                          <div className="flex-grow-1">
-                            <div className="fw-semibold text-dark" style={{ fontSize: '1rem', lineHeight: '1.2' }}>{action.title}</div>
-                            <div className="text-muted small" style={{ fontSize: '0.85rem', opacity: 0.8 }}>{action.subtitle}</div>
-                          </div>
-                        </Card.Body>
-        </Card>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            </Col>
-            {/* Recent Transactions a destra, allineate in alto */}
-            <Col xs={12} lg={6} style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'flex-start' }}>
-              <RecentTransactions transactions={transactions} loading={transactionsLoading} />
-            </Col>
-          </Row>
-      </motion.div>
-      )}
+      </div>
 
-      {/* Financial Overview - solo desktop, compatta */}
-      {/* RIMOSSO IL CARD VUOTO CHE CREAVA SPAZIO INUTILE */}
-      {/* Quick Add Modal */}
-      <TransactionModal
-        show={showQuickAdd}
-        onClose={() => setShowQuickAdd(false)}
-        transaction={null}
-      />
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>{t("financialOverview.balance")}</CardTitle>
+            <CardDescription>{t("financialOverview.totalTransactions")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-primary">{formatCurrency(stats.balance || 0)}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("financialOverview.totalIncome")}: {formatCurrency(stats.totalIncome || 0)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t("financialOverview.totalExpense")}: {formatCurrency(stats.totalExpense || 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>{t("financialOverview.totalIncome")}</CardTitle>
+            <CardDescription>{periodPref.period}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-emerald-600">{formatCurrency(stats.totalIncome || 0)}</p>
+            <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+          </CardContent>
+        </Card>
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>{t("financialOverview.totalExpense")}</CardTitle>
+            <CardDescription>{periodPref.period}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-rose-600">{formatCurrency(stats.totalExpense || 0)}</p>
+            <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2 glass">
+          <CardHeader>
+            <CardTitle>{t("quickActions")}</CardTitle>
+            <CardDescription>{t("whatToRegister")}</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-3">
+            {quickActions.map((action) => (
+              <button
+                key={action.key}
+                onClick={() => !action.disabled && action.action()}
+                className={`flex items-center gap-3 rounded-xl border border-border bg-card/80 p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+                  action.disabled ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  {action.icon}
+                </span>
+                <div>
+                  <div className="font-semibold">{action.title}</div>
+                  <div className="text-xs text-muted-foreground">{action.subtitle}</div>
+                </div>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="glass">
+          <CardHeader>
+            <CardTitle>{t("recentTransactions.title")}</CardTitle>
+            <CardDescription>{t("recentTransactions.viewAll")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentTransactions transactions={transactions} loading={transactionsLoading} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <TransactionModal show={showQuickAdd} onClose={() => setShowQuickAdd(false)} transaction={null} />
     </div>
   );
 };
 
-export default React.memo(Dashboard); 
+export default React.memo(Dashboard);

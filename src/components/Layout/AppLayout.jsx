@@ -26,45 +26,20 @@ const AppLayout = ({ children }) => {
   const showNavigation = !isPublicRoute && (currentUser || isDemo);
 
   return (
-    <div 
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        background: 'var(--background-primary)',
-      }}
-    >
-      {/* Top Navigation - Desktop */}
-      {showNavigation && !isMobile && (
-        <Navbar />
-      )}
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {showNavigation && !isMobile && <Navbar />}
 
-      {/* Main Content */}
-      <main 
-        style={{
-          flex: 1,
-          position: 'relative',
-          overflowX: 'hidden',
-          minHeight: showNavigation
-            ? isMobile
-              ? 'calc(100vh - 60px)' // Mobile con bottom nav
-              : 'calc(100vh - 64px)'  // Desktop con top nav
-            : '100vh', // Full height per landing page
-          paddingTop: showNavigation ? '24px' : '0',
-          paddingBottom: '0',
-          paddingLeft: isMobile ? '1rem' : '2rem',
-          paddingRight: isMobile ? '1rem' : '2rem',
-          background: 'var(--background-primary)',
-          transition: 'all var(--transition-base)',
-        }}
+      <main
+        className={`flex-1 relative overflow-x-hidden transition-all ${
+          showNavigation
+            ? "pt-16 md:pt-20 pb-10 px-4 md:px-6 lg:px-8"
+            : "p-0"
+        }`}
       >
-        {children}
+        <div className="mx-auto w-full max-w-6xl space-y-6">{children}</div>
       </main>
 
-      {/* Bottom Navigation - Mobile */}
-      {showNavigation && isMobile && (
-        <BottomNavigation />
-      )}
+      {showNavigation && isMobile && <BottomNavigation />}
     </div>
   );
 };

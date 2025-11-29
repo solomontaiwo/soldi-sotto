@@ -1,518 +1,148 @@
 import { useState } from "react";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Button, 
-  Card, 
-  Row, 
-  Col, 
-  Container
-} from "react-bootstrap";
-import {
-  FiDollarSign,
-  FiBarChart2,
-  FiFileText,
-  FiShield,
-  FiStar,
-  FiPlay,
-  FiLogIn,
-  FiUserPlus,
-  FiAward,
-  FiClock,
-  FiCheck,
-} from "react-icons/fi";
+import { FiArrowUpRight, FiBarChart2, FiFileText, FiPlay, FiShield, FiStar, FiUserPlus, FiZap } from "react-icons/fi";
 import { useAuth } from "../Auth/AuthProvider";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import { useMediaQuery } from "react-responsive";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import { Button } from "../ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 
-// LandingPage component: shows the public landing page with features and demo
-// Features, stats, and demo/premium features are static arrays
-
-const features = [
-  {
-    icon: <FiDollarSign size={32} className="text-success" />,
-    title: "Gestione Completa",
-    description: "Traccia entrate e uscite con categorie personalizzate e descrizioni dettagliate."
-  },
-  {
-    icon: <FiBarChart2 size={32} className="text-primary" />,
-    title: "Statistiche Avanzate",
-    description: "Visualizza i tuoi dati finanziari con grafici e report dettagliati."
-  },
-  {
-    icon: <FiFileText size={32} className="text-info" />,
-    title: "Export PDF",
-    description: "Genera report PDF professionali per periodi personalizzati."
-  },
-  {
-    icon: <FiShield size={32} className="text-warning" />,
-    title: "Sicurezza Totale",
-    description: "I tuoi dati sono protetti con crittografia e backup automatico."
-  },
-];
-
-const stats = [
-  { title: "Utenti Attivi", value: "10,000+", icon: <FiStar /> },
-  { title: "Transazioni", value: "500K+", icon: <FiAward /> },
-  { title: "Tempo Risparmiato", value: "2h/giorno", icon: <FiClock /> },
-];
-
-const demoFeatures = [
-  "✓ Fino a 10 transazioni demo",
-  "✓ Tutte le funzionalità base",
-  "✓ Visualizzazione statistiche",
-  "✓ Nessuna registrazione richiesta",
-];
-
-const premiumFeatures = [
-  "✓ Transazioni illimitate",
-  "✓ Export PDF avanzato",
-  "✓ Statistiche dettagliate",
-  "✓ Backup cloud sicuro",
-  "✓ Supporto prioritario",
+const featureCards = [
+  { icon: <FiBarChart2 className="h-5 w-5" />, titleKey: "analytics.title", descKey: "landing.features.analyticsDesc" },
+  { icon: <FiFileText className="h-5 w-5" />, titleKey: "transactionModal.newTitle", descKey: "landing.features.pdfDesc" },
+  { icon: <FiShield className="h-5 w-5" />, titleKey: "landing.features.securityTitle", descKey: "landing.features.securityDesc" },
 ];
 
 const LandingPage = () => {
   const { currentUser } = useAuth();
-  const { generateSampleTransactions, isDemo } = useUnifiedTransactions();
+  const { isDemo, startDemo } = useUnifiedTransactions();
   const navigate = useNavigate();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [isStartingDemo, setIsStartingDemo] = useState(false);
+  const [startingDemo, setStartingDemo] = useState(false);
   const { t } = useTranslation();
 
   const handleStartDemo = async () => {
-    setIsStartingDemo(true);
-    
-    // Genera transazioni demo se non è già in modalità demo
-    if (!isDemo && !currentUser) {
-      await generateSampleTransactions();
-    }
-    
-    // Naviga alla dashboard
+    setStartingDemo(true);
+    if (!isDemo && !currentUser) startDemo();
     setTimeout(() => {
       navigate("/transactions");
-      setIsStartingDemo(false);
-    }, 1000);
+      setStartingDemo(false);
+    }, 400);
   };
 
-  const handleRegister = () => {
-    navigate("/register");
-  };
-
-  const handleLogin = () => {
-    navigate("/login");
-  };
-
-  // Main render: landing page content and demo/premium features
   return (
-    <div 
-      style={{ 
-        minHeight: "100vh", 
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
-      }}
-    >
-      {/* Hero Section */}
-      <Container className="py-5">
-        <div 
-          className="text-center text-white"
-          style={{ paddingTop: isMobile ? "40px" : "110px", paddingBottom: "60px" }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 
-              className="fw-bold mb-4"
-              style={{ 
-                fontSize: isMobile ? "2.5rem" : "4rem",
-                textShadow: "0 2px 4px rgba(0,0,0,0.3)"
-              }}
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute left-1/4 top-[-200px] h-[420px] w-[420px] rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute right-1/3 bottom-[-200px] h-[380px] w-[380px] rounded-full bg-emerald-400/20 blur-3xl" />
+        </div>
+
+        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-16 pt-24 lg:flex-row lg:items-center lg:pt-32">
+          <div className="flex-1 space-y-6">
+            <Badge variant="secondary" className="inline-flex items-center gap-2 rounded-full px-3 py-1">
+              <FiZap className="h-4 w-4" />
+              {t("appName")}
+            </Badge>
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl"
             >
-              Soldi Sotto
-            </h1>
-            
-            <p 
-              className="mb-5"
-              style={{ 
-                fontSize: isMobile ? "1.2rem" : "1.5rem",
-                maxWidth: "800px",
-                margin: "0 auto 3rem auto",
-                opacity: 0.95
-              }}
-            >
-              La tua finanza personale sotto controllo. Gestisci entrate e uscite, 
-              visualizza statistiche dettagliate e prendi decisioni informate per il tuo futuro finanziario.
+              {t("landing.heroSubtitle")}
+            </motion.h1>
+            <p className="text-lg text-muted-foreground sm:text-xl">
+              {t("landing.heroBody")}
             </p>
-
-            <div className={`d-flex ${isMobile ? 'flex-column' : 'flex-row'} justify-content-center gap-3 mb-5`}>
-              <Button
-                variant="success"
-                size="lg"
-                disabled={isStartingDemo}
-                onClick={handleStartDemo}
-                className="d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  minWidth: "200px",
-                  borderRadius: "25px",
-                  padding: "12px 24px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)"
-                }}
-              >
-                {isStartingDemo ? (
-                  <>
-                    <div className="spinner-border spinner-border-sm me-2" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    Avvio Demo...
-                  </>
-                ) : (
-                  <>
-                    <FiPlay size={20} />
-                    Prova Demo Gratuita
-                  </>
-                )}
+            <div className={`flex flex-wrap gap-3 ${isMobile ? "flex-col" : ""}`}>
+              <Button size="lg" onClick={handleStartDemo} disabled={startingDemo} className="gap-2">
+                {startingDemo ? "Avvio..." : <FiPlay className="h-5 w-5" />}
+                {t("landing.tryDemo")}
               </Button>
-
-              <Button
-                variant="outline-light"
-                size="lg"
-                onClick={handleRegister}
-                className="d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  minWidth: "200px",
-                  borderRadius: "25px",
-                  padding: "12px 24px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  borderWidth: "2px"
-                }}
-              >
-                <FiUserPlus size={20} />
-                Registrati Gratis
+              <Button size="lg" variant="outline" onClick={() => navigate("/register")} className="gap-2">
+                <FiUserPlus className="h-5 w-5" />
+                {t("landing.register")}
               </Button>
-
-              <Button
-                variant="link"
-                size="lg"
-                onClick={handleLogin}
-                className="text-white text-decoration-none d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500"
-                }}
-              >
-                <FiLogIn size={20} />
-                Accedi
+              <Button size="lg" variant="ghost" onClick={() => navigate("/login")} className="gap-2">
+                <FiArrowUpRight className="h-5 w-5" />
+                {t("landing.login")}
               </Button>
             </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                  <FiStar />
+                </div>
+                <span>{t("landing.highlights.mobile")}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <FiShield />
+                </div>
+                <span>{t("landing.highlights.security")}</span>
+              </div>
+            </div>
+          </div>
 
-            {/* Statistics */}
-            <Row className="g-4 justify-content-center mb-5">
-              {stats.map((stat, index) => (
-                <Col key={index} xs={4} sm={3} md={2}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="text-center"
-                  >
-                    <div className="text-white-50 mb-2" style={{ fontSize: "1.5rem" }}>
-                      {stat.icon}
-                    </div>
-                    <div 
-                      className="fw-bold text-white"
-                      style={{ fontSize: isMobile ? "1.2rem" : "1.5rem" }}
-                    >
-                      {stat.value}
-                    </div>
-                    <div className="text-white-50 small">
-                      {stat.title}
-                    </div>
-                  </motion.div>
-                </Col>
-              ))}
-            </Row>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="flex-1"
+          >
+            <div className="rounded-3xl border border-border bg-card/70 p-6 shadow-xl backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Saldo</p>
+                  <p className="text-3xl font-semibold text-primary">€ 4.820</p>
+                </div>
+                <Badge variant="success">+12.4%</Badge>
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <Card className="glass">
+                  <CardHeader>
+                    <CardTitle>Entrate</CardTitle>
+                    <CardDescription className="text-emerald-600">€ 6.200</CardDescription>
+                  </CardHeader>
+                </Card>
+                <Card className="glass">
+                  <CardHeader>
+                    <CardTitle>Uscite</CardTitle>
+                    <CardDescription className="text-rose-600">€ 1.380</CardDescription>
+                  </CardHeader>
+                </Card>
+                <div className="col-span-2 mt-2 h-32 rounded-2xl bg-gradient-to-r from-primary/15 via-emerald-500/15 to-cyan-500/20" />
+              </div>
+            </div>
           </motion.div>
         </div>
-      </Container>
 
-      {/* Features Section */}
-      <div className="py-5">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center mb-5"
-          >
-            <h2 className="fw-bold text-dark mb-4">{t('landing.mainFeatures')}</h2>
-            <p className="text-muted fs-5">
-              {t('landing.mainFeaturesDescription')}
-            </p>
-          </motion.div>
-
-          <Row className="g-4">
-            {features.map((feature, index) => (
-              <Col key={index} xs={12} sm={6} lg={3}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-                >
-                  <Card
-                    className="h-100 border-0 shadow-sm text-center"
-                    style={{
-                      borderRadius: "15px",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-5px)";
-                      e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.15)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "";
-                    }}
-                  >
-                    <Card.Body className="p-4">
-                      <div className="mb-3">
-                        {feature.icon}
-                      </div>
-                      <h5 className="fw-bold text-dark mb-3">
-                        {feature.title}
-                      </h5>
-                      <p className="text-muted mb-0">
-                        {feature.description}
-                      </p>
-                    </Card.Body>
-                  </Card>
-                </motion.div>
-              </Col>
+        <div className="mx-auto max-w-6xl px-4 pb-20">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featureCards.map((card, idx) => (
+              <Card key={idx} className="glass h-full">
+                <CardHeader className="flex-row items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    {card.icon}
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">
+                      {card.title || t(card.titleKey)}
+                    </CardTitle>
+                    <CardDescription>{card.descKey ? t(card.descKey) : card.desc}</CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
             ))}
-          </Row>
-        </Container>
-      </div>
-
-      {/* Pricing Section */}
-      <Container className="py-5">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-center mb-5"
-        >
-          <h2 className="fw-bold text-white mb-4">Inizia Oggi Stesso</h2>
-          <p className="text-white-50 fs-5">
-            Scegli come iniziare il tuo viaggio verso la libertà finanziaria
-          </p>
-        </motion.div>
-
-        <Row className="g-4 justify-content-center">
-          {/* Demo Card */}
-          <Col xs={12} md={6} lg={5}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Card
-                className="h-100 border-0 shadow-lg"
-                style={{
-                  borderRadius: "20px",
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "3px solid #198754"
-                }}
-              >
-                <Card.Body className="p-4 text-center">
-                  <div className="mb-4" style={{ fontSize: "3rem" }}>
-                    🚀
-                  </div>
-                  <h3 className="fw-bold text-dark mb-3">Demo Gratuita</h3>
-                  <div className="display-4 fw-bold text-success mb-3">Gratis</div>
-                  <p className="text-muted mb-4">
-                    Prova subito senza registrazione
-                  </p>
-                  
-                  <div className="text-start mb-4">
-                    {demoFeatures.map((feature, index) => (
-                      <div key={index} className="d-flex align-items-center mb-2">
-                        <FiCheck className="text-success me-2" />
-                        <span className="text-muted">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Button
-                    variant="success"
-                    size="lg"
-                    className="w-100 d-flex align-items-center justify-content-center gap-2"
-                    disabled={isStartingDemo}
-                    onClick={handleStartDemo}
-                    style={{
-                      borderRadius: "15px",
-                      padding: "12px",
-                      fontWeight: "600"
-                    }}
-                  >
-                    {isStartingDemo ? (
-                      <>
-                        <div className="spinner-border spinner-border-sm me-2" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                        Avvio Demo...
-                      </>
-                    ) : (
-                      <>
-                        <FiPlay size={20} />
-                        Inizia Demo
-                      </>
-                    )}
-                  </Button>
-                </Card.Body>
-              </Card>
-            </motion.div>
-          </Col>
-
-          {/* Premium Card */}
-          <Col xs={12} md={6} lg={5}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              <Card
-                className="h-100 border-0 shadow-lg position-relative"
-                style={{
-                  borderRadius: "20px",
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "3px solid #0d6efd",
-                  transform: "scale(1.05)"
-                }}
-              >
-                <div 
-                  className="position-absolute top-0 start-50 translate-middle"
-                  style={{
-                    backgroundColor: "#0d6efd",
-                    color: "white",
-                    padding: "8px 24px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600"
-                  }}
-                >
-                  CONSIGLIATO
-                </div>
-                <Card.Body className="p-4 text-center pt-5">
-                  <div className="mb-4" style={{ fontSize: "3rem" }}>
-                    🏆
-                  </div>
-                  <h3 className="fw-bold text-dark mb-3">Account Completo</h3>
-                  <div className="display-4 fw-bold text-primary mb-3">Gratis</div>
-                  <p className="text-muted mb-4">
-                    Tutte le funzionalità incluse
-                  </p>
-                  
-                  <div className="text-start mb-4">
-                    {premiumFeatures.map((feature, index) => (
-                      <div key={index} className="d-flex align-items-center mb-2">
-                        <FiCheck className="text-primary me-2" />
-                        <span className="text-muted">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-100 d-flex align-items-center justify-content-center gap-2"
-                    onClick={handleRegister}
-                    style={{
-                      borderRadius: "15px",
-                      padding: "12px",
-                      fontWeight: "600"
-                    }}
-                  >
-                    <FiUserPlus size={20} />
-                    Registrati Ora
-                  </Button>
-                </Card.Body>
-              </Card>
-            </motion.div>
-          </Col>
-        </Row>
-      </Container>
-
-      {/* Footer CTA */}
-      <div className="py-5 text-center">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-          >
-            <h3 className="fw-bold text-dark mb-4">
-              Pronto a Prendere il Controllo delle Tue Finanze?
-            </h3>
-            <p className="text-muted fs-5 mb-4">
-              Unisciti a migliaia di utenti che hanno già trasformato la loro gestione finanziaria
-            </p>
-            
-            <div className={`d-flex ${isMobile ? 'flex-column' : 'flex-row'} justify-content-center gap-3`}>
-              <Button
-                variant="success"
-                size="lg"
-                disabled={isStartingDemo}
-                onClick={handleStartDemo}
-                className="d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  minWidth: "200px",
-                  borderRadius: "25px",
-                  padding: "12px 24px",
-                  fontWeight: "600"
-                }}
-              >
-                {isStartingDemo ? (
-                  <>
-                    <div className="spinner-border spinner-border-sm me-2" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    Avvio Demo...
-                  </>
-                ) : (
-                  <>
-                    <FiPlay size={20} />
-                    Prova Demo Ora
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                variant="outline-primary"
-                size="lg"
-                onClick={handleRegister}
-                className="d-flex align-items-center justify-content-center gap-2"
-                style={{
-                  minWidth: "200px",
-                  borderRadius: "25px",
-                  padding: "12px 24px",
-                  fontWeight: "600",
-                  borderWidth: "2px"
-                }}
-              >
-                <FiUserPlus size={20} />
-                Registrati Gratis
-              </Button>
-            </div>
-          </motion.div>
-        </Container>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default React.memo(LandingPage); 
+export default LandingPage;

@@ -1,20 +1,15 @@
-import { Spinner } from "react-bootstrap";
 import PropTypes from "prop-types";
 
 const LoadingWrapper = ({ loading, children }) => {
   LoadingWrapper.propTypes = {
-    loading: PropTypes.bool.isRequired, // 'loading' è un booleano ed è obbligatorio
-    children: PropTypes.node, // 'children' è opzionale
+    loading: PropTypes.bool.isRequired,
+    children: PropTypes.node,
   };
+
   if (loading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center min-vh-100"
-        style={{
-          background: "var(--background-primary)",
-        }}
-      >
-        <Spinner animation="border" variant="primary" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }

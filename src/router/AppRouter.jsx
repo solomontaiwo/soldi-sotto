@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { lazy } from "react";
-import { Spinner } from "react-bootstrap";
+import { lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { useAuth } from "../components/Auth/AuthProvider";
@@ -28,10 +27,9 @@ const PageLoader = () => (
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="d-flex justify-content-center align-items-center vh-100"
-      style={{ background: "var(--background-primary)" }}
+      className="flex min-h-screen items-center justify-center bg-background"
     >
-      <Spinner animation="border" variant="primary" />
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
     </motion.div>
   </AnimatePresence>
 );
@@ -81,25 +79,27 @@ const AppRouter = () => {
   return (
     <AppLayout>
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          {routes.map(({ path, element }) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -24 }}
-                  transition={{ duration: 0.28, ease: 'easeInOut' }}
-                  style={{ minHeight: '100vh' }}
-                >
-                  {element}
-                </motion.div>
-              }
-            />
-          ))}
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes location={location} key={location.pathname}>
+            {routes.map(({ path, element }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -24 }}
+                    transition={{ duration: 0.28, ease: 'easeInOut' }}
+                    style={{ minHeight: '100vh' }}
+                  >
+                    {element}
+                  </motion.div>
+                }
+              />
+            ))}
+          </Routes>
+        </Suspense>
       </AnimatePresence>
     </AppLayout>
   );

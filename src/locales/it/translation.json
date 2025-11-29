@@ -52,6 +52,8 @@
     "usernameNetworkError": "Errore di connessione. Riprova più tardi"
   },
   "logout": "Logout",
+  "navLogin": "Accedi",
+  "navRegister": "Registrati",
   "whatToRegister": "Cosa vuoi registrare oggi?",
   "motivationalQuote": "Gestire le tue finanze è il primo passo verso la libertà.",
   "noTransactions": "Nessuna transazione ancora. Aggiungi la prima!",
@@ -145,6 +147,17 @@
       "✓ Backup cloud sicuro",
       "✓ Supporto prioritario"
     ],
+    "heroBody": "Gestione completa di entrate e uscite, grafici nitidi e PDF professionali, pronta per web e mobile.",
+    "highlights": {
+      "mobile": "Ottimizzato per mobile",
+      "security": "Auth + cloud ready"
+    },
+    "features": {
+      "analyticsDesc": "Analisi chiare e confronti per periodo.",
+      "pdfDesc": "Report PDF pronti all'uso.",
+      "securityTitle": "Cloud + sicurezza",
+      "securityDesc": "Dati protetti con backup e auth Firebase."
+    },
     "ctaTitle": "Pronto a Prendere il Controllo delle Tue Finanze?",
     "ctaSubtitle": "Unisciti a migliaia di utenti che hanno già trasformato la loro gestione finanziaria"
   },
@@ -171,6 +184,8 @@
     "totalExpense": "Uscite Totali",
     "balance": "Bilancio",
     "savingsRate": "Tasso Risparmio",
+    "exportCsv": "Esporta CSV",
+    "exportPdf": "Esporta PDF",
     "topExpenseCategories": "Top Categorie Spesa",
     "topIncomeCategories": "Top Categorie Entrata",
     "ofTotal": "del totale",
@@ -183,6 +198,35 @@
     "avgTransactionDescription": "Importo medio per transazione",
     "totalTransactions": "Transazioni Totali",
     "inSelectedPeriod": "Nel periodo selezionato"
+  },
+  "statsPage": {
+    "title": "Statistiche",
+    "subtitle": "Riepilogo delle tue transazioni e indicatori chiave per restare in controllo",
+    "loginTitle": "Statistiche disponibili dopo il login",
+    "loginSubtitle": "Accedi o avvia la demo per vedere grafici, medie e report PDF.",
+    "tryDemo": "Prova demo",
+    "downloadPdf": "Scarica Report PDF",
+    "pdfLoginNotice": "Il download del PDF è disponibile dopo l'accesso.",
+    "transactions": "Transazioni",
+    "dailyAverages": "Medie giornaliere",
+    "avgIncome": "Entrata media",
+    "avgExpense": "Spesa media",
+    "savingsRate": "Tasso di risparmio",
+    "savingPositive": "Stai risparmiando!",
+    "savingNegative": "Stai spendendo più di quanto guadagni",
+    "incomeVsExpense": "Entrate vs Uscite",
+    "movements": "movimenti",
+    "period": "Su periodo selezionato",
+    "categoryBreakdown": "Spese per categoria",
+    "ofExpenses": "delle uscite",
+    "emptyTitle": "Nessuna transazione trovata",
+    "emptySubtitle": "Non ci sono transazioni per il periodo selezionato. Prova a cambiare periodo o aggiungi nuove transazioni."
+  },
+  "notifications": {
+    "success": "Operazione riuscita",
+    "error": "Errore",
+    "warning": "Attenzione",
+    "info": "Info"
   },
   "transactionModal": {
     "editTitle": "Modifica Transazione",
@@ -320,6 +364,7 @@
     "emailAlreadyInUse": "Email già in uso",
     "weakPassword": "Password troppo debole",
     "operationNotAllowed": "Operazione non consentita",
+    "usernameTaken": "Username già in uso, scegline un altro",
     "accountCreatedSuccess": "Account creato con successo!"
   },
   "of": "di"

@@ -1,75 +1,48 @@
-import { Card, Row, Col, Alert, Form, ProgressBar } from "react-bootstrap";
-import { FiBarChart, FiTrendingUp, FiTrendingDown, FiPieChart, FiCalendar, FiDollarSign, FiArrowUp, FiArrowDown, FiTarget, FiActivity } from "react-icons/fi";
-// Analytics component - Auth provider not needed for this component
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
-import { useMediaQuery } from "react-responsive";
-import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
+import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { motion } from "framer-motion";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subMonths } from "date-fns";
-import { it } from "date-fns/locale";
 import formatCurrency from "../../utils/formatCurrency";
 import { useCategories } from "../../utils/categories";
 import React from "react";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useTranslation } from 'react-i18next';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { useTranslation } from "react-i18next";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { Select } from "../ui/select";
+import { Badge } from "../ui/badge";
+import { FiBarChart, FiTrendingUp, FiTrendingDown, FiActivity, FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { generatePeriodPDFReport } from "../../utils/pdfUtils";
 
-// TransactionAnalytics component: shows financial analytics and insights
-// Uses useMemo for periods and mainStats for performance
 const TransactionAnalytics = () => {
   const { isDemo, transactions, maxTransactions, loading } = useUnifiedTransactions();
   const { expenseCategories, incomeCategories } = useCategories();
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [selectedPeriod, setSelectedPeriod] = useState("month");
-  const [customRange, setCustomRange] = useState({ from: "", to: "" });
-  const [stats, setStats] = useState({});
-  const { t } = useTranslation();
-
-  // Memoized list of main statistics to display
-  const mainStats = useMemo(() => [
-    {
-      title: t('analytics.totalIncome'),
-      value: stats.totalIncome || 0,
-      icon: <FiTrendingUp size={24} />,
-      color: "var(--accent-success)",
-      bgColor: "var(--pastel-mint)",
-      formatter: formatCurrency
-    },
-    {
-      title: t('analytics.totalExpense'),
-      value: stats.totalExpense || 0,
-      icon: <FiTrendingDown size={24} />,
-      color: "var(--accent-error)",
-      bgColor: "var(--pastel-coral)",
-      formatter: formatCurrency
-    },
-    {
-      title: t('analytics.balance'),
-      value: stats.balance || 0,
-      icon: <FiDollarSign size={24} />,
-      color: stats.balance >= 0 ? "var(--accent-success)" : "var(--accent-error)",
-      bgColor: stats.balance >= 0 ? "var(--pastel-mint)" : "var(--pastel-coral)",
-      formatter: formatCurrency
-    },
-    {
-      title: t('analytics.savingsRate'),
-      value: stats.savingsRate || 0,
-      icon: <FiTarget size={24} />,
-      color: stats.savingsRate >= 20 ? "var(--accent-success)" : stats.savingsRate >= 10 ? "var(--accent-warning)" : "var(--accent-error)",
-      bgColor: stats.savingsRate >= 20 ? "var(--pastel-mint)" : stats.savingsRate >= 10 ? "var(--pastel-cream)" : "var(--pastel-coral)",
-      formatter: (value) => `${value.toFixed(1)}%`
+  const periodPref = useMemo(() => {
+    const saved = localStorage.getItem("analytics-period");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return { period: "month" };
+      }
     }
-  ], [stats, t]);
+    return { period: "month" };
+  }, []);
 
-  // Calcola statistiche avanzate
+  const [selectedPeriod, setSelectedPeriod] = useState(periodPref.period || "month");
+  const [customRange, setCustomRange] = useState(periodPref.customRange || { from: "", to: "" });
+  const [stats, setStats] = useState({});
+  const { t, i18n } = useTranslation();
+
   const calculateAdvancedStats = useMemo(() => {
     if (!transactions.length) return {};
-
     const now = new Date();
     let startDate, endDate;
 
     switch (selectedPeriod) {
       case "thisMonth":
+      case "month":
         startDate = startOfMonth(now);
         endDate = endOfMonth(now);
         break;
@@ -89,34 +62,38 @@ const TransactionAnalytics = () => {
         endDate = endOfMonth(now);
         break;
       case "custom":
-        startDate = new Date(customRange.from);
-        endDate = new Date(customRange.to);
+        if (customRange?.from && customRange?.to) {
+          startDate = new Date(customRange.from);
+          endDate = new Date(customRange.to);
+        } else {
+          startDate = startOfMonth(now);
+          endDate = endOfMonth(now);
+        }
         break;
       default:
         startDate = startOfMonth(now);
         endDate = endOfMonth(now);
     }
 
-    const filteredTransactions = transactions.filter(transaction => {
+    const filteredTransactions = transactions.filter((transaction) => {
       const transactionDate = transaction.date.toDate ? transaction.date.toDate() : new Date(transaction.date);
       return isWithinInterval(transactionDate, { start: startDate, end: endDate });
     });
 
     const totalIncome = filteredTransactions
-      .filter(t => t.type === "income")
+      .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const totalExpense = filteredTransactions
-      .filter(t => t.type === "expense")
+      .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const balance = totalIncome - totalExpense;
 
-    // Analisi per categoria
     const expenseByCategory = {};
     const incomeByCategory = {};
 
-    filteredTransactions.forEach(t => {
+    filteredTransactions.forEach((t) => {
       if (t.type === "expense") {
         expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + t.amount;
       } else {
@@ -124,68 +101,64 @@ const TransactionAnalytics = () => {
       }
     });
 
-    // Top categorie spesa
+    const translateCategory = (category) => t(`categories.${category}`, { defaultValue: category });
+    const cleanLabel = (label, category) => {
+      const translated = translateCategory(category);
+      return translated.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+    };
+
     const topExpenseCategories = Object.entries(expenseByCategory)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([category, amount]) => {
-        const categoryData = expenseCategories.find(c => c.value === category);
+        const categoryData = expenseCategories.find((c) => c.value === category);
         return {
           category,
           amount,
           percentage: totalExpense > 0 ? (amount / totalExpense) * 100 : 0,
-          label: categoryData ? categoryData.label : category,
-          emoji: categoryData ? categoryData.label.split(" ")[0] : "💸"
+          label: cleanLabel(categoryData?.label || category, category),
+          emoji: categoryData ? categoryData.label.split(" ")[0] : "💸",
         };
       });
 
-    // Top categorie entrata
     const topIncomeCategories = Object.entries(incomeByCategory)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([category, amount]) => {
-        const categoryData = incomeCategories.find(c => c.value === category);
+        const categoryData = incomeCategories.find((c) => c.value === category);
         return {
           category,
           amount,
           percentage: totalIncome > 0 ? (amount / totalIncome) * 100 : 0,
-          label: categoryData ? categoryData.label : category,
-          emoji: categoryData ? categoryData.label.split(" ")[0] : "💰"
+          label: cleanLabel(categoryData?.label || category, category),
+          emoji: categoryData ? categoryData.label.split(" ")[0] : "💰",
         };
       });
 
-    // Trend mensile (ultimi 6 mesi)
     const monthlyTrend = [];
     for (let i = 5; i >= 0; i--) {
       const monthStart = startOfMonth(subMonths(now, i));
       const monthEnd = endOfMonth(subMonths(now, i));
-      
-      const monthTransactions = transactions.filter(t => {
+      const monthTransactions = transactions.filter((t) => {
         const transactionDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
         return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
       });
-
-      const monthIncome = monthTransactions
-        .filter(t => t.type === "income")
-        .reduce((sum, t) => sum + t.amount, 0);
-
-      const monthExpense = monthTransactions
-        .filter(t => t.type === "expense")
-        .reduce((sum, t) => sum + t.amount, 0);
-
+      const monthIncome = monthTransactions.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
+      const monthExpense = monthTransactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
       monthlyTrend.push({
-        month: format(monthStart, "MMM yyyy", { locale: it }),
+        month: format(monthStart, "MMM yyyy"),
         income: monthIncome,
         expense: monthExpense,
-        balance: monthIncome - monthExpense
+        balance: monthIncome - monthExpense,
       });
     }
 
-    // Statistiche di risparmio
     const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
     const avgDailyExpense = totalExpense / Math.max(1, (endDate - startDate) / (1000 * 60 * 60 * 24));
-    const avgTransactionAmount = filteredTransactions.length > 0 ? 
-      filteredTransactions.reduce((sum, t) => sum + t.amount, 0) / filteredTransactions.length : 0;
+    const avgTransactionAmount =
+      filteredTransactions.length > 0
+        ? filteredTransactions.reduce((sum, t) => sum + t.amount, 0) / filteredTransactions.length
+        : 0;
 
     return {
       totalIncome,
@@ -200,415 +173,273 @@ const TransactionAnalytics = () => {
       transactionCount: filteredTransactions.length,
       periodLabel: selectedPeriod,
       startDate,
-      endDate
+      endDate,
+      filteredTransactions,
     };
-  }, [transactions, selectedPeriod, expenseCategories, incomeCategories, customRange]);
+  }, [transactions, selectedPeriod, customRange, expenseCategories, incomeCategories, t]);
 
   useEffect(() => {
     setStats(calculateAdvancedStats);
   }, [calculateAdvancedStats]);
 
+  useEffect(() => {
+    localStorage.setItem(
+      "analytics-period",
+      JSON.stringify({
+        period: selectedPeriod,
+        customRange,
+      })
+    );
+  }, [selectedPeriod, customRange]);
+
+  const exportCsv = () => {
+    if (!stats?.filteredTransactions?.length) return;
+    const headers = ["Data", "Tipo", "Descrizione", "Categoria", "Importo"];
+    const rows = stats.filteredTransactions.map((t) => {
+      const date = t.date.toDate ? t.date.toDate() : new Date(t.date);
+      return [
+        format(date, "yyyy-MM-dd"),
+        t.type,
+        `"${(t.description || "").replace(/"/g, '""')}"`,
+        t.category || "",
+        t.amount,
+      ];
+    });
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `analytics-${selectedPeriod}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const exportPdf = async () => {
+    if (!stats?.filteredTransactions?.length || !stats.startDate || !stats.endDate) return;
+    await generatePeriodPDFReport(
+      stats.filteredTransactions,
+      stats.startDate,
+      stats.endDate,
+      selectedPeriod === "custom"
+        ? `${t("analytics.custom")} (${customRange.from} - ${customRange.to})`
+        : selectedPeriod,
+      i18n.language
+    );
+  };
+
   if (loading) {
-    // Skeleton ultra-minimal per box statistiche e grafici
     return (
-      <div className="container py-4">
-        <div className="row g-4 mb-4">
-          {[...Array(3)].map((_, i) => (
-            <div className="col-12 col-md-4" key={i}>
-              <Skeleton height={90} borderRadius={18} />
-            </div>
+      <div className="space-y-4">
+        <Skeleton height={48} />
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} height={120} borderRadius={18} />
           ))}
         </div>
-        <div className="mb-4">
-          <Skeleton height={260} borderRadius={24} />
-        </div>
-        <div className="row g-4">
-          {[...Array(2)].map((_, i) => (
-            <div className="col-12 col-md-6" key={i}>
-              <Skeleton height={180} borderRadius={18} />
-            </div>
-          ))}
-        </div>
+        <Skeleton height={220} borderRadius={18} />
       </div>
     );
   }
 
   return (
-    <div style={{
-      padding: isMobile ? '0 0 80px 0' : '0 0 24px 0',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      minHeight: '100vh',
-      color: 'var(--text-primary)'
-    }}>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-4"
-      >
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+    <div className="page-shell">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-dark fw-bold mb-2 d-flex align-items-center gap-2">
-              <FiBarChart size={28} />
-              {t('analytics.title')}
-        </h2>
-            <p className="text-muted mb-0">
-              {t('analytics.subtitle')}
-            </p>
+            <h2 className="text-3xl font-bold flex items-center gap-2">
+              <FiBarChart className="text-primary" /> {t("analytics.title")}
+            </h2>
+            <p className="text-muted-foreground">{t("analytics.subtitle")}</p>
           </div>
-          
-          <div className="d-flex gap-2">
-            <Form.Select
-              value={selectedPeriod}
-              onChange={e => setSelectedPeriod(e.target.value)}
-              style={{ maxWidth: 200, display: "inline-block" }}
-            >
-              <option value="month">{t('analytics.thisMonth')}</option>
-              <option value="lastMonth">{t('analytics.lastMonth')}</option>
-              <option value="last3Months">{t('analytics.last3Months')}</option>
-              <option value="year">{t('analytics.thisYear')}</option>
-              <option value="custom">{t('analytics.custom')}</option>
-            </Form.Select>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4 md:flex-wrap">
+            <Select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="md:w-48 h-11 self-center">
+              <option value="month">{t("analytics.thisMonth")}</option>
+              <option value="lastMonth">{t("analytics.lastMonth")}</option>
+              <option value="last3Months">{t("analytics.last3Months")}</option>
+              <option value="year">{t("analytics.thisYear")}</option>
+              <option value="custom">{t("analytics.custom")}</option>
+            </Select>
             {selectedPeriod === "custom" && (
-              <div className="d-inline-flex align-items-center gap-2 ms-3">
-                <Form.Label className="mb-0 small">{t('analytics.from')}</Form.Label>
-                <Form.Control
+              <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm md:items-center md:pl-1">
+                <label className="text-muted-foreground text-xs md:text-sm leading-none">{t("analytics.from")}</label>
+                <input
                   type="date"
-                  size="sm"
                   value={customRange.from}
-                  onChange={e => setCustomRange(r => ({ ...r, from: e.target.value }))}
-                  style={{ minWidth: 120 }}
+                  onChange={(e) => setCustomRange((r) => ({ ...r, from: e.target.value }))}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background md:min-w-[170px]"
                 />
-                <Form.Label className="mb-0 small">{t('analytics.to')}</Form.Label>
-                <Form.Control
+                <label className="text-muted-foreground text-xs md:text-sm leading-none">{t("analytics.to")}</label>
+                <input
                   type="date"
-                  size="sm"
                   value={customRange.to}
-                  onChange={e => setCustomRange(r => ({ ...r, to: e.target.value }))}
-                  style={{ minWidth: 120 }}
+                  onChange={(e) => setCustomRange((r) => ({ ...r, to: e.target.value }))}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background md:min-w-[170px]"
                 />
               </div>
             )}
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={exportCsv} disabled={!stats?.filteredTransactions?.length}>
+                {t("analytics.exportCsv")}
+              </Button>
+              <Button variant="outline" onClick={exportPdf} disabled={!stats?.filteredTransactions?.length}>
+                {t("analytics.exportPdf")}
+              </Button>
+            </div>
           </div>
         </div>
-
-      {/* Demo Alert */}
-      {isDemo && (
-                  <Alert variant="info" className="border-0 mb-4" style={{ 
-          borderRadius: '2rem',
-            backgroundColor: 'rgba(13, 202, 240, 0.1)',
-            border: '1px solid rgba(13, 202, 240, 0.2)',
-          }}>
-            <Alert.Heading className="h6 fw-bold text-info">
-              🎯 {t('analytics.demoMode')}
-            </Alert.Heading>
-            <p className="mb-0">
-              {t('analytics.demoDescription', { current: transactions.length, max: maxTransactions })}
-            </p>
-          </Alert>
+        {isDemo && (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary flex items-center gap-2">
+            <Badge variant="secondary">{transactions.length}/{maxTransactions}</Badge>
+            <span>{t("analytics.demoDescription", { current: transactions.length, max: maxTransactions })}</span>
+          </div>
         )}
-        </motion.div>
+      </motion.div>
 
-      {/* Main Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-        className="mb-5"
-          >
-        <Row className="g-4">
-          {mainStats.map((stat, index) => (
-            <Col key={index} xs={12} sm={6} lg={3}>
-            <Card 
-                className="mb-4 shadow-sm glass-card analytics-glass"
-                style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  border: "1.5px solid rgba(255,255,255,0.35)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                  borderRadius: "22px",
-                  transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                  e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                }}
-              >
-              <Card.Body className="p-4 text-center">
-                <div 
-                  className="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                      backgroundColor: stat.color + '20',
-                      color: stat.color,
-                  }}
-                >
-                    {stat.icon}
-                </div>
-                  <h5 className="fw-bold text-dark mb-1">{stat.formatter(stat.value)}</h5>
-                  <p className="text-muted small mb-0">{stat.title}</p>
-              </Card.Body>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            { title: t("analytics.totalIncome"), value: stats.totalIncome, icon: <FiTrendingUp />, color: "text-emerald-600" },
+            { title: t("analytics.totalExpense"), value: stats.totalExpense, icon: <FiTrendingDown />, color: "text-rose-600" },
+            { title: t("analytics.balance"), value: stats.balance, icon: <FiBarChart />, color: "text-primary" },
+            { title: t("analytics.totalTransactions"), value: stats.transactionCount, icon: <FiActivity />, color: "text-muted-foreground" },
+          ].map((item, idx) => (
+            <Card key={idx}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <span className={`text-lg ${item.color}`}>{item.icon}</span>
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-semibold">
+                  {typeof item.value === "number" && idx !== 3 ? formatCurrency(item.value) : item.value}
+                </p>
+              </CardContent>
             </Card>
-            </Col>
           ))}
-        </Row>
-          </motion.div>
-
-      {/* Top Categories */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-        className="mb-5"
-          >
-        <Row className="g-4">
-          {/* Top Expense Categories */}
-          <Col xs={12} lg={6}>
-            <Card 
-              className="h-100 border-0 shadow-sm glass-card"
-              style={{
-                borderRadius: '2rem',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.08)'
-              }}
-            >
-              <Card.Body className="p-4">
-                <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-                  <FiTrendingDown className="text-danger" size={20} />
-                  {t('analytics.topExpenseCategories')}
-                </h5>
-                
-                {stats.topExpenseCategories?.length > 0 ? (
-                  <div className="d-flex flex-column gap-3">
-                    {stats.topExpenseCategories.map((cat, index) => (
-                      <div key={index} className="d-flex align-items-center gap-3">
-                        <div className="text-center" style={{ minWidth: '40px' }}>
-                          <div style={{ fontSize: '24px' }}>{cat.emoji}</div>
-                        </div>
-                        <div className="flex-grow-1">
-                          <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="fw-medium text-dark">{cat.label}</span>
-                            <span className="text-danger fw-bold">{formatCurrency(cat.amount)}</span>
-                          </div>
-                          <ProgressBar
-                            now={cat.percentage}
-                            style={{ height: '6px', borderRadius: '3px' }}
-                            className="mb-1"
-                          />
-                          <small className="text-muted">{cat.percentage.toFixed(1)}% {t('analytics.ofTotal')}</small>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted">
-                    <FiPieChart size={48} className="mb-3 opacity-50" />
-                    <p>{t('analytics.noExpenseData')}</p>
-                </div>
-                )}
-              </Card.Body>
-            </Card>
-        </Col>
-
-          {/* Top Income Categories */}
-          <Col xs={12} lg={6}>
-            <Card 
-              className="h-100 border-0 shadow-sm glass-card"
-              style={{
-                borderRadius: '2rem',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.08)'
-              }}
-            >
-              <Card.Body className="p-4">
-                <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-                  <FiTrendingUp className="text-success" size={20} />
-                  {t('analytics.topIncomeCategories')}
-                </h5>
-                
-                {stats.topIncomeCategories?.length > 0 ? (
-                  <div className="d-flex flex-column gap-3">
-                    {stats.topIncomeCategories.map((cat, index) => (
-                      <div key={index} className="d-flex align-items-center gap-3">
-                        <div className="text-center" style={{ minWidth: '40px' }}>
-                          <div style={{ fontSize: '24px' }}>{cat.emoji}</div>
-                        </div>
-                        <div className="flex-grow-1">
-                          <div className="d-flex justify-content-between align-items-center mb-1">
-                            <span className="fw-medium text-dark">{cat.label}</span>
-                            <span className="text-success fw-bold">{formatCurrency(cat.amount)}</span>
-                          </div>
-                          <ProgressBar
-                            now={cat.percentage}
-                            variant="success"
-                            style={{ height: '6px', borderRadius: '3px' }}
-                            className="mb-1"
-                          />
-                          <small className="text-muted">{cat.percentage.toFixed(1)}% {t('analytics.ofTotal')}</small>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted">
-                    <FiPieChart size={48} className="mb-3 opacity-50" />
-                    <p>{t('analytics.noIncomeData')}</p>
-                </div>
-                )}
-              </Card.Body>
-            </Card>
-        </Col>
-      </Row>
+        </div>
       </motion.div>
 
-      {/* Monthly Trend */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-5"
-      >
-        <Card 
-          className="border-0 shadow-sm glass-card"
-          style={{
-            borderRadius: '2rem',
-            background: 'rgba(255,255,255,0.04)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.08)'
-          }}
-        >
-          <Card.Body className="p-4">
-            <h5 className="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-              <FiActivity className="text-primary" size={20} />
-              {t('analytics.monthlyTrend')}
-            </h5>
-            
-            {stats.monthlyTrend?.length > 0 ? (
-              <div className="row g-2">
-                {stats.monthlyTrend.map((month, index) => (
-                  <div key={index} className="col-6 col-md-4 col-lg-2">
-                    <div 
-                      className="text-center p-3 rounded-3"
-                      style={{
-                        backgroundColor: month.balance >= 0 ? 'var(--pastel-mint)' : 'var(--pastel-coral)',
-                        border: `1px solid ${month.balance >= 0 ? 'var(--accent-success)' : 'var(--accent-error)'}20`
-                      }}
-                    >
-                      <div className="fw-bold text-dark small mb-1">{month.month}</div>
-                      <div className="d-flex align-items-center justify-content-center gap-1 mb-1">
-                        <FiArrowUp size={12} className="text-success" />
-                        <small className="text-success fw-medium">{formatCurrency(month.income)}</small>
-                      </div>
-                      <div className="d-flex align-items-center justify-content-center gap-1 mb-1">
-                        <FiArrowDown size={12} className="text-danger" />
-                        <small className="text-danger fw-medium">{formatCurrency(month.expense)}</small>
-                      </div>
-                      <div className={`fw-bold small ${month.balance >= 0 ? 'text-success' : 'text-danger'}`}>
-                        {formatCurrency(month.balance)}
-                      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.topExpenseCategories")}</CardTitle>
+            <CardDescription>{t("analytics.ofTotal")}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {stats.topExpenseCategories?.length ? (
+              stats.topExpenseCategories.map((cat, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <span>{cat.emoji}</span>
+                      <span className="font-semibold">{cat.label}</span>
                     </div>
+                    <span className="text-rose-600 font-semibold">{formatCurrency(cat.amount)}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4 text-muted">
-                <FiActivity size={48} className="mb-3 opacity-50" />
-                <p>{t('analytics.insufficientData')}</p>
-              </div>
-            )}
-          </Card.Body>
-        </Card>
-      </motion.div>
-
-      {/* Additional Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        <Row className="g-4">
-          <Col xs={12} md={4}>
-            <Card 
-              className="h-100 border-0 shadow-sm glass-card"
-              style={{
-                borderRadius: '2rem',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.08)'
-              }}
-            >
-              <Card.Body className="p-4 text-center">
-                <FiCalendar className="text-primary mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">{t('analytics.avgDailyExpense')}</h5>
-                <div className="fw-bold text-primary" style={{ fontSize: '1.5rem' }}>
-                  {formatCurrency(stats.avgDailyExpense || 0)}
+                  <div className="h-2 w-full rounded-full bg-muted">
+                    <div className="h-2 rounded-full bg-rose-500" style={{ width: `${cat.percentage.toFixed(1)}%` }} />
+                  </div>
                 </div>
-                <small className="text-muted">{t('analytics.inSelectedPeriod')}</small>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col xs={12} md={4}>
-            <Card 
-              className="h-100 border-0 shadow-sm glass-card"
-              style={{
-                borderRadius: '2rem',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.08)'
-              }}
-            >
-              <Card.Body className="p-4 text-center">
-                <FiDollarSign className="text-warning mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">{t('analytics.avgTransaction')}</h5>
-                <div className="fw-bold text-warning" style={{ fontSize: '1.5rem' }}>
-                  {formatCurrency(stats.avgTransactionAmount || 0)}
-            </div>
-                <small className="text-muted">{t('analytics.avgTransactionDescription')}</small>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col xs={12} md={4}>
-            <Card 
-              className="h-100 border-0 shadow-sm glass-card"
-              style={{
-                borderRadius: '2rem',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.08)'
-              }}
-            >
-              <Card.Body className="p-4 text-center">
-                <FiActivity className="text-info mb-3" size={32} />
-                <h5 className="fw-bold text-dark mb-2">{t('analytics.totalTransactions')}</h5>
-                <div className="fw-bold text-info" style={{ fontSize: '1.5rem' }}>
-                  {stats.transactionCount || 0}
-            </div>
-                <small className="text-muted">{t('analytics.inSelectedPeriod')}</small>
-          </Card.Body>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">{t("analytics.noExpenseData")}</p>
+            )}
+          </CardContent>
         </Card>
-          </Col>
-        </Row>
-      </motion.div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.topIncomeCategories")}</CardTitle>
+            <CardDescription>{t("analytics.ofTotal")}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {stats.topIncomeCategories?.length ? (
+              stats.topIncomeCategories.map((cat, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <span>{cat.emoji}</span>
+                      <span className="font-semibold">{cat.label}</span>
+                    </div>
+                    <span className="text-emerald-600 font-semibold">{formatCurrency(cat.amount)}</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted">
+                    <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${cat.percentage.toFixed(1)}%` }} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">{t("analytics.noIncomeData")}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("analytics.monthlyTrend")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          {stats.monthlyTrend?.length ? (
+            stats.monthlyTrend.map((month, idx) => (
+              <div
+                key={idx}
+                className={`rounded-xl border border-border p-3 ${
+                  month.balance >= 0 ? "bg-emerald-500/5" : "bg-rose-500/5"
+                }`}
+              >
+                <p className="text-sm font-semibold">{month.month}</p>
+                <div className="flex items-center gap-1 text-xs text-emerald-600">
+                  <FiArrowUp /> {formatCurrency(month.income)}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-rose-600">
+                  <FiArrowDown /> {formatCurrency(month.expense)}
+                </div>
+                <p className={`text-sm font-semibold ${month.balance >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                  {formatCurrency(month.balance)}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("analytics.insufficientData")}</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.avgDailyExpense")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold text-primary">{formatCurrency(stats.avgDailyExpense || 0)}</p>
+            <p className="text-xs text-muted-foreground">{t("analytics.inSelectedPeriod")}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.avgTransaction")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold text-primary">{formatCurrency(stats.avgTransactionAmount || 0)}</p>
+            <p className="text-xs text-muted-foreground">{t("analytics.avgTransactionDescription")}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.totalTransactions")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold text-primary">{stats.transactionCount || 0}</p>
+            <p className="text-xs text-muted-foreground">{t("analytics.inSelectedPeriod")}</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
 
-export default React.memo(TransactionAnalytics); 
+export default React.memo(TransactionAnalytics);

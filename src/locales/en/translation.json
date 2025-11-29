@@ -52,6 +52,8 @@
     "usernameNetworkError": "Connection error. Please try again later"
   },
   "logout": "Logout",
+  "navLogin": "Login",
+  "navRegister": "Register",
   "whatToRegister": "What do you want to record today?",
   "motivationalQuote": "Managing your finances is the first step to freedom.",
   "noTransactions": "No transactions yet. Add your first one!",
@@ -141,10 +143,21 @@
     "premiumFeatures": [
       "✓ Unlimited transactions",
       "✓ Advanced PDF export",
-      "✓ Detailed statistics",
+      "✓ Detailed analytics",
       "✓ Secure cloud backup",
       "✓ Priority support"
     ],
+    "heroBody": "Complete income/expense tracking, clear charts and professional PDFs, ready for web and mobile.",
+    "highlights": {
+      "mobile": "Optimized for mobile",
+      "security": "Auth + cloud ready"
+    },
+    "features": {
+      "analyticsDesc": "Clear analytics and period comparisons.",
+      "pdfDesc": "Ready-to-use PDF reports.",
+      "securityTitle": "Cloud + security",
+      "securityDesc": "Data protected with backup and Firebase auth."
+    },
     "ctaTitle": "Ready to Take Control of Your Finances?",
     "ctaSubtitle": "Join thousands of users who have already transformed their financial management"
   },
@@ -171,6 +184,8 @@
     "totalExpense": "Total Expense",
     "balance": "Balance",
     "savingsRate": "Savings Rate",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
     "topExpenseCategories": "Top Expense Categories",
     "topIncomeCategories": "Top Income Categories",
     "ofTotal": "of total",
@@ -183,6 +198,35 @@
     "avgTransactionDescription": "Average amount per transaction",
     "totalTransactions": "Total Transactions",
     "inSelectedPeriod": "In selected period"
+  },
+  "statsPage": {
+    "title": "Statistics",
+    "subtitle": "Summary of your transactions and key indicators to stay in control",
+    "loginTitle": "Statistics available after login",
+    "loginSubtitle": "Sign in or start the demo to see charts, averages and PDF reports.",
+    "tryDemo": "Try demo",
+    "downloadPdf": "Download PDF Report",
+    "pdfLoginNotice": "PDF download is available after logging in.",
+    "transactions": "Transactions",
+    "dailyAverages": "Daily averages",
+    "avgIncome": "Avg income",
+    "avgExpense": "Avg expense",
+    "savingsRate": "Savings rate",
+    "savingPositive": "You are saving!",
+    "savingNegative": "You are spending more than you earn",
+    "incomeVsExpense": "Income vs Expense",
+    "movements": "moves",
+    "period": "On selected period",
+    "categoryBreakdown": "Expenses by category",
+    "ofExpenses": "of expenses",
+    "emptyTitle": "No transactions found",
+    "emptySubtitle": "There are no transactions for this period. Try another range or add new transactions."
+  },
+  "notifications": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
   },
   "transactionModal": {
     "editTitle": "Edit Transaction",
@@ -320,6 +364,7 @@
     "emailAlreadyInUse": "Email already in use",
     "weakPassword": "Password too weak",
     "operationNotAllowed": "Operation not allowed",
+    "usernameTaken": "Username already taken, choose another one",
     "accountCreatedSuccess": "Account created successfully!"
   },
   "of": "of"

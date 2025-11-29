@@ -2,22 +2,29 @@ import { useState, useEffect, useCallback } from "react";
 import { useUnifiedTransactions } from "./UnifiedTransactionProvider";
 import { useCategories } from "../../utils/categories";
 import { useNotification } from "../../utils/notificationUtils";
-import { motion } from "framer-motion";
-import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import { FiTrendingUp, FiTrendingDown, FiPlus, FiSave } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
-import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Select } from "../ui/select";
+import { Label } from "../ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../ui/dialog";
+import { FiTrendingUp, FiTrendingDown, FiSave, FiPlus } from "react-icons/fi";
 
-// Modale unica per aggiunta e modifica transazione
 const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
   TransactionModal.propTypes = {
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func, // opzionale, fallback su add/update
-    transaction: PropTypes.object, // null per nuova, oggetto per modifica
+    onSubmit: PropTypes.func,
+    transaction: PropTypes.object,
   };
 
   const isEdit = !!transaction;
@@ -25,11 +32,9 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
   const { expenseCategories, incomeCategories } = useCategories();
   const notification = useNotification();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
-  // Stato form
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     type: transaction?.type || "expense",
     amount: transaction?.amount?.toString() || "",
@@ -38,18 +43,17 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
       ? (transaction.date instanceof Date
           ? transaction.date
           : transaction.date?.toDate?.() || new Date(transaction.date)
-        ).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0],
+        ).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0],
     category: transaction?.category || "",
   });
 
-  // Aggiorna categorie in base al tipo
   const updateCategories = useCallback(
     (type) => {
-      const categoryList = type === "expense" ? expenseCategories : incomeCategories;
-      setCategories(categoryList);
-      if (!formData.category || !categoryList.find(c => c.value === formData.category)) {
-        setFormData(prev => ({ ...prev, category: categoryList[0]?.value || "" }));
+      const list = type === "expense" ? expenseCategories : incomeCategories;
+      setCategories(list);
+      if (!formData.category || !list.find((c) => c.value === formData.category)) {
+        setFormData((prev) => ({ ...prev, category: list[0]?.value || "" }));
       }
     },
     [expenseCategories, incomeCategories, formData.category]
@@ -57,17 +61,15 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
 
   useEffect(() => {
     updateCategories(formData.type);
-    // eslint-disable-next-line
-  }, [formData.type, expenseCategories, incomeCategories]);
+  }, [formData.type, updateCategories]);
 
-  // Reset form quando la modale si apre (solo per nuova)
   useEffect(() => {
     if (show && !isEdit) {
       setFormData({
         type: "expense",
         amount: "",
         description: "",
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
         category: expenseCategories[0]?.value || "",
       });
     }
@@ -79,426 +81,161 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
         date: (transaction.date instanceof Date
           ? transaction.date
           : transaction.date?.toDate?.() || new Date(transaction.date)
-        ).toISOString().split('T')[0],
+        ).toISOString().split("T")[0],
         category: transaction.category,
       });
     }
-    // eslint-disable-next-line
-  }, [show, isEdit, transaction]);
+  }, [show, isEdit, transaction, expenseCategories]);
 
-  // Gestione submit
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      // Normalizza l'importo sostituendo la virgola con il punto
-      const normalizedAmount = formData.amount.replace(',', '.');
-      const amountValue = parseFloat(normalizedAmount);
-      
-      if (isNaN(amountValue) || amountValue <= 0) {
-        notification.error("Inserisci un importo valido");
-        setLoading(false);
-        return;
-      }
-
-      let success = false;
-      if (isEdit) {
-        success = await (onSubmit
-          ? onSubmit(formData)
-          : updateTransaction(transaction.id, {
-              type: formData.type,
-              amount: amountValue,
-              description: formData.description,
-              date: new Date(formData.date),
-              category: formData.category,
-            })
-        );
-      } else {
-        success = await (onSubmit
-          ? onSubmit(formData)
-          : addTransaction({
-              type: formData.type,
-              amount: amountValue,
-              description: formData.description,
-              date: new Date(formData.date),
-              category: formData.category,
-            })
-        );
-      }
-      if (success) {
-        onClose();
-      }
-    } catch {
-      notification.error("Errore nella transazione");
-    } finally {
-      setLoading(false);
+    e?.preventDefault();
+    const normalizedAmount = formData.amount.replace(",", ".");
+    const amountValue = parseFloat(normalizedAmount);
+    if (isNaN(amountValue) || amountValue <= 0) {
+      notification.error("Inserisci un importo valido");
+      return;
     }
+
+    let success = false;
+    if (isEdit) {
+      success = await (onSubmit
+        ? onSubmit(formData)
+        : updateTransaction(transaction.id, {
+            type: formData.type,
+            amount: amountValue,
+            description: formData.description,
+            date: new Date(formData.date),
+            category: formData.category,
+          }));
+    } else {
+      success = await (onSubmit
+        ? onSubmit(formData)
+        : addTransaction({
+            type: formData.type,
+            amount: amountValue,
+            description: formData.description,
+            date: new Date(formData.date),
+            category: formData.category,
+          }));
+    }
+    if (success) onClose();
   };
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleTypeChange = (type) => {
-    setFormData(prev => ({ ...prev, type }));
-    updateCategories(type);
-  };
-
-  if (!show) return null;
-
-  if (loading) {
-    // Skeleton ultra-minimal per la modale
-    return (
-      <Modal show={show} onHide={onClose} centered size="lg" backdrop={true} className="glass-modal">
-        <div className="p-4">
-          <div className="mb-3">
-            <Skeleton height={24} width={180} style={{ marginBottom: 12 }} />
-            <Skeleton height={18} width={120} />
-          </div>
-          <div className="mb-3">
-            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
-          </div>
-          <div className="mb-3">
-            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
-          </div>
-          <div className="mb-3">
-            <Skeleton height={40} width={"100%"} style={{ borderRadius: 12 }} />
-          </div>
-          <div className="d-flex justify-content-end gap-2 mt-4">
-            <Skeleton height={38} width={120} style={{ borderRadius: 20 }} />
-            <Skeleton height={38} width={180} style={{ borderRadius: 20 }} />
-          </div>
-        </div>
-      </Modal>
-    );
-  }
 
   return (
-    <Modal 
-      show={show} 
-      onHide={onClose} 
-      centered 
-      size="lg"
-      backdrop={true}
-      className="glass-modal"
-      style={{}}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98, y: 10 }}
-        transition={{ 
-          type: "spring", 
-          damping: 28, 
-          stiffness: 320,
-          duration: 0.32 
-        }}
-        style={{
-          background: document.documentElement.classList.contains('dark-theme')
-            ? 'rgba(30,41,59,0.98)'
-            : 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(32px)',
-          WebkitBackdropFilter: 'blur(32px)',
-          borderRadius: '28px',
-          border: document.documentElement.classList.contains('dark-theme')
-            ? '1.5px solid #334155'
-            : '1px solid #e5e7eb',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
-          width: 'auto',
-          maxHeight: '90vh',
-          overflow: 'hidden',
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        {/* Header */}
-        <div className="d-flex align-items-center justify-content-between p-4 pb-0 w-100">
-          <div>
-            <h3 className="fw-bold text-dark mb-1 d-flex align-items-center gap-3">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  background: "linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 197, 253, 0.15))",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(59, 130, 246, 0.2)"
-                }}
-              >
-                {isEdit ? "✏️" : "⚡"}
-              </div>
-              {isEdit ? t('transactionModal.editTitle') : t('transactionModal.newTitle')}
-            </h3>
-            <p className="text-muted mb-0 ms-5 ps-3" style={{ fontSize: "0.95rem" }}>
-              {isEdit
-                ? t('transactionModal.editSubtitle')
-                : t('transactionModal.newSubtitle')}
-            </p>
-          </div>
-          <Button
-            variant="link"
-            onClick={onClose}
-            className="p-0 d-flex align-items-center justify-content-center"
-            style={{ 
-              fontSize: "22px",
-              width: "44px",
-              height: "44px",
-              borderRadius: "16px",
-              background: 'var(--glass-bg, rgba(255,255,255,0.6))',
-              color: 'var(--text-primary, #222)',
-              border: "1px solid rgba(0, 0, 0, 0.08)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
-              e.currentTarget.style.color = "#dc3545";
-              e.currentTarget.style.transform = "scale(1.05)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--glass-bg, rgba(255,255,255,0.6))";
-              e.currentTarget.style.color = "var(--text-primary, #222)";
-              e.currentTarget.style.transform = "scale(1)";
-            }}
-          >
-            <span style={{ color: 'inherit', fontWeight: 700 }}>×</span>
-          </Button>
-        </div>
+    <Dialog open={show} onOpenChange={(open) => (!open ? onClose() : null)}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto bg-card/95 text-foreground border border-border shadow-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3 text-2xl">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              {isEdit ? "✏️" : "⚡"}
+            </span>
+            {isEdit ? t("transactionModal.editTitle") : t("transactionModal.newTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {isEdit ? t("transactionModal.editSubtitle") : t("transactionModal.newSubtitle")}
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Content */}
-        <div 
-          className="p-4 pt-3 w-100"
-          style={{
-            maxHeight: "calc(90vh - 120px)",
-            overflowY: "auto",
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(0,0,0,0.2) transparent"
-          }}
-        >
-          {/* Transaction Type Selector */}
-          <div className="mb-3">
-            <Form.Label className="fw-semibold text-dark mb-2 small">
-              {t('transactionModal.type')}
-            </Form.Label>
-            <div className="d-flex gap-2">
-              <Button
-                variant={formData.type === "expense" ? "danger" : "outline-danger"}
-                onClick={() => handleTypeChange("expense")}
-                className="flex-fill d-flex align-items-center justify-content-center gap-2 py-2"
-                style={{
-                  borderRadius: "12px",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                  background: formData.type === "expense" 
-                    ? "linear-gradient(135deg, var(--accent-error), #c82333)"
-                    : "rgba(255, 255, 255, 0.8)",
-                  border: formData.type === "expense" 
-                    ? "none" 
-                    : "2px solid var(--accent-error)"
-                }}
-              >
-                <FiTrendingDown size={16} />
-                {t('transactionModal.expense')}
-              </Button>
-              <Button
-                variant={formData.type === "income" ? "success" : "outline-success"}
-                onClick={() => handleTypeChange("income")}
-                className="flex-fill d-flex align-items-center justify-content-center gap-2 py-2"
-                style={{
-                  borderRadius: "12px",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                  background: formData.type === "income" 
-                    ? "linear-gradient(135deg, var(--accent-success), #157347)"
-                    : "rgba(255, 255, 255, 0.8)",
-                  border: formData.type === "income" 
-                    ? "none" 
-                    : "2px solid var(--accent-success)"
-                }}
-              >
-                <FiTrendingUp size={16} />
-                {t('transactionModal.income')}
-              </Button>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant={formData.type === "expense" ? "destructive" : "outline"}
+              className="w-full justify-center"
+              onClick={() => setFormData((prev) => ({ ...prev, type: "expense" }))}
+            >
+              <FiTrendingDown className="mr-2 h-4 w-4" />
+              {t("transactionModal.expense")}
+            </Button>
+            <Button
+              type="button"
+              variant={formData.type === "income" ? "default" : "outline"}
+              className="w-full justify-center"
+              onClick={() => setFormData((prev) => ({ ...prev, type: "income" }))}
+            >
+              <FiTrendingUp className="mr-2 h-4 w-4" />
+              {t("transactionModal.income")}
+            </Button>
           </div>
 
-          {/* Form */}
-          <Form onSubmit={handleSubmit}>
-            {/* Amount and Date Row */}
-            <Row className="mb-3">
-              <Col xs={isMobile ? 12 : 6} className={isMobile ? "mb-3" : ""}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-dark small mb-1">
-                    {t('transactionModal.amount')}
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    inputMode="decimal"
-                    placeholder={t('transactionModal.amountPlaceholder')}
-                    value={formData.amount}
-                    onChange={(e) => {
-                      // Permette solo numeri, virgola e punto
-                      const value = e.target.value;
-                      const sanitizedValue = value.replace(/[^0-9.,]/g, '');
-                      
-                      // Assicura che ci sia al massimo un separatore decimale
-                      const parts = sanitizedValue.split(/[,.]/);
-                      if (parts.length <= 2) {
-                        handleInputChange("amount", sanitizedValue);
-                      }
-                    }}
-                    onBlur={(e) => {
-                      // Converte la virgola in punto quando l'utente esce dal campo
-                      const value = e.target.value;
-                      if (value && value.includes(',')) {
-                        const normalizedValue = value.replace(',', '.');
-                        handleInputChange("amount", normalizedValue);
-                      }
-                    }}
-                    required
-                    className="border-0"
-                    style={{
-                      height: "46px",
-                      borderRadius: "14px",
-                      fontSize: "15px",
-                      background: "rgba(255, 255, 255, 0.85)",
-                      border: "1px solid rgba(0, 0, 0, 0.1)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                      fontWeight: "500"
-                    }}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={isMobile ? 12 : 6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold text-dark small mb-1">
-                    {t('transactionModal.date')}
-                  </Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange("date", e.target.value)}
-                    required
-                    className="border-0"
-                    style={{
-                      height: "46px",
-                      borderRadius: "14px",
-                      fontSize: "15px",
-                      background: "rgba(255, 255, 255, 0.85)",
-                      border: "1px solid rgba(0, 0, 0, 0.1)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                      fontWeight: "500"
-                    }}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Description */}
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold text-dark small mb-1">
-                {t('transactionModal.description')}
-              </Form.Label>
-              <Form.Control
+          <div className={`grid gap-4 ${isMobile ? "" : "grid-cols-2"}`}>
+            <div className="space-y-2">
+              <Label>{t("transactionModal.amount")}</Label>
+              <Input
                 type="text"
-                placeholder={t('transactionModal.descriptionPlaceholder')}
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                required
-                className="border-0"
-                style={{
-                  height: "46px",
-                  borderRadius: "14px",
-                  fontSize: "15px",
-                  background: "rgba(255, 255, 255, 0.85)",
-                  border: "1px solid rgba(0, 0, 0, 0.1)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                  fontWeight: "500"
+                inputMode="decimal"
+                placeholder={t("transactionModal.amountPlaceholder")}
+                value={formData.amount}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.,]/g, "");
+                  const parts = value.split(/[,.]/);
+                  if (parts.length <= 2) setFormData((prev) => ({ ...prev, amount: value }));
                 }}
+                onBlur={(e) => {
+                  const value = e.target.value;
+                  if (value && value.includes(",")) {
+                    const normalizedValue = value.replace(",", ".");
+                    setFormData((prev) => ({ ...prev, amount: normalizedValue }));
+                  }
+                }}
+                required
               />
-            </Form.Group>
-
-            {/* Category Select */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark small mb-2">
-                {t('transactionModal.category')}
-              </Form.Label>
-              <Form.Select
-                value={formData.category}
-                onChange={(e) => handleInputChange("category", e.target.value)}
-                required
-                className="border-0"
-                style={{
-                  height: "46px",
-                  borderRadius: "14px",
-                  fontSize: "15px",
-                  background: "rgba(255, 255, 255, 0.85)",
-                  border: "1px solid rgba(0, 0, 0, 0.1)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                  fontWeight: "500"
-                }}
-              >
-                <option value="">{t('transactionModal.selectCategory')}</option>
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            {/* Action Buttons */}
-            <div className="d-flex gap-2">
-              <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={onClose}
-                className="flex-fill py-2"
-                style={{
-                  borderRadius: "12px",
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  background: "rgba(255, 255, 255, 0.9)",
-                  border: "1px solid rgba(0, 0, 0, 0.15)"
-                }}
-              >
-                {t('transactionModal.cancel')}
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading || !formData.amount || !formData.description || !formData.category}
-                className="flex-fill border-0 fw-semibold py-2"
-                style={{
-                  borderRadius: "12px",
-                  fontSize: "14px",
-                  background: formData.type === "expense" 
-                    ? "linear-gradient(135deg, var(--accent-error), #c82333)"
-                    : "linear-gradient(135deg, var(--accent-success), #157347)",
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.15)"
-                }}
-              >
-                {loading ? (
-                  <div className="d-flex align-items-center justify-content-center">
-                    <div className="spinner-border spinner-border-sm me-1" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    {isEdit ? t('transactionModal.saving') : t('transactionModal.adding')}
-                  </div>
-                ) : (
-                  <div className="d-flex align-items-center justify-content-center gap-1">
-                    {isEdit ? <FiSave size={16} /> : <FiPlus size={16} />}
-                    {isEdit ? t('transactionModal.saveChanges') : t('transactionModal.addButton', { type: formData.type === "expense" ? t('transactionModal.expense') : t('transactionModal.income') })}
-                  </div>
-                )}
-              </Button>
             </div>
-          </Form>
-        </div>
-      </motion.div>
-    </Modal>
+            <div className="space-y-2">
+              <Label>{t("transactionModal.date")}</Label>
+              <Input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t("transactionModal.description")}</Label>
+            <Input
+              type="text"
+              placeholder={t("transactionModal.descriptionPlaceholder")}
+              value={formData.description}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t("transactionModal.category")}</Label>
+            <Select
+              value={formData.category}
+              onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+              required
+            >
+              <option value="">{t("transactionModal.selectCategory")}</option>
+              {categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              {t("transactionModal.cancel")}
+            </Button>
+            <Button
+              type="submit"
+              className="gap-2"
+              disabled={!formData.amount || !formData.description || !formData.category}
+            >
+              {isEdit ? <FiSave className="h-4 w-4" /> : <FiPlus className="h-4 w-4" />}
+              {isEdit ? t("transactionModal.saveChanges") : t("transactionModal.addButton", { type: formData.type === "expense" ? t("transactionModal.expense") : t("transactionModal.income") })}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default TransactionModal; 
+export default TransactionModal;

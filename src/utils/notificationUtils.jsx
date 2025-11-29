@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
-import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { createContext, useContext, useState, useCallback } from "react";
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 
 const NotificationContext = createContext();
 
@@ -15,86 +14,66 @@ export const NotificationProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const { t } = useTranslation();
 
-  const addToast = useCallback((message, type = 'info', duration = 4000) => {
+  const addToast = useCallback((message, type = "info", duration = 4000) => {
     const id = Date.now() + Math.random();
     const toast = { id, message, type, duration };
-    
-    setToasts(prev => [...prev, toast]);
-    
-    // Auto-remove toast after duration
+    setToasts((prev) => [...prev, toast]);
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
+      setToasts((prev) => prev.filter((t) => t.id !== id));
     }, duration);
   }, []);
 
   const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const success = useCallback((message) => addToast(message, 'success'), [addToast]);
-  const error = useCallback((message) => addToast(message, 'danger'), [addToast]);
-  const warning = useCallback((message) => addToast(message, 'warning'), [addToast]);
-  const info = useCallback((message) => addToast(message, 'info'), [addToast]);
+  const success = useCallback((message) => addToast(message, "success"), [addToast]);
+  const error = useCallback((message) => addToast(message, "danger"), [addToast]);
+  const warning = useCallback((message) => addToast(message, "warning"), [addToast]);
+  const info = useCallback((message) => addToast(message, "info"), [addToast]);
 
-  const getToastIcon = (type) => {
+  const getToastStyles = (type) => {
     switch (type) {
-      case 'success': return '✅';
-      case 'danger': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return 'ℹ️';
+      case "success":
+        return "border-emerald-500/40 bg-emerald-500/15 text-emerald-900 dark:text-emerald-100";
+      case "danger":
+        return "border-rose-500/40 bg-rose-500/15 text-rose-900 dark:text-rose-100";
+      case "warning":
+        return "border-amber-500/40 bg-amber-500/20 text-amber-900 dark:text-amber-100";
+      default:
+        return "border-border bg-card text-foreground";
     }
   };
 
   return (
     <NotificationContext.Provider value={{ success, error, warning, info, addToast }}>
       {children}
-      
-      {/* Toast Container */}
-      <ToastContainer 
-        position="top-end" 
-        className="p-3"
-        style={{ 
-          zIndex: 9999,
-          top: '80px' // Below navbar
-        }}
-      >
+      <div className="fixed right-4 top-20 z-50 flex w-80 max-w-[90vw] flex-col gap-2">
         {toasts.map((toast) => (
-          <Toast
+          <div
             key={toast.id}
-            onClose={() => removeToast(toast.id)}
-            show={true}
-            delay={toast.duration}
-            autohide
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(15px)',
-              border: '1px solid rgba(0, 0, 0, 0.1)',
-              borderRadius: '12px',
-              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-            }}
+            className={`rounded-xl border px-4 py-3 shadow-lg backdrop-blur ${getToastStyles(toast.type)}`}
           >
-            <Toast.Header
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                paddingBottom: '8px',
-              }}
-            >
-              <span className="me-2">{getToastIcon(toast.type)}</span>
-              <strong className="me-auto">
-                {toast.type === 'success' && t('notifications.success')}
-                {toast.type === 'danger' && t('notifications.error')}
-                {toast.type === 'warning' && t('notifications.warning')}
-                {toast.type === 'info' && t('notifications.info')}
-              </strong>
-            </Toast.Header>
-            <Toast.Body style={{ paddingTop: 0 }}>
-              {toast.message}
-            </Toast.Body>
-          </Toast>
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1 text-sm">
+                <div className="font-semibold">
+                  {toast.type === "success" && t("notifications.success")}
+                  {toast.type === "danger" && t("notifications.error")}
+                  {toast.type === "warning" && t("notifications.warning")}
+                  {toast.type === "info" && t("notifications.info")}
+                </div>
+                <div>{toast.message}</div>
+              </div>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         ))}
-      </ToastContainer>
+      </div>
     </NotificationContext.Provider>
   );
-}; 
+};

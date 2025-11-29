@@ -7,33 +7,33 @@ import { useTranslation } from 'react-i18next';
 export const useCategories = () => {
   const { t } = useTranslation();
 
-  // Definiamo le categorie delle spese - ordinate per frequenza d'uso
+  // Categorie spese: priorità quotidiana
   const expenseCategories = useMemo(
     () => [
-      { value: "alimentazione", label: `🍕 ${t('categories.alimentazione')}` },
       { value: "supermercato", label: `🛒 ${t('categories.supermercato')}` },
+      { value: "alimentazione", label: `🍕 ${t('categories.alimentazione')}` },
       { value: "trasporti", label: `🚗 ${t('categories.trasporti')}` },
       { value: "casa", label: `🏠 ${t('categories.casa')}` },
-      { value: "intrattenimento", label: `🎬 ${t('categories.intrattenimento')}` },
       { value: "abbonamenti", label: `📱 ${t('categories.abbonamenti')}` },
-      { value: "salute", label: `⚕️ ${t('categories.salute')}` },
-      { value: "viaggi", label: `✈️ ${t('categories.viaggi')}` },
       { value: "shopping", label: `🛍️ ${t('categories.shopping')}` },
+      { value: "salute", label: `⚕️ ${t('categories.salute')}` },
+      { value: "intrattenimento", label: `🎬 ${t('categories.intrattenimento')}` },
+      { value: "viaggi", label: `✈️ ${t('categories.viaggi')}` },
       { value: "altro", label: `📋 ${t('categories.altro')}` },
     ],
     [t]
   );
 
-  // Definiamo le categorie degli introiti - ordinate per frequenza d'uso
+  // Categorie introiti: priorità stipendio/freelance
   const incomeCategories = useMemo(
     () => [
       { value: "stipendio", label: `💼 ${t('categories.stipendio')}` },
+      { value: "freelance", label: `💻 ${t('categories.freelance')}` },
       { value: "bonus", label: `🎯 ${t('categories.bonus')}` },
-      { value: "regalo", label: `🎁 ${t('categories.regalo')}` },
       { value: "vendite", label: `💰 ${t('categories.vendite')}` },
       { value: "rimborso", label: `↩️ ${t('categories.rimborso')}` },
-      { value: "freelance", label: `💻 ${t('categories.freelance')}` },
       { value: "investimenti", label: `📈 ${t('categories.investimenti')}` },
+      { value: "regalo", label: `🎁 ${t('categories.regalo')}` },
       { value: "altro", label: `📋 ${t('categories.altro')}` },
     ],
     [t]

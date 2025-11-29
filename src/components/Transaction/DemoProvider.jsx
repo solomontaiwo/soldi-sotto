@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import { useNotification } from "../../utils/notificationUtils";
 import PropTypes from "prop-types";
@@ -16,13 +17,15 @@ export const useDemo = () => useContext(DemoContext);
 const DEMO_STORAGE_KEY = "soldi-sotto-demo-transactions";
 const MAX_DEMO_TRANSACTIONS = 10;
 
-export const DemoProvider = ({ children }) => {
+export const DemoProvider = ({ children, seedOnMount = false }) => {
   DemoProvider.propTypes = {
     children: PropTypes.node.isRequired,
+    seedOnMount: PropTypes.bool,
   };
 
   const [demoTransactions, setDemoTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const hasSeededRef = useRef(false);
   const notification = useNotification();
   const { t } = useTranslation();
 
@@ -116,11 +119,12 @@ export const DemoProvider = ({ children }) => {
 
   // Statistiche demo
   const getDemoStats = useCallback(() => {
-    const totalIncome = demoTransactions
+    const counted = demoTransactions.filter(t => !t.isSample);
+    const totalIncome = counted
       .filter(t => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
     
-    const totalExpense = demoTransactions
+    const totalExpense = counted
       .filter(t => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
@@ -128,15 +132,11 @@ export const DemoProvider = ({ children }) => {
       totalIncome,
       totalExpense,
       balance: totalIncome - totalExpense,
-      transactionCount: demoTransactions.length,
+      transactionCount: counted.length,
       maxTransactions: MAX_DEMO_TRANSACTIONS,
       canAddMore: canAddMoreTransactions,
     };
   }, [demoTransactions, canAddMoreTransactions]);
-
-  useEffect(() => {
-    loadDemoTransactions();
-  }, [loadDemoTransactions]);
 
   // Genera alcune transazioni demo se non ce ne sono
   const generateSampleTransactions = useCallback(() => {
@@ -149,6 +149,7 @@ export const DemoProvider = ({ children }) => {
         date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
         category: "stipendio",
         createdAt: new Date(),
+        isSample: true,
       },
       {
         id: "demo-2",
@@ -158,6 +159,7 @@ export const DemoProvider = ({ children }) => {
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         category: "supermercato",
         createdAt: new Date(),
+        isSample: true,
       },
       {
         id: "demo-3",
@@ -167,6 +169,7 @@ export const DemoProvider = ({ children }) => {
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
         category: "trasporti",
         createdAt: new Date(),
+        isSample: true,
       },
     ];
 
@@ -174,6 +177,20 @@ export const DemoProvider = ({ children }) => {
     saveDemoTransactions(sampleTransactions);
     notification.info(t('demo.sampleTransactionsAdded'));
   }, [saveDemoTransactions, notification, t]);
+
+  useEffect(() => {
+    loadDemoTransactions();
+  }, [loadDemoTransactions]);
+
+  // Se la demo è stata appena attivata e non ci sono transazioni, genera sample
+  useEffect(() => {
+    if (seedOnMount && !hasSeededRef.current) {
+      if (demoTransactions.length === 0) {
+        generateSampleTransactions();
+      }
+      hasSeededRef.current = true;
+    }
+  }, [seedOnMount, demoTransactions.length, generateSampleTransactions]);
 
   return (
     <DemoContext.Provider

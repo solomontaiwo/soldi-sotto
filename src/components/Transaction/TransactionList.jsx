@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useUnifiedTransactions } from "./UnifiedTransactionProvider";
 import { useAuth } from "../Auth/AuthProvider";
-import { Button, Alert, Form } from "react-bootstrap";
 import TransactionModal from "./TransactionModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  format, 
-  isToday, 
+import {
+  format,
+  isToday,
   isYesterday,
   startOfMonth,
   endOfMonth,
@@ -19,36 +18,32 @@ import {
 } from "date-fns";
 import { useMediaQuery } from "react-responsive";
 import formatCurrency from "../../utils/formatCurrency";
-import { 
-  FiPlus, 
-  FiTrash2, 
-  FiFilter, 
-  FiSearch,
-  FiEdit2,
-} from "react-icons/fi";
+import { FiPlus, FiTrash2, FiFilter, FiSearch, FiEdit2 } from "react-icons/fi";
 import { useCategories } from "../../utils/categories";
-import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import 'dayjs/locale/it';
-import 'dayjs/locale/en';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+import "dayjs/locale/it";
+import "dayjs/locale/en";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Select } from "../ui/select";
+import { Badge } from "../ui/badge";
 
-// TransactionList component: displays the list of transactions grouped by date
-// Handles filtering, searching, and deletion of transactions
 const TransactionList = () => {
   const { currentUser, loading: authLoading } = useAuth();
-  const { 
-    transactions, 
+  const {
+    transactions,
     loading: transactionsLoading,
     deleteTransaction,
     isDemo,
     canAddMoreTransactions,
-    maxTransactions
+    maxTransactions,
   } = useUnifiedTransactions();
-  
+
   const { expenseCategories, incomeCategories } = useCategories();
-  
+
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [editTransaction, setEditTransaction] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -64,8 +59,7 @@ const TransactionList = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const loading = authLoading || transactionsLoading;
 
-  // Frasi motivazionali a rotazione
-  const motivationalQuotes = useMemo(() => t('dashboard.motivationalQuotes', { returnObjects: true }), [t]);
+  const motivationalQuotes = useMemo(() => t("dashboard.motivationalQuotes", { returnObjects: true }), [t]);
   const [quote, setQuote] = useState("");
   useEffect(() => {
     if (motivationalQuotes && motivationalQuotes.length > 0) {
@@ -73,12 +67,11 @@ const TransactionList = () => {
     }
   }, [motivationalQuotes]);
 
-  // Utility functions for date formatting and category lookup
   const formatGroupDate = (date) => {
-    const lang = i18n.language || 'it';
-    if (isToday(date)) return t('transactions.today');
-    if (isYesterday(date)) return t('transactions.yesterday');
-    return dayjs(date).locale(lang).format(lang === 'it' ? 'DD MMMM YYYY' : 'MMM DD, YYYY');
+    const lang = i18n.language || "it";
+    if (isToday(date)) return t("transactions.today");
+    if (isYesterday(date)) return t("transactions.yesterday");
+    return dayjs(date).locale(lang).format(lang === "it" ? "DD MMMM YYYY" : "MMM DD, YYYY");
   };
 
   const getTransactionDate = (transaction) => {
@@ -95,45 +88,39 @@ const TransactionList = () => {
 
   const groupTransactionsByDate = (transactions) => {
     const groups = {};
-    
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       const date = getTransactionDate(transaction);
-      const dateKey = format(date, 'yyyy-MM-dd');
-      
+      const dateKey = format(date, "yyyy-MM-dd");
       if (!groups[dateKey]) {
         groups[dateKey] = {
-          date: date,
+          date,
           displayDate: formatGroupDate(date),
-          transactions: []
+          transactions: [],
         };
       }
-      
       groups[dateKey].transactions.push(transaction);
     });
-
-    // Convert to array and sort by date (newest first)
     return Object.values(groups).sort((a, b) => b.date - a.date);
   };
 
   const getCategoryEmoji = (category) => {
     const allCategories = [...expenseCategories, ...incomeCategories];
-    const categoryData = allCategories.find(c => c.value === category);
+    const categoryData = allCategories.find((c) => c.value === category);
     return categoryData ? categoryData.label.split(" ")[0] : "💸";
   };
 
   const getCategoryLabel = (category) => {
     const allCategories = [...expenseCategories, ...incomeCategories];
-    const categoryData = allCategories.find(c => c.value === category);
+    const categoryData = allCategories.find((c) => c.value === category);
     return categoryData ? categoryData.label : category;
   };
 
-  // Filter and search logic
   useEffect(() => {
-    if (transactions.length > 0) {
+    const usableTransactions = transactions.filter((t) => !t.isSample);
+    if (usableTransactions.length > 0) {
       const today = new Date();
       let startDate, endDate;
 
-      // Period filter
       switch (period) {
         case "weekly":
           startDate = startOfWeek(today, { weekStartsOn: 1 });
@@ -158,84 +145,55 @@ const TransactionList = () => {
           break;
       }
 
-      let filtered = transactions.filter((transaction) => {
+      let filtered = usableTransactions.filter((transaction) => {
         const transactionDate = getTransactionDate(transaction);
         const inDateRange = transactionDate >= startDate && transactionDate <= endDate;
-        
-        // Search filter
-        const matchesSearch = searchTerm === "" || 
+        const matchesSearch =
+          searchTerm === "" ||
           transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
           transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        // Category filter
         const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory;
-        
-        // Type filter
         const matchesType = selectedType === "all" || transaction.type === selectedType;
-        
         return inDateRange && matchesSearch && matchesCategory && matchesType;
       });
 
-      // Sort by date (newest first)
       filtered.sort((a, b) => getTransactionDate(b) - getTransactionDate(a));
-      
       setFilteredTransactions(filtered);
     }
   }, [transactions, period, searchTerm, selectedCategory, selectedType]);
 
-  // Handler for deleting a transaction (shows confirmation dialog)
   const handleDeleteClick = useCallback(async (transactionId) => {
     setDeleteConfirm(transactionId);
   }, []);
 
-  // Handler for confirming deletion of a transaction
   const confirmDelete = useCallback(async () => {
     if (deleteConfirm) {
       const success = await deleteTransaction(deleteConfirm);
-      if (success) {
-        setDeleteConfirm(null);
-      }
+      if (success) setDeleteConfirm(null);
     }
   }, [deleteConfirm, deleteTransaction]);
 
-  // Get unique categories from transactions
-  const categories = [...new Set(transactions.map(t => t.category))];
+  const categories = [...new Set(transactions.filter((t) => !t.isSample).map((t) => t.category))];
 
   const periodOptions = [
-    { value: "daily", label: t('transactions.filters.today') },
-    { value: "weekly", label: t('transactions.filters.week') },
-    { value: "monthly", label: t('transactions.filters.month') },
-    { value: "annually", label: t('transactions.filters.year') },
-    { value: "all", label: t('transactions.filters.all') }
+    { value: "daily", label: t("transactions.filters.today") },
+    { value: "weekly", label: t("transactions.filters.week") },
+    { value: "monthly", label: t("transactions.filters.month") },
+    { value: "annually", label: t("transactions.filters.year") },
+    { value: "all", label: t("transactions.filters.all") },
   ];
 
   if (loading) {
-    // Skeleton ultra-minimal per 6 gruppi (giorni)
     return (
-      <div className="container mt-4">
-        {[...Array(6)].map((_, groupIdx) => (
-          <div key={groupIdx} className="mb-5">
-            <div className="d-flex align-items-center gap-3 mb-3">
-              <div className="flex-grow-1" style={{ height: "2px", background: 'rgba(0, 0, 0, 0.1)', borderRadius: '1px' }} />
-              <span className="fw-medium px-3 py-1 timeline-date-badge" style={{ background: 'rgba(255,255,255,0.65)', color: 'var(--timeline-date-color, var(--text-secondary))', borderRadius: '1rem', fontSize: '0.875rem', border: '1px solid var(--timeline-date-border, rgba(0,0,0,0.08))', backdropFilter: 'blur(8px)' }}>
-                <Skeleton width={90} height={18} />
-              </span>
-              <div className="flex-grow-1" style={{ height: "2px", background: 'rgba(0, 0, 0, 0.1)', borderRadius: '1px' }} />
-            </div>
-            <div className="d-flex flex-column gap-3">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 transaction-card" style={{ background: "rgba(255,255,255,0.95)", minHeight: 60 }}>
-                  <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
-                    <Skeleton circle width={40} height={40} style={{ marginRight: 16 }} />
-                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                      <Skeleton height={16} width={120} style={{ marginBottom: 6 }} />
-                      <Skeleton height={12} width={80} />
-                    </div>
-                  </div>
-                  <Skeleton height={18} width={60} />
-                </div>
-              ))}
-            </div>
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton height={120} borderRadius={16} />
+          <Skeleton height={120} borderRadius={16} />
+        </div>
+        {[...Array(4)].map((_, idx) => (
+          <div key={idx} className="space-y-3">
+            <Skeleton width={140} height={20} />
+            <Skeleton height={72} borderRadius={18} />
           </div>
         ))}
       </div>
@@ -244,13 +202,10 @@ const TransactionList = () => {
 
   if (!currentUser && !isDemo) {
     return (
-      <div 
-        className="min-vh-100 d-flex align-items-center justify-content-center"
-        style={{ background: 'var(--gradient-soft-blue)' }}
-      >
-        <div className="text-center">
-          <h2 className="display-6 text-dark mb-3">{t('transactions.accessRequired')}</h2>
-          <p className="lead text-muted">{t('transactions.loginRequired')}</p>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-semibold">{t("transactions.accessRequired")}</h2>
+          <p className="text-muted-foreground">{t("transactions.loginRequired")}</p>
         </div>
       </div>
     );
@@ -259,536 +214,197 @@ const TransactionList = () => {
   const groupedTransactions = groupTransactionsByDate(filteredTransactions);
 
   return (
-    <div
-      className="min-vh-100"
-      style={{
-        background: 'transparent',
-        overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch',
-        margin: '-24px 0 0 0',
-        padding: 0
-      }}
-    >
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="position-sticky"
-        style={{
-          top: '0',
-          backgroundColor: "rgba(255, 255, 255, 0.85)",
-          backdropFilter: "blur(25px)",
-          WebkitBackdropFilter: "blur(25px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-          boxShadow: "0 1px 20px rgba(0, 0, 0, 0.08)",
-          zIndex: 1020,
-          padding: isMobile ? "12px 1rem" : "14px 2rem"
-        }}
-      >
-        <div className="container">
-          {/* Title and Stats */}
-          <div className="d-flex align-items-center justify-content-between mb-2">
-            <div>
-              <h1 className={`fw-bold text-dark mb-1 ${isMobile ? "h5" : "h3"}`}>
-                💳 {t('transactions.title')}
-              </h1>
-              <div className="text-primary fw-medium mb-1" style={{ fontSize: isMobile ? '0.9rem' : '1rem', opacity: 0.85 }}>
-                <span style={{ fontStyle: 'italic' }}>{quote}</span>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <span style={{ fontSize: '1rem', color: '#6c757d', fontWeight: 400, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {filteredTransactions.length}
-                  <span style={{ margin: '0 2px' }}>{t('of')}</span>
-                  {transactions.length}
-                </span>
-              </div>
+    <div className="page-shell pt-0">
+      <div className="sticky top-16 md:top-20 z-20 rounded-2xl border border-border bg-card/90 backdrop-blur-md p-4 shadow-md">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              💳 {t("transactions.title")}
+            </h1>
+            <div className="text-primary text-sm italic">{quote}</div>
+            <div className="text-sm text-muted-foreground">
+              {filteredTransactions.length} {t("of")} {transactions.length}
             </div>
-            
-            {/* Add Button */}
-            <Button
-              variant="primary"
-              size={isMobile ? "sm" : "md"}
-              onClick={() => setShowModal(true)}
-              disabled={isDemo && !canAddMoreTransactions}
-              className="d-flex align-items-center gap-1"
-              style={{
-                background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
-                borderColor: 'var(--primary-500)',
-                borderRadius: '1.5rem',
-                padding: isMobile ? '8px 16px' : '12px 20px',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}
-            >
-              <FiPlus size={isMobile ? 16 : 18} />
-              {!isMobile && <span>{t('addTransaction')}</span>}
-            </Button>
           </div>
+          <Button
+            onClick={() => setShowModal(true)}
+            disabled={isDemo && !canAddMoreTransactions}
+            className="gap-2"
+          >
+            <FiPlus />
+            {!isMobile && t("addTransaction")}
+          </Button>
+        </div>
 
-          {/* Search Bar */}
-          <div className="position-relative mb-2">
-            <FiSearch 
-              className="position-absolute top-50 start-0 translate-middle-y text-muted ms-3" 
-              size={18} 
-            />
-            <Form.Control
-              type="text"
-              className="ps-5 border-0"
-              placeholder={t('searchTransactions')}
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="relative">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-10"
+              placeholder={t("searchTransactions")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ 
-                borderRadius: "1.5rem",
-                padding: isMobile ? "12px 16px 12px 48px" : "14px 16px 14px 48px",
-                background: 'rgba(255, 255, 255, 0.75)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-              }}
             />
           </div>
-
-          {/* Filters Row */}
-          <div className={`d-flex gap-2 mb-2 ${isMobile ? 'flex-column' : 'flex-row'}`}>
-            <Form.Select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="border-0"
-              style={{ 
-                borderRadius: "0.75rem",
-                fontSize: isMobile ? "14px" : "16px",
-                flex: isMobile ? "none" : "1",
-                marginBottom: isMobile ? "8px" : "0",
-                background: 'rgba(255, 255, 255, 0.75)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-              }}
-            >
-              {periodOptions.map(option => (
+          <div className="flex flex-col gap-2 md:flex-row">
+            <Select value={period} onChange={(e) => setPeriod(e.target.value)} className="md:flex-1">
+              {periodOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
-            </Form.Select>
-
+            </Select>
             <Button
-              variant={showFilters ? "primary" : "outline-secondary"}
+              variant={showFilters ? "default" : "outline"}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="d-flex align-items-center gap-1 px-3"
-              style={{ 
-                borderRadius: "0.75rem",
-                background: showFilters 
-                  ? 'linear-gradient(135deg, var(--primary-500), var(--primary-600))' 
-                  : 'rgba(255, 255, 255, 0.75)',
-                borderColor: showFilters ? 'var(--primary-500)' : 'rgba(255, 255, 255, 0.3)',
-                color: showFilters ? 'white' : 'var(--text-secondary)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                minWidth: isMobile ? "100%" : "auto"
-              }}
+              className="w-full md:w-auto gap-2"
             >
-              <FiFilter size={16} />
-              {!isMobile && t('transactions.filters.label')}
-              {isMobile && (showFilters ? t('transactions.filters.hide') : t('transactions.filters.show'))}
+              <FiFilter />
+              {showFilters ? t("transactions.filters.hide") : t("transactions.filters.show")}
             </Button>
           </div>
 
-          {/* Demo Alert */}
           {isDemo && (
-            <Alert variant="info" className="mb-0 border-0 small" style={{
-              background: 'rgba(255, 255, 255, 0.6)',
-              color: 'var(--text-secondary)',
-              borderRadius: "1.5rem",
-              padding: isMobile ? "8px 12px" : "12px 16px",
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)'
-            }}>
-              <div className="d-flex align-items-center gap-2">
-                <span>🎯</span>
-                <span>
-                  <strong>{t('transactions.demoMode')}</strong> - {transactions.length}/{maxTransactions} {t('transactions.transactions')}
-                </span>
-              </div>
-            </Alert>
+            <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary flex items-center gap-2">
+              <Badge variant="secondary">{transactions.length}/{maxTransactions}</Badge>
+              <span>{t("transactions.demoMode")}</span>
+            </div>
           )}
 
-          {/* Extended Filters */}
           <AnimatePresence>
             {showFilters && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-3"
+                className="grid gap-3 md:grid-cols-2"
               >
-                <div className={`${isMobile ? 'd-flex flex-column gap-2' : 'row g-2'}`}>
-                  <div className={isMobile ? 'w-100' : 'col-6'}>
-                    <Form.Select
-                      value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value)}
-                      className="border-0 small"
-                      style={{ 
-                        borderRadius: "0.75rem",
-                        background: 'rgba(255, 255, 255, 0.75)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      <option value="all">{t('transactions.filters.allTypes')}</option>
-                      <option value="income">{t('income')}</option>
-                      <option value="expense">{t('expense')}</option>
-                    </Form.Select>
-                  </div>
-                  <div className={isMobile ? 'w-100' : 'col-6'}>
-                    <Form.Select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="border-0 small"
-                      style={{ 
-                        borderRadius: "0.75rem",
-                        background: 'rgba(255, 255, 255, 0.75)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      <option value="all">Categorie</option>
-                      {categories.map(category => (
-                        <option key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </div>
-                </div>
+                <Select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+                  <option value="all">{t("transactions.filters.allTypes")}</option>
+                  <option value="income">{t("income")}</option>
+                  <option value="expense">{t("expense")}</option>
+                </Select>
+                <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                  <option value="all">Categorie</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
+                </Select>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Transaction Timeline */}
-      <div
-        style={{
-          paddingBottom: isMobile ? "80px" : "24px",
-          paddingTop: "12px",
-          paddingLeft: isMobile ? "1rem" : "2rem",
-          paddingRight: isMobile ? "1rem" : "2rem"
-        }}
-      >
+      <div className="space-y-6 pb-12 pt-0">
         {groupedTransactions.length > 0 ? (
-          <div className="mt-0">
-            <AnimatePresence>
-              {groupedTransactions.map((group, groupIndex) => (
-                <motion.div
-                  key={group.date.toISOString()}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: groupIndex * 0.1 }}
-                  className="mb-4"
-                >
-                  {/* Date Header */}
-                  <div className="d-flex align-items-center gap-3 mb-2">
-                    <div 
-                      className="flex-grow-1" 
-                      style={{ 
-                        height: "2px", 
-                        background: 'rgba(0, 0, 0, 0.1)',
-                        borderRadius: '1px'
-                      }} 
-                    />
-                    <span 
-                      className="fw-medium px-3 py-1 timeline-date-badge"
-                      style={{
-                        background: 'var(--timeline-date-bg, rgba(255,255,255,0.65))',
-                        color: 'var(--timeline-date-color, var(--text-secondary))',
-                        borderRadius: '1rem',
-                        fontSize: '0.875rem',
-                        border: '1px solid var(--timeline-date-border, rgba(0,0,0,0.08))',
-                        backdropFilter: 'blur(8px)'
-                      }}
-                    >
-                      {group.displayDate}
-                    </span>
-                    <div 
-                      className="flex-grow-1" 
-                      style={{ 
-                        height: "2px", 
-                        background: 'rgba(0, 0, 0, 0.1)',
-                        borderRadius: '1px'
-                      }} 
-                    />
-                  </div>
-
-                  {/* Transactions for this date */}
-                  <div className="d-flex flex-column gap-2">
-                    {group.transactions.map((transaction, index) => (
-                      <motion.div
-                        key={transaction.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="d-flex align-items-center justify-content-between p-3 rounded-3 transaction-card"
-                        style={{
-                          background: "rgba(255, 255, 255, 0.95)",
-                          backdropFilter: "blur(10px)",
-                          WebkitBackdropFilter: "blur(10px)",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          minHeight: isMobile ? "70px" : "60px"
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 1)";
-                          e.currentTarget.style.transform = "translateX(4px)";
-                          e.currentTarget.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.95)";
-                          e.currentTarget.style.transform = "translateX(0)";
-                          e.currentTarget.style.boxShadow = "";
-                        }}
-                      >
-                        {/* Left: Icon and Info */}
-                        <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
-                          <div
-                            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                            style={{
-                              width: isMobile ? "44px" : "40px",
-                              height: isMobile ? "44px" : "40px",
-                              backgroundColor: transaction.type === "income" 
-                                ? "rgba(34, 197, 94, 0.15)" 
-                                : "rgba(239, 68, 68, 0.15)",
-                              color: transaction.type === "income" ? "#22c55e" : "#ef4444",
-                              fontSize: isMobile ? "18px" : "16px"
-                            }}
-                          >
-                            {transaction.type === "income" ? "💰" : getCategoryEmoji(transaction.category)}
-                          </div>
-                          
-                          {isMobile ? (
-                            // Mobile: Card minimal, dati su una colonna
-                            <div className="d-flex flex-column w-100" style={{ gap: '2px' }}>
-                              {/* Nome transazione */}
-                              <div
-                                className="fw-semibold text-dark"
-                                style={{
-                                  fontSize: "16px",
-                                  lineHeight: "1.3",
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                  wordBreak: "break-word",
-                                  marginBottom: "2px"
-                                }}
-                              >
-                                {transaction.description}
-                              </div>
-                              {/* Categoria + data */}
-                              <div className="text-muted small d-flex align-items-center justify-content-between" style={{ fontSize: "12px", marginBottom: '6px' }}>
-                                <span>{getCategoryLabel(transaction.category)}</span>
-                                <span style={{fontSize: '11px', opacity: 0.7}}>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'DD MMM YYYY' : 'MMM DD, YYYY')}</span>
-                              </div>
-                              {/* Importo e azioni */}
-                              <div className="d-flex align-items-end justify-content-between mt-1">
-                                <div className="fw-bold" style={{
-                                  fontSize: "17px",
-                                  color: transaction.type === "income" ? "#22c55e" : "#ef4444",
-                                  lineHeight: "1.2"
-                                }}>
-                                  {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount)}
-                                </div>
-                                <div className="d-flex align-items-center gap-1">
-                                  <Button
-                                    variant="link"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditTransaction(transaction);
-                                    }}
-                                    className="text-info p-1 d-flex align-items-center justify-content-center"
-                                    style={{
-                                      width: "26px",
-                                      height: "26px",
-                                      borderRadius: "7px",
-                                      backgroundColor: "rgba(13, 202, 240, 0.08)",
-                                      border: "1px solid rgba(13, 202, 240, 0.13)"
-                                    }}
-                                  >
-                                    <FiEdit2 size={12} />
-                                  </Button>
-                                  <Button
-                                    variant="link"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteClick(transaction.id);
-                                    }}
-                                    className="text-danger p-1 d-flex align-items-center justify-content-center"
-                                    style={{
-                                      width: "26px",
-                                      height: "26px",
-                                      borderRadius: "7px",
-                                      backgroundColor: "rgba(239, 68, 68, 0.08)",
-                                      border: "1px solid rgba(239, 68, 68, 0.13)"
-                                    }}
-                                  >
-                                    <FiTrash2 size={12} />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            // Desktop: layout attuale
-                            <div className="flex-grow-1" style={{ minWidth: 0, overflow: "hidden" }}>
-                              <div 
-                                className="fw-semibold text-dark mb-1"
-                                style={{
-                                  fontSize: "14px",
-                                  lineHeight: "1.3",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap"
-                                }}
-                              >
-                                {transaction.description}
-                              </div>
-                              <div className="text-muted small d-flex align-items-center gap-2">
-                                <span>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'DD MMM YYYY' : 'MMM DD, YYYY')}</span>
-                                <span>•</span>
-                                <span>{getCategoryLabel(transaction.category)}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right: Amount and Actions */}
-                        {!isMobile && (
-                          <div className="d-flex align-items-center gap-2 flex-shrink-0">
-                            <div className="text-end">
-                              <div
-                                className="fw-bold"
-                                style={{
-                                  fontSize: isMobile ? "16px" : "15px",
-                                  color: transaction.type === "income" ? "#22c55e" : "#ef4444",
-                                  lineHeight: "1.2"
-                                }}
-                              >
-                                {transaction.type === "income" ? "+" : "-"}
-                                {formatCurrency(transaction.amount)}
-                              </div>
-                              {isMobile && (
-                                <div className="text-muted small" style={{ fontSize: "10px" }}>
-                                  {dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === 'it' ? 'HH:mm' : 'HH:mm')}
-                                </div>
-                              )}
-                            </div>
-                            {/* Actions */}
-                            <div className="d-flex align-items-center gap-1">
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditTransaction(transaction);
-                                }}
-                                className="text-info p-1 d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: isMobile ? "32px" : "28px",
-                                  height: isMobile ? "32px" : "28px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "rgba(13, 202, 240, 0.1)",
-                                  border: "1px solid rgba(13, 202, 240, 0.2)"
-                                }}
-                              >
-                                <FiEdit2 size={isMobile ? 14 : 12} />
-                              </Button>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteClick(transaction.id);
-                                }}
-                                className="text-danger p-1 d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: isMobile ? "32px" : "28px",
-                                  height: isMobile ? "32px" : "28px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "rgba(239, 68, 68, 0.1)",
-                                  border: "1px solid rgba(239, 68, 68, 0.2)"
-                                }}
-                              >
-                                <FiTrash2 size={isMobile ? 14 : 12} />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          /* Empty State */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-5"
-            style={{ marginTop: '3rem' }}
-          >
-            <div 
-              className="mx-auto mb-4 rounded-circle d-flex align-items-center justify-content-center"
-              style={{
-                width: '120px',
-                height: '120px',
-                background: 'rgba(255, 255, 255, 0.65)',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                backdropFilter: 'blur(8px)'
-              }}
+          groupedTransactions.map((group, groupIndex) => (
+            <motion.div
+              key={group.date.toISOString()}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: groupIndex * 0.05 }}
+              className="space-y-3"
             >
-              <span style={{ fontSize: '3rem' }}>💳</span>
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                  {group.displayDate}
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <div className="space-y-2">
+                {group.transactions.map((transaction) => (
+                  <motion.div
+                    key={transaction.id}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between rounded-2xl border border-border bg-card/80 p-4 shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-full ${
+                          transaction.type === "income"
+                            ? "bg-emerald-500/10 text-emerald-600"
+                            : "bg-rose-500/10 text-rose-600"
+                        }`}
+                      >
+                        {transaction.type === "income" ? "💰" : getCategoryEmoji(transaction.category)}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-base font-semibold leading-tight">{transaction.description}</div>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                          <span>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === "it" ? "DD MMM YYYY" : "MMM DD, YYYY")}</span>
+                          <span>•</span>
+                          <span>{getCategoryLabel(transaction.category)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`text-base font-bold ${
+                          transaction.type === "income" ? "text-emerald-600" : "text-rose-600"
+                        }`}
+                      >
+                        {transaction.type === "income" ? "+" : "-"}
+                        {formatCurrency(transaction.amount)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 w-9 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditTransaction(transaction);
+                          }}
+                        >
+                          <FiEdit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 w-9 p-0 text-destructive hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(transaction.id);
+                          }}
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center py-10">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-2xl">
+              💳
             </div>
-            <h3 className="text-dark fw-bold mb-2">{t('transactions.empty.title')}</h3>
-            <p className="text-muted mb-4">
-              {searchTerm || selectedCategory !== "all" || selectedType !== "all" 
-                ? t('transactions.empty.tryFilters')
-                : t('transactions.empty.addFirst')
-              }
+            <h3 className="text-xl font-semibold text-foreground">{t("transactions.empty.title")}</h3>
+            <p className="text-muted-foreground">
+              {searchTerm || selectedCategory !== "all" || selectedType !== "all"
+                ? t("transactions.empty.tryFilters")
+                : t("transactions.empty.addFirst")}
             </p>
             <Button
-              variant="primary"
-              size="lg"
+              className="mt-4 gap-2"
               onClick={() => setShowModal(true)}
               disabled={isDemo && !canAddMoreTransactions}
-              className="d-flex align-items-center gap-2 mx-auto"
-              style={{
-                background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
-                borderColor: 'var(--primary-500)',
-                borderRadius: '1.5rem',
-                padding: '12px 24px',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-              }}
             >
-              <FiPlus size={20} />
-              Aggiungi Transazione
+              <FiPlus />
+              {t("addTransaction")}
             </Button>
           </motion.div>
         )}
       </div>
 
-      {/* Modals */}
       <TransactionModal
         show={showModal || !!editTransaction}
         onClose={() => {
@@ -798,61 +414,36 @@ const TransactionList = () => {
         transaction={editTransaction}
       />
 
-      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.18)",
-            zIndex: 2000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
-          <div
-            style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.89) 100%)",
-              borderRadius: "28px",
-              boxShadow: "0 20px 40px rgba(0,0,0,0.18)",
-              padding: "32px 28px",
-              minWidth: "320px",
-              maxWidth: "95vw",
-              border: "1px solid rgba(0,0,0,0.08)",
-              textAlign: "center"
-            }}
-          >
-            <div className="mb-3 fw-semibold" style={{ fontSize: "1.1rem" }}>
-              {t('confirmDelete')}
-            </div>
-            <div className="mb-3">
-              <div className="fw-bold text-dark mb-1">{transactions.find(t => t.id === deleteConfirm)?.description}</div>
-              <div className="text-muted small mb-1">
-                {formatGroupDate(getTransactionDate(transactions.find(t => t.id === deleteConfirm)))} • {getCategoryLabel(transactions.find(t => t.id === deleteConfirm)?.category)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <div className="mb-3 text-lg font-semibold">{t("confirmDelete")}</div>
+            <div className="mb-4 space-y-1">
+              <div className="font-bold text-foreground">
+                {transactions.find((t) => t.id === deleteConfirm)?.description}
               </div>
-              <div className="fw-bold" style={{ color: transactions.find(t => t.id === deleteConfirm)?.type === 'income' ? '#198754' : '#dc3545' }}>
-                {transactions.find(t => t.id === deleteConfirm)?.type === 'income' ? '+' : '-'}{formatCurrency(transactions.find(t => t.id === deleteConfirm)?.amount)}
+              <div className="text-muted-foreground text-sm">
+                {formatGroupDate(getTransactionDate(transactions.find((t) => t.id === deleteConfirm)))} •{" "}
+                {getCategoryLabel(transactions.find((t) => t.id === deleteConfirm)?.category)}
+              </div>
+              <div
+                className={`font-semibold ${
+                  transactions.find((t) => t.id === deleteConfirm)?.type === "income"
+                    ? "text-emerald-600"
+                    : "text-rose-600"
+                }`}
+              >
+                {transactions.find((t) => t.id === deleteConfirm)?.type === "income" ? "+" : "-"}
+                {formatCurrency(transactions.find((t) => t.id === deleteConfirm)?.amount)}
               </div>
             </div>
-            <div className="d-flex gap-2 justify-content-center">
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => setDeleteConfirm(null)}
-                style={{ borderRadius: "16px", minWidth: "120px" }}
-              >
-                {t('cancel')}
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={confirmDelete}
-                style={{ borderRadius: "16px", minWidth: "180px" }}
-              >
-                {t('transactions.deleteConfirm')}
-              </button>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>
+                {t("cancel")}
+              </Button>
+              <Button variant="destructive" className="flex-1" onClick={confirmDelete}>
+                {t("transactions.deleteConfirm")}
+              </Button>
             </div>
           </div>
         </div>

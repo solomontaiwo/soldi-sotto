@@ -1,22 +1,16 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
-import { Badge } from "react-bootstrap";
-import { 
-  FiHome, 
-  FiList, 
-  FiBarChart, 
-  FiUser,
-  FiLogOut 
-} from "react-icons/fi";
+import { FiHome, FiList, FiBarChart, FiUser, FiLogIn, FiUserPlus } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { useTranslation } from 'react-i18next';
+import { Badge } from "../ui/badge";
+import { useTranslation } from "react-i18next";
 
 const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
-  const { isDemo, transactions, maxTransactions } = useUnifiedTransactions();
+  const { currentUser } = useAuth();
+  const { isDemo, transactions, maxTransactions, startDemo } = useUnifiedTransactions();
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { t } = useTranslation();
@@ -27,64 +21,27 @@ const BottomNavigation = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentY = window.scrollY;
-          if (currentY > lastScrollY && currentY > 40) {
-            setVisible(false); // scroll down
-          } else {
-            setVisible(true); // scroll up
-          }
+          setVisible(currentY < lastScrollY || currentY < 20);
           setLastScrollY(currentY);
           ticking = false;
         });
         ticking = true;
       }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-    // eslint-disable-next-line
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
-
   const navigationItems = [
-    {
-      key: "/dashboard",
-      icon: <FiHome size={20} />,
-      label: t('navbar.dashboard'),
-      path: "/dashboard",
-    },
-    {
-      key: "/transactions",
-      icon: <FiList size={20} />,
-      label: t('navbar.transactions'),
-      path: "/transactions",
-      badge: isDemo ? `${transactions.length}/${maxTransactions}` : null,
-    },
-    {
-      key: "/analytics",
-      icon: <FiBarChart size={20} />,
-      label: t('navbar.analytics'),
-      path: "/analytics",
-    },
-    // Ultimo item: Profile se autenticato, Registrati se demo, Logout se nessuno
-    ...(currentUser ? [{
-      key: "/profile",
-      icon: <FiUser size={20} />,
-      label: t('navbar.profile'),
-      path: "/profile",
-    }] : isDemo ? [{
-      key: "register",
-      icon: <FiUser size={20} />,
-      label: t('navbar.register'),
-      action: () => navigate('/register'),
-    }] : [{
-      key: "logout",
-      icon: <FiLogOut size={20} />,
-      label: t('navbar.logout'),
-      action: handleLogout,
-    }]),
+    { key: "/dashboard", icon: <FiHome size={20} />, label: t("navbar.dashboard"), path: "/dashboard" },
+    { key: "/transactions", icon: <FiList size={20} />, label: t("navbar.transactions"), path: "/transactions", badge: isDemo ? `${transactions.length}/${maxTransactions}` : null },
+    { key: "/analytics", icon: <FiBarChart size={20} />, label: t("navbar.analytics"), path: "/analytics" },
+    ...(currentUser
+      ? [{ key: "/profile", icon: <FiUser size={20} />, label: t("navbar.profile"), path: "/profile" }]
+      : [
+          { key: "login", icon: <FiLogIn size={20} />, label: t("navLogin"), action: () => navigate("/login") },
+          { key: "register", icon: <FiUserPlus size={20} />, label: t("navRegister"), action: () => navigate("/register") },
+        ]),
   ];
 
   const handleNavigation = (item) => {
@@ -97,119 +54,51 @@ const BottomNavigation = () => {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 'calc(60px + env(safe-area-inset-bottom, 0px))',
-        background: 'var(--glass-bg)',
-        borderTop: `1px solid var(--glass-border)`,
-        display: 'flex',
-        alignItems: 'stretch',
-        justifyContent: 'space-around',
-        padding: '0 8px',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        zIndex: 1030,
-        boxShadow: '0 -4px 25px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(25px)',
-        WebkitBackdropFilter: 'blur(25px)',
-        transition: 'transform 0.35s cubic-bezier(.4,2,.6,1)',
-        transform: visible ? 'translateY(0)' : 'translateY(100%)',
-        pointerEvents: visible ? 'auto' : 'none',
-      }}
+      className={`fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/90 backdrop-blur-xl transition-transform duration-300 ${
+        visible ? "translate-y-0" : "translate-y-full"
+      }`}
+      style={{ height: "70px" }}
     >
-      {navigationItems.map((item) => {
-        const isActive = location.pathname === item.path;
-        
-        return (
-          <button
-            key={item.key}
-            onClick={() => handleNavigation(item)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '60px',
-              marginTop: 0,
-              padding: '8px',
-              background: isActive 
-                ? 'rgba(13, 110, 253, 0.15)' 
-                : 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              color: isActive ? '#0d6efd' : '#6c757d',
-              minWidth: '56px',
-              minHeight: '44px',
-              borderRadius: '12px',
-              backdropFilter: isActive ? 'blur(10px)' : 'none',
-              boxShadow: isActive 
-                ? '0 2px 8px rgba(13, 110, 253, 0.2)' 
-                : 'none',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-            onTouchStart={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)';
-                e.currentTarget.style.transform = 'scale(0.95)';
-                e.currentTarget.style.backdropFilter = 'blur(10px)';
-              }
-            }}
-            onTouchEnd={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.backdropFilter = 'none';
-              }
-            }}
-          >
-            <div className="position-relative">
-              <div style={{ 
-                marginBottom: '2px',
-                transform: isActive ? 'scale(1.1)' : 'scale(1)',
-                transition: 'transform 0.2s ease',
-                filter: isActive ? 'drop-shadow(0 1px 2px rgba(13, 110, 253, 0.3))' : 'none'
-              }}>
+      <div className="mx-auto flex h-full max-w-5xl items-center justify-around px-4">
+        {navigationItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={item.key}
+              onClick={() => handleNavigation(item)}
+              className={`relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                  isActive ? "bg-primary/15 text-primary shadow-sm" : "bg-muted text-foreground"
+                }`}
+              >
                 {item.icon}
               </div>
+              <span className="text-[11px]">{item.label}</span>
               {item.badge && (
-                <Badge 
-                  className="position-absolute top-0 start-100 translate-middle"
-                  style={{
-                    fontSize: '9px',
-                    padding: '2px 4px',
-                    borderRadius: '8px',
-                    lineHeight: '1',
-                    marginTop: '-2px',
-                    marginLeft: '-2px',
-                    backgroundColor: 'rgba(13, 110, 253, 0.9)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)'
-                  }}
-                >
+                <Badge variant="secondary" className="absolute -top-1 -right-2">
                   {item.badge}
                 </Badge>
               )}
-            </div>
-            <span
-              style={{
-                fontSize: '10px',
-                fontWeight: isActive ? '600' : '400',
-                textAlign: 'center',
-                lineHeight: '1',
-                marginTop: '2px',
-                textShadow: isActive ? '0 1px 2px rgba(13, 110, 253, 0.3)' : 'none'
-              }}
-            >
-              {item.label}
-            </span>
+            </button>
+          );
+        })}
+      </div>
+      {!currentUser && !isDemo && (
+        <div className="px-4 pb-3">
+          <button
+            onClick={startDemo}
+            className="w-full rounded-xl bg-gradient-to-r from-primary to-emerald-500 py-2 text-sm font-semibold text-white shadow-lg"
+          >
+            {t("landing.tryDemo")}
           </button>
-        );
-      })}
+        </div>
+      )}
     </div>
   );
 };
 
-export default BottomNavigation; 
+export default BottomNavigation;

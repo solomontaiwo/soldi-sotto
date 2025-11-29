@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import React from "react";
-import { motion } from "framer-motion";
-import { Card, Row, Col, Button, Form } from "react-bootstrap";
+import PropTypes from "prop-types";
 import { useAuth } from "../Auth/AuthProvider";
-import { useTransactions } from "../Transaction/TransactionProvider";
-import { Navigate } from "react-router-dom";
+import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
 import {
   startOfMonth,
   endOfMonth,
@@ -21,27 +19,89 @@ import {
 } from "date-fns";
 import { calculateStats } from "../../utils/statsUtils";
 import { generatePDF } from "../../utils/pdfUtils";
-import { animationConfig } from "../../utils/animationConfig";
-import { useMediaQuery } from "react-responsive";
 import LoadingWrapper from "../../utils/loadingWrapper";
 import formatCurrency from "../../utils/formatCurrency";
 import logo from "/icon.png";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { Button } from "../ui/button";
+import { Select } from "../ui/select";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+const StatPill = ({ label, value, tone }) => {
+  const backgrounds = {
+    emerald: "bg-emerald-500/10",
+    rose: "bg-rose-500/10",
+    primary: "bg-primary/10",
+    secondary: "bg-muted",
+  };
+  return (
+    <div className={`rounded-xl border border-border p-4 ${backgrounds[tone] || "bg-muted"}`}>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-2xl font-semibold mt-1">{value}</p>
+    </div>
+  );
+};
 
-// Stats component: shows detailed statistics for the selected period
-// Uses useMemo for all heavy calculations for performance
+StatPill.propTypes = {
+  label: PropTypes.node,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.node]),
+  tone: PropTypes.oneOf(["emerald", "rose", "primary", "secondary"]),
+};
+
+StatPill.defaultProps = {
+  label: "",
+  value: "",
+  tone: "secondary",
+};
+
+const ProgressBar = ({ value, color = "emerald" }) => {
+  const colors = {
+    emerald: "bg-emerald-500",
+    rose: "bg-rose-500",
+    primary: "bg-primary",
+  };
+  return (
+    <div className="w-full h-3 rounded-full bg-muted">
+      <div
+        className={`h-3 rounded-full ${colors[color] || colors.primary}`}
+        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+      />
+    </div>
+  );
+};
+
+ProgressBar.propTypes = {
+  value: PropTypes.number,
+  color: PropTypes.oneOf(["emerald", "rose", "primary"]),
+};
+
+ProgressBar.defaultProps = {
+  value: 0,
+  color: "emerald",
+};
+
 const Stats = () => {
   const { currentUser, loading: authLoading } = useAuth();
-  const { transactions, loading: transactionsLoading } = useTransactions();
+  const { transactions, loading: transactionsLoading, isDemo, startDemo } = useUnifiedTransactions();
   const [stats, setStats] = useState(null);
   const [viewMode, setViewMode] = useState("monthly");
   const [customRange, setCustomRange] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const loading = authLoading || transactionsLoading;
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  const getSafeDate = (dateInput) => {
+    if (!dateInput) return null;
+    if (dateInput.toDate) return dateInput.toDate();
+    if (dateInput.seconds) return new Date(dateInput.seconds * 1000);
+    const parsed = new Date(dateInput);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  };
 
   useEffect(() => {
     if (!loading && transactions.length > 0) {
@@ -73,10 +133,10 @@ const Stats = () => {
       }
 
       const filteredTransactions = transactions.filter((transaction) => {
-        const transactionDate = transaction.date.toDate();
+        const transactionDate = getSafeDate(transaction.date);
+        if (!transactionDate) return false;
         return (
-          (isAfter(transactionDate, start) ||
-            isEqual(transactionDate, start)) &&
+          (isAfter(transactionDate, start) || isEqual(transactionDate, start)) &&
           (isBefore(transactionDate, end) || isEqual(transactionDate, end))
         );
       });
@@ -84,6 +144,10 @@ const Stats = () => {
       setStats(calculateStats(filteredTransactions, start, end));
       setStartDate(start);
       setEndDate(end);
+    } else if (!loading && transactions.length === 0) {
+      setStats(null);
+      setStartDate(null);
+      setEndDate(null);
     }
   }, [loading, transactions, viewMode, customRange]);
 
@@ -92,376 +156,189 @@ const Stats = () => {
     if (value !== "custom") setCustomRange(null);
   };
 
-  // Memoized calculation of days count, average daily income/expense, and saving percentage
-  const daysCount = useMemo(() => (
-    startDate && endDate
-      ? differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1
-      : 0
-  ), [startDate, endDate]);
-  const avgDailyIncome = useMemo(() => {
-    if (!stats || daysCount === 0) return 0;
-    return stats.totalIncome / daysCount;
-  }, [stats, daysCount]);
-  const avgDailyExpense = useMemo(() => {
-    if (!stats || daysCount === 0) return 0;
-    return stats.totalExpense / daysCount;
-  }, [stats, daysCount]);
-  const savingPercentage = useMemo(() => {
-    if (!stats || stats.totalIncome === 0) return 0;
-    return ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100;
-  }, [stats]);
-
-  if (!currentUser) return <Navigate to="/login" replace />;
+  const daysCount = useMemo(
+    () => (startDate && endDate ? differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1 : 0),
+    [startDate, endDate]
+  );
+  const avgDailyIncome = useMemo(() => (stats && daysCount ? stats.totalIncome / daysCount : 0), [stats, daysCount]);
+  const avgDailyExpense = useMemo(() => (stats && daysCount ? stats.totalExpense / daysCount : 0), [stats, daysCount]);
+  const savingPercentage = useMemo(
+    () => (stats && stats.totalIncome ? ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100 : 0),
+    [stats]
+  );
 
   if (loading) {
-    // Skeleton ultra-minimal per box statistiche e grafici
     return (
-      <div className="container py-4">
-        <div className="row g-4 mb-4">
-          {[...Array(3)].map((_, i) => (
-            <div className="col-12 col-md-4" key={i}>
-              <Skeleton height={90} borderRadius={18} />
-            </div>
+      <div className="space-y-4">
+        <Skeleton height={48} borderRadius={12} />
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} height={120} borderRadius={18} />
           ))}
         </div>
-        <div className="mb-4">
-          <Skeleton height={260} borderRadius={24} />
-        </div>
-        <div className="row g-4">
-          {[...Array(2)].map((_, i) => (
-            <div className="col-12 col-md-6" key={i}>
-              <Skeleton height={180} borderRadius={18} />
-            </div>
-          ))}
-        </div>
+        <Skeleton height={200} borderRadius={18} />
       </div>
     );
   }
 
+  if (!currentUser && !isDemo) {
+    return (
+      <div className="container py-5">
+        <Card className="p-6 text-center">
+          <CardHeader>
+            <CardTitle>{t("statsPage.loginTitle")}</CardTitle>
+            <CardDescription>{t("statsPage.loginSubtitle")}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 md:flex-row md:justify-center">
+            <Button onClick={() => navigate("/login")}>{t("navLogin")}</Button>
+            <Button variant="outline" onClick={() => navigate("/register")}>
+              {t("navRegister")}
+            </Button>
+            <Button variant="secondary" onClick={() => { startDemo(); navigate("/transactions"); }}>
+              {t("statsPage.tryDemo")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const incomeShare = stats ? (stats.totalIncome ? (stats.totalIncome / Math.max(1, stats.totalIncome + stats.totalExpense)) * 100 : 0) : 0;
+  const hasData = stats && stats.transactionCount > 0;
+
   return (
     <LoadingWrapper loading={loading}>
-      <div
-        style={{
-          padding: isMobile ? "0 0 80px 0" : "0 0 24px 0",
-          maxWidth: "1200px",
-          margin: "0 auto",
-          color: "var(--text-color)"
-        }}
-      >
-        <motion.div
-          {...animationConfig}
-          style={{ textAlign: "center", marginBottom: "30px" }}
-        >
-          <h2 className="text-primary fw-bold mb-3" style={{ fontSize: '2.5rem' }}>
-            Statistiche
-          </h2>
-          <p className="text-muted mb-4" style={{ fontSize: '1.1rem' }}>
-            Riepilogo delle tue transazioni e statistiche finanziarie, per
-            tenere traccia del tuo bilancio.
-          </p>
-          
-          {/* PDF Export Button */}
-          <Button
-            onClick={() =>
-              generatePDF(
-                currentUser,
-                transactions,
-                stats,
-                viewMode,
-                logo,
-                "https://solomontaiwo.github.io/soldi-sotto/",
-                "https://www.instagram.com/solomon.taiwo/",
-                startDate,
-                endDate
-              )
-            }
-            variant="primary"
-            className="mb-4"
-            style={{
-              width: "100%",
-              height: isMobile ? "50px" : "60px",
-              fontSize: isMobile ? "16px" : "18px",
-              borderRadius: "12px",
-              fontWeight: "600"
-            }}
-          >
-            📄 Scarica Report PDF
-          </Button>
-          
-          {/* View Mode Selector */}
-          <Form.Select
-            value={viewMode}
-            onChange={(e) => handleViewModeChange(e.target.value)}
-            className="mb-4"
-            style={{
-              height: "50px",
-              borderRadius: "12px",
-              fontSize: "16px",
-              backgroundColor: "rgba(255, 255, 255, 0.9)"
-            }}
-          >
-            <option value="daily">Oggi</option>
-            <option value="weekly">Settimana corrente</option>
-            <option value="monthly">Mese corrente</option>
-            <option value="annually">Anno corrente</option>
-          </Form.Select>
-        </motion.div>
-
-        {stats ? (
-          <motion.div {...animationConfig}>
-            {/* Main Statistics Cards */}
-            <Row className="g-4 mb-5">
-              <Col xs={12} md={6} lg={3}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="text-center p-4">
-                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>💰</div>
-                    <h6 className="text-muted mb-2">Entrate Totali</h6>
-                    <h4 className="text-success fw-bold mb-0">{formatCurrency(stats.totalIncome)}</h4>
-                  </Card.Body>
-                </Card>
-              </Col>
-              
-              <Col xs={12} md={6} lg={3}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="text-center p-4">
-                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>💸</div>
-                    <h6 className="text-muted mb-2">Uscite Totali</h6>
-                    <h4 className="text-danger fw-bold mb-0">{formatCurrency(stats.totalExpense)}</h4>
-                  </Card.Body>
-                </Card>
-              </Col>
-              
-              <Col xs={12} md={6} lg={3}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="text-center p-4">
-                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>📊</div>
-                    <h6 className="text-muted mb-2">Bilancio</h6>
-                    <h4 className={`fw-bold mb-0 ${stats.balance >= 0 ? 'text-success' : 'text-danger'}`}>
-                      {formatCurrency(stats.balance)}
-                    </h4>
-                  </Card.Body>
-                </Card>
-              </Col>
-              
-              <Col xs={12} md={6} lg={3}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="text-center p-4">
-                    <div className="mb-3" style={{ fontSize: '2.5rem' }}>📈</div>
-                    <h6 className="text-muted mb-2">Transazioni</h6>
-                    <h4 className="text-primary fw-bold mb-0">{stats.transactionCount}</h4>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Secondary Statistics */}
-            <Row className="g-4 mb-5">
-              <Col xs={12} md={6}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="p-4">
-                    <h5 className="text-dark fw-semibold mb-3">📅 Medie Giornaliere</h5>
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="text-muted">Entrata media:</span>
-                      <span className="text-success fw-medium">{formatCurrency(avgDailyIncome)}</span>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="text-muted">Spesa media:</span>
-                      <span className="text-danger fw-medium">{formatCurrency(avgDailyExpense)}</span>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              
-              <Col xs={12} md={6}>
-                <Card 
-                  className="mb-4 shadow-sm glass-card stats-glass"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
-                    border: "1.5px solid rgba(255,255,255,0.35)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                    borderRadius: "22px",
-                    transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                  }}
-                >
-                  <Card.Body className="p-4">
-                    <h5 className="text-dark fw-semibold mb-3">💎 Tasso di Risparmio</h5>
-                    <div className="text-center">
-                      <div 
-                        className={`display-6 fw-bold ${savingPercentage >= 0 ? 'text-success' : 'text-danger'}`}
-                      >
-                        {savingPercentage.toFixed(1)}%
-                      </div>
-                      <small className="text-muted">
-                        {savingPercentage >= 0 ? 'Stai risparmiando!' : 'Stai spendendo più di quanto guadagni'}
-                      </small>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Category Breakdown */}
-            {stats.categoryBreakdown && Object.keys(stats.categoryBreakdown).length > 0 && (
-              <Card 
-                className="mb-4 shadow-sm glass-card stats-glass"
-                style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(245,245,255,0.82) 100%)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  border: "1.5px solid rgba(255,255,255,0.35)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
-                  borderRadius: "22px",
-                  transition: "transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1)",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.025)';
-                  e.currentTarget.style.boxShadow = '0 12px 36px rgba(59,130,246,0.13)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.10)';
-                }}
+      <div className="page-shell">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-3xl font-bold">{t("statsPage.title")}</h2>
+            <p className="text-muted-foreground">{t("statsPage.subtitle")}</p>
+          </div>
+          <div className="flex flex-col gap-2 md:flex-row">
+            <Select value={viewMode} onChange={(e) => handleViewModeChange(e.target.value)} className="md:w-48">
+              <option value="daily">Oggi</option>
+              <option value="weekly">Settimana</option>
+              <option value="monthly">Mese</option>
+              <option value="annually">Anno</option>
+            </Select>
+            {currentUser ? (
+              <Button
+                onClick={() =>
+                  generatePDF(
+                    currentUser,
+                    transactions,
+                    stats,
+                    viewMode,
+                    logo,
+                    "https://solomontaiwo.github.io/soldi-sotto/",
+                    "https://www.instagram.com/solomon.taiwo/",
+                    startDate,
+                    endDate,
+                    i18n.language
+                  )
+                }
+                disabled={!stats}
               >
-                <Card.Body className="p-4">
-                  <h5 className="text-dark fw-semibold mb-4">📋 Spese per Categoria</h5>
-                  <Row className="g-3">
-                    {Object.entries(stats.categoryBreakdown).map(([category, amount]) => (
-                      <Col key={category} xs={12} sm={6} md={4}>
-                        <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded">
-                          <span className="text-capitalize fw-medium">{category}</span>
-                          <span className="text-danger fw-bold">{formatCurrency(amount)}</span>
-                        </div>
-                      </Col>
-                    ))}
-                  </Row>
-                </Card.Body>
-              </Card>
+                {t("statsPage.downloadPdf")}
+              </Button>
+            ) : (
+              <Button variant="outline" disabled>
+                {t("statsPage.pdfLoginNotice")}
+              </Button>
             )}
-          </motion.div>
+          </div>
+        </div>
+
+        {hasData ? (
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatPill label={t("financialOverview.totalIncome")} value={formatCurrency(stats.totalIncome)} tone="emerald" />
+              <StatPill label={t("financialOverview.totalExpense")} value={formatCurrency(stats.totalExpense)} tone="rose" />
+              <StatPill label={t("financialOverview.balance")} value={formatCurrency(stats.balance)} tone="primary" />
+              <StatPill label={t("statsPage.transactions")} value={stats.transactionCount} tone="secondary" />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("statsPage.incomeVsExpense")}</CardTitle>
+                  <CardDescription>{stats.transactionCount} {t("statsPage.movements")}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <ProgressBar value={incomeShare} color="emerald" />
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-emerald-600">{formatCurrency(stats.totalIncome)}</span>
+                    <span className="text-rose-600">-{formatCurrency(stats.totalExpense)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("statsPage.savingsRate")}</CardTitle>
+                  <CardDescription>{t("statsPage.period")}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <ProgressBar value={savingPercentage} color={stats.balance >= 0 ? "emerald" : "rose"} />
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold">{formatCurrency(stats.balance)}</span>
+                    <span className={stats.balance >= 0 ? "text-emerald-600" : "text-rose-600"}>
+                      {savingPercentage.toFixed(1)}%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("statsPage.dailyAverages")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("statsPage.avgIncome")}</span>
+                    <span className="text-emerald-600 font-semibold">{formatCurrency(avgDailyIncome)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("statsPage.avgExpense")}</span>
+                    <span className="text-rose-600 font-semibold">{formatCurrency(avgDailyExpense)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("statsPage.categoryBreakdown")}</CardTitle>
+                  <CardDescription>{t("statsPage.ofExpenses")}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {stats.categoryBreakdown &&
+                    Object.entries(stats.categoryBreakdown)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([category, amount]) => {
+                        const percentage = stats.totalExpense > 0 ? (amount / stats.totalExpense) * 100 : 0;
+                        return (
+                          <div key={category} className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="capitalize">{category}</span>
+                              <span className="font-semibold text-rose-600">{formatCurrency(amount)}</span>
+                            </div>
+                            <ProgressBar value={percentage} color="rose" />
+                          </div>
+                        );
+                      })}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         ) : (
-          <motion.div {...animationConfig}>
-            <Card className="border-0 shadow-sm text-center glass-card" style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <Card.Body className="p-5">
-                <div style={{ fontSize: '4rem', marginBottom: '2rem' }}>📊</div>
-                <h4 className="text-muted mb-3">Nessuna transazione trovata</h4>
-                <p className="text-muted mb-4">
-                  Non ci sono transazioni per il periodo selezionato. Prova a cambiare il periodo di visualizzazione o aggiungi delle transazioni.
-                </p>
-                <Button 
-                  variant="primary" 
-                  onClick={() => window.location.href = "/transactions"}
-                  style={{ borderRadius: '12px', padding: '12px 24px' }}
-                >
-                  Aggiungi Transazioni
-                </Button>
-              </Card.Body>
-            </Card>
-          </motion.div>
+          <Card className="text-center p-8">
+            <div className="text-4xl mb-3">📊</div>
+            <CardTitle>{t("statsPage.emptyTitle")}</CardTitle>
+            <CardDescription>{t("statsPage.emptySubtitle")}</CardDescription>
+            <div className="mt-4">
+              <Button onClick={() => navigate("/transactions")}>{t("addTransaction")}</Button>
+            </div>
+          </Card>
         )}
       </div>
     </LoadingWrapper>
