@@ -32,7 +32,7 @@ const AppLayout = ({ children }) => {
       <main
         className={`flex-1 relative overflow-x-hidden transition-all ${
           showNavigation
-            ? "pt-6 pb-20 md:pb-6 px-4 md:px-8"
+            ? "pt-6 pb-20 md:pt-20 md:pb-6 px-4 md:px-8"
             : "p-0"
         }`}
       >

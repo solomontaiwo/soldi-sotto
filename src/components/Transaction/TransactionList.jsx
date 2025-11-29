@@ -215,7 +215,7 @@ const TransactionList = () => {
 
   return (
     <div className="page-shell -mt-6 pt-0">
-      <div className="sticky top-0 z-20 rounded-2xl border border-border bg-card/90 backdrop-blur-md p-3 md:p-4 shadow-md">
+      <div className="sticky top-0 md:top-20 z-20 rounded-2xl border border-border bg-card/90 backdrop-blur-md p-3 md:p-4 shadow-md">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
