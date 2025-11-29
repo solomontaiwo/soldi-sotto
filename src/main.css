@@ -90,3 +90,21 @@
   color: hsl(var(--foreground));
   border-color: hsl(var(--border));
 }
+
+@layer base {
+  /* Keep native date pickers aligned on mobile */
+  input[type="date"],
+  input[type="datetime-local"] {
+    position: relative;
+    display: block;
+    padding-right: 2.75rem;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
