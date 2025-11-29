@@ -252,8 +252,8 @@ const Profile = () => {
   }
 
   return (
-    <div style={{ 
-      padding: isMobile ? '1rem 0' : '2rem 0',
+    <div style={{
+      padding: isMobile ? '0 0 80px 0' : '0 0 24px 0',
       maxWidth: '1000px',
       margin: '0 auto',
       minHeight: '100vh',

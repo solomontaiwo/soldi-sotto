@@ -538,10 +538,10 @@ body {
 }
 
 /* Migliore spacing tra navbar e contenuto principale */
-main, 
+main,
 .main-content,
 [role="main"] {
-  padding-top: 0.5rem;
+  padding-top: 0;
 }
 
 /* Rimuove lo sfondo dall'elemento selezionato */
