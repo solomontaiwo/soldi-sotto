@@ -85,15 +85,15 @@ const Dashboard = () => {
 
   // Main render: greeting, motivational quote, quick actions, and recent transactions
   return (
-    <div style={{ 
-      padding: isMobile ? '1.2rem 0.5rem 2.5rem 0.5rem' : '2.5rem 0 0 0',
+    <div style={{
+      padding: isMobile ? '0 0 80px 0' : '0 0 24px 0',
       maxWidth: '1200px',
       margin: '0 auto',
       color: 'var(--text-primary)',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: isMobile ? '1.5rem' : '1.5rem',
+      gap: '1.5rem',
       minHeight: 0,
       background: 'var(--background-primary)',
     }}>
@@ -150,7 +150,6 @@ const Dashboard = () => {
             </Row>
           </div>
           <RecentTransactions transactions={transactions} loading={transactionsLoading} />
-          <div style={{ height: isMobile ? 24 : 0 }} />
         </div>
       ) : (
         // DESKTOP: header e transazioni recenti in una sola riga compatta

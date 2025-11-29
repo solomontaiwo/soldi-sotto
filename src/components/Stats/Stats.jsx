@@ -142,7 +142,7 @@ const Stats = () => {
     <LoadingWrapper loading={loading}>
       <div
         style={{
-          padding: "20px",
+          padding: isMobile ? "0 0 80px 0" : "0 0 24px 0",
           maxWidth: "1200px",
           margin: "0 auto",
           color: "var(--text-color)"

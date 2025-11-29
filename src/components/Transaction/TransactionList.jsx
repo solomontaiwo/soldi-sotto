@@ -259,37 +259,40 @@ const TransactionList = () => {
   const groupedTransactions = groupTransactionsByDate(filteredTransactions);
 
   return (
-    <div 
-      className="min-vh-100" 
-      style={{ 
+    <div
+      className="min-vh-100"
+      style={{
         background: 'transparent',
-        overflowX: 'hidden', // Previene scroll orizzontale
-        WebkitOverflowScrolling: 'touch' // Smooth scrolling iOS
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        margin: '-24px 0 0 0',
+        padding: 0
       }}
     >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="position-sticky top-0"
+        className="position-sticky"
         style={{
+          top: '0',
           backgroundColor: "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(25px)",
           WebkitBackdropFilter: "blur(25px)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
           boxShadow: "0 1px 20px rgba(0, 0, 0, 0.08)",
           zIndex: 1020,
-          padding: isMobile ? "16px 0" : "16px 0"
+          padding: isMobile ? "12px 1rem" : "14px 2rem"
         }}
       >
         <div className="container">
           {/* Title and Stats */}
-          <div className="d-flex align-items-center justify-content-between mb-3">
+          <div className="d-flex align-items-center justify-content-between mb-2">
             <div>
-              <h1 className={`fw-bold text-dark mb-1 ${isMobile ? "h4" : "h2"}`}>
+              <h1 className={`fw-bold text-dark mb-1 ${isMobile ? "h5" : "h3"}`}>
                 💳 {t('transactions.title')}
               </h1>
-              <div className="text-primary fw-medium mb-2" style={{ fontSize: isMobile ? '1rem' : '1.15rem', opacity: 0.85 }}>
+              <div className="text-primary fw-medium mb-1" style={{ fontSize: isMobile ? '0.9rem' : '1rem', opacity: 0.85 }}>
                 <span style={{ fontStyle: 'italic' }}>{quote}</span>
               </div>
               <div className="d-flex align-items-center gap-2">
@@ -324,7 +327,7 @@ const TransactionList = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="position-relative mb-3">
+          <div className="position-relative mb-2">
             <FiSearch 
               className="position-absolute top-50 start-0 translate-middle-y text-muted ms-3" 
               size={18} 
@@ -474,15 +477,16 @@ const TransactionList = () => {
       </motion.div>
 
       {/* Transaction Timeline */}
-      <div 
-        className="container"
-        style={{ 
-          paddingBottom: isMobile ? "100px" : "40px",
-          paddingTop: "20px"
+      <div
+        style={{
+          paddingBottom: isMobile ? "80px" : "24px",
+          paddingTop: "12px",
+          paddingLeft: isMobile ? "1rem" : "2rem",
+          paddingRight: isMobile ? "1rem" : "2rem"
         }}
       >
         {groupedTransactions.length > 0 ? (
-          <div className="mt-4">
+          <div className="mt-0">
             <AnimatePresence>
               {groupedTransactions.map((group, groupIndex) => (
                 <motion.div
@@ -490,10 +494,10 @@ const TransactionList = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: groupIndex * 0.1 }}
-                  className="mb-5"
+                  className="mb-4"
                 >
                   {/* Date Header */}
-                  <div className="d-flex align-items-center gap-3 mb-3">
+                  <div className="d-flex align-items-center gap-3 mb-2">
                     <div 
                       className="flex-grow-1" 
                       style={{ 
@@ -526,14 +530,14 @@ const TransactionList = () => {
                   </div>
 
                   {/* Transactions for this date */}
-                  <div className="d-flex flex-column gap-3">
+                  <div className="d-flex flex-column gap-2">
                     {group.transactions.map((transaction, index) => (
                       <motion.div
                         key={transaction.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 transaction-card"
+                        className="d-flex align-items-center justify-content-between p-3 rounded-3 transaction-card"
                         style={{
                           background: "rgba(255, 255, 255, 0.95)",
                           backdropFilter: "blur(10px)",

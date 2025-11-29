@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(npm run dev:*)",
+      "Bash(command -v:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: uniforma gestione spazi tra tutte le pagine\n\nUniformata la gestione degli spazi su tutte le pagine dell''applicativo\nper risolvere il problema di spacing non uniforme ed eccessivo,\nspecialmente nella pagina transactions su mobile e desktop.\n\nModifiche principali:\n- AppLayout: padding uniforme 24px top, 0 bottom\n- Tutte le pagine: padding bottom 80px mobile / 24px desktop\n- TransactionList: ottimizzazioni speciali per header sticky\n  - Margine negativo per compensare AppLayout\n  - Riduzione padding header e spacing interno\n  - Font sizes ridotti (h4/h2 → h5/h3)\n  - Spacing tra elementi ridotto per layout più compatto\n- main.css: rimosso padding-top 0.5rem globale che causava spazio extra\n- Dashboard, Stats, Profile, Analytics: padding uniformato\n\nIl layout ora è consistente e professionale su tutte le pagine,\ncon particolare attenzione alla riduzione dello spazio eccessivo\nnella pagina transactions.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

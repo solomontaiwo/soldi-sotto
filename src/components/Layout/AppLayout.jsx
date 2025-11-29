@@ -45,13 +45,13 @@ const AppLayout = ({ children }) => {
           flex: 1,
           position: 'relative',
           overflowX: 'hidden',
-          minHeight: showNavigation 
-            ? isMobile 
+          minHeight: showNavigation
+            ? isMobile
               ? 'calc(100vh - 60px)' // Mobile con bottom nav
               : 'calc(100vh - 64px)'  // Desktop con top nav
             : '100vh', // Full height per landing page
-          paddingTop: showNavigation ? (isMobile ? '2.5rem' : '64px') : '0',
-          paddingBottom: showNavigation && isMobile ? '60px' : '0', // Spazio per bottom nav
+          paddingTop: showNavigation ? '24px' : '0',
+          paddingBottom: '0',
           paddingLeft: isMobile ? '1rem' : '2rem',
           paddingRight: isMobile ? '1rem' : '2rem',
           background: 'var(--background-primary)',
