@@ -214,11 +214,11 @@ const TransactionList = () => {
   const groupedTransactions = groupTransactionsByDate(filteredTransactions);
 
   return (
-    <div className="page-shell pt-0">
-      <div className="sticky top-16 md:top-20 z-20 rounded-2xl border border-border bg-card/90 backdrop-blur-md p-4 shadow-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="page-shell -mt-6 pt-0">
+      <div className="sticky top-0 z-20 rounded-2xl border border-border bg-card/90 backdrop-blur-md p-3 md:p-4 shadow-md">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
               💳 {t("transactions.title")}
             </h1>
             <div className="text-primary text-sm italic">{quote}</div>
@@ -236,7 +236,7 @@ const TransactionList = () => {
           </Button>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-3 flex flex-col gap-2">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -299,7 +299,7 @@ const TransactionList = () => {
         </div>
       </div>
 
-      <div className="space-y-6 pb-12 pt-0">
+      <div className="space-y-4 pb-6 pt-3">
         {groupedTransactions.length > 0 ? (
           groupedTransactions.map((group, groupIndex) => (
             <motion.div
@@ -307,7 +307,7 @@ const TransactionList = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: groupIndex * 0.05 }}
-              className="space-y-3"
+              className="space-y-2"
             >
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
