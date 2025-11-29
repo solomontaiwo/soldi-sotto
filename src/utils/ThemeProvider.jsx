@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 
 // Creazione del contesto per il tema
 const ThemeContext = createContext();
 
+// Hook to access theme context
 export const useTheme = () => useContext(ThemeContext);
 
 // Toggles the theme class for Tailwind (dark mode)
@@ -25,22 +27,22 @@ export const ThemeProvider = ({ children }) => {
     return localStorage.getItem("theme") || "system";
   });
 
-  const getSystemPreference = () => {
+  const getSystemPreference = useCallback(() => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  };
+  }, []);
 
-  const applyTheme = (themeMode) => {
+  const applyTheme = useCallback((themeMode) => {
     let isDark;
-    
+
     if (themeMode === "system") {
       isDark = getSystemPreference();
     } else {
       isDark = themeMode === "dark";
     }
-    
+
     setCSSVariables(isDark);
     return isDark;
-  };
+  }, [getSystemPreference]);
 
   const toggleTheme = (newTheme) => {
     setTheme(newTheme);
@@ -69,7 +71,7 @@ export const ThemeProvider = ({ children }) => {
 
     mediaQuery.addEventListener("change", handleSystemThemeChange);
     return () => mediaQuery.removeEventListener("change", handleSystemThemeChange);
-  }, [theme]);
+  }, [theme, applyTheme]);
 
   return (
     <ThemeContext.Provider value={{ 
