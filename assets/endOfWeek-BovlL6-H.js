@@ -1,1 +1,0 @@
-import{t as r,m as f}from"./format-CrPPGQr8.js";function i(a,t){const e=r(a,t?.in);return e.setHours(23,59,59,999),e}function u(a,t){const e=f(),s=t?.weekStartsOn??t?.locale?.options?.weekStartsOn??e.weekStartsOn??e.locale?.options?.weekStartsOn??0,n=r(a,t?.in),o=n.getDay(),c=(o<s?-7:0)+6-(o-s);return n.setDate(n.getDate()+c),n.setHours(23,59,59,999),n}export{u as a,i as e};
