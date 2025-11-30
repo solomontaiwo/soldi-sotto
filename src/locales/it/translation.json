@@ -35,7 +35,23 @@
     "registeredOn": "Registrato il",
     "dateNotAvailable": "Data non disponibile",
     "emailAddress": "Indirizzo Email",
-    "newUsernamePlaceholder": "Inserisci nuovo username"
+    "newUsernamePlaceholder": "Inserisci nuovo nome utente",
+    "account": "Account",
+    "accountInfo": "Le tue impostazioni vengono salvate automaticamente. I tuoi dati sono protetti con crittografia end-to-end.",
+    "backToDashboard": "Torna alla Dashboard",
+    "editUsername": "Modifica Nome Utente",
+    "newUsername": "Nuovo Nome Utente",
+    "usernamePlaceholder": "Inserisci nuovo nome utente",
+    "usernameHelp": "Il nome utente deve avere almeno 3 caratteri e la disponibilità verrà verificata.",
+    "updating": "Aggiornamento in corso...",
+    "usernameMinLength": "Il nome utente deve avere almeno 3 caratteri",
+    "usernameSame": "Il nome utente è lo stesso di quello attuale",
+    "usernameConfirm": "Sei sicuro di voler cambiare il nome utente da \"{{currentUsername}}\" a \"{{newUsername}}\"?\n\nQuesta azione non può essere annullata.",
+    "usernameUnavailable": "Nome utente già in uso",
+    "usernameSuccess": "Nome utente aggiornato con successo!",
+    "usernameError": "Errore nell'aggiornamento del nome utente",
+    "usernamePermissionError": "Permessi insufficienti per aggiornare il nome utente",
+    "usernameNetworkError": "Errore di connessione. Riprova più tardi"
   },
   "logout": "Logout",
   "navLogin": "Accedi",
@@ -348,7 +364,10 @@
     "subtitle": "Inizia il tuo viaggio finanziario",
     "username": "Username",
     "usernamePlaceholder": "scegli un username",
-    "usernameHelp": "Min. 3 caratteri",
+    "newUsername": "Nuovo Nome Utente",
+    "usernamePlaceholder": "Inserisci nuovo nome utente",
+    "usernameHelp": "Il nome utente deve avere almeno 3 caratteri e la disponibilità verrà verificata.",
+    "updating": "Aggiornamento in corso...",
     "usernameMin": "Min. 3 caratteri",
     "email": "Email",
     "emailPlaceholder": "la tua email",
@@ -376,13 +395,14 @@
     "usernameTaken": "Username già in uso, scegline un altro",
     "accountCreatedSuccess": "Account creato con successo!"
   },
-      "of": "di",
-      "periods": {
-      "daily": "Giornaliero",
-      "weekly": "Settimanale",
-      "monthly": "Mensile",
-      "annually": "Annuale",
-      "all": "Tutto",
-      "custom": "Periodo personalizzato"
-    }
+  "of": "di",
+  "periods": {
+    "daily": "Giornaliero",
+    "weekly": "Settimanale",
+    "monthly": "Mensile",
+    "annually": "Annuale",
+    "all": "Tutto",
+    "month": "Mese",
+    "custom": "Periodo personalizzato"
   }
+}
