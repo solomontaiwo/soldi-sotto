@@ -4,9 +4,8 @@ import App from "./App";
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from "./utils/ThemeProvider";
 import { NotificationProvider } from "./utils/notificationUtils";
-import { AuthProvider } from "./components/Auth/AuthProvider";
-import { UnifiedTransactionProvider } from "./components/Transaction/UnifiedTransactionProvider";
-// Import i18n configuration for internationalization support
+import { AuthProvider } from "./context/AuthProvider";
+import UnifiedTransactionProvider from "./context/UnifiedTransactionProvider";
 import './utils/i18n';
 
 ReactDOM.createRoot(document.getElementById("root")).render(

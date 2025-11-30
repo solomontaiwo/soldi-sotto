@@ -12,39 +12,47 @@ import {
   isEqual,
 } from "date-fns";
 import { it, enUS } from "date-fns/locale";
-
-import formatCurrency from "./formatCurrency";
+import i18n from "./i18n.jsx"; // Import i18n instance
+import formatCurrency from "./formatCurrency.jsx";
+import { generateExportFileName } from "./downloadUtils.jsx";
 
 const getPdfStrings = (lang = "it") => {
-  const isEn = lang?.startsWith("en");
+  // Use i18n.t with the specific language if needed, or just allow i18n to handle it if the global state matches.
+  // To be safe with the 'lang' argument, we can use i18n.getFixedT(lang) if supported, or just change language temporarily (risky).
+  // A simpler approach for this helper: just use standard i18n.t and assume the app's language is correct, 
+  // OR if 'lang' differs, we might need to fetch specific resources.
+  // Given the current architecture, let's try to use the keys.
+  
+  // Actually, simpler: specific keys for PDF in translation.json
   return {
-    reportTitle: isEn ? "Financial Statistics Report" : "Report Statistiche Finanziarie",
-    generatedOn: isEn ? "Generated on" : "Data di generazione",
-    userLabel: isEn ? "User" : "Utente",
-    periodLabel: isEn ? "Reference period" : "Periodo di riferimento",
-    summaryTitle: isEn ? "Financial Summary" : "Riepilogo Finanziario",
-    totalIncome: isEn ? "Total Income" : "Entrate Totali",
-    totalExpense: isEn ? "Total Expense" : "Spese Totali",
-    balance: isEn ? "Balance" : "Saldo",
-    avgDailyIncome: isEn ? "Avg Daily Income" : "Media Giornaliera Entrate",
-    avgDailyExpense: isEn ? "Avg Daily Expense" : "Media Giornaliera Uscite",
-    expenseDistribution: isEn ? "Expense distribution and average by category" : "Distribuzione delle spese e importo medio per categoria",
-    topExpenses: isEn ? "Top 3 Expenses" : "Top 3 Spese Maggiori",
-    topIncomes: isEn ? "Top 3 Incomes" : "Top 3 Entrate Maggiori",
-    fullList: isEn ? "All Transactions" : "Elenco Completo delle Transazioni",
-    noTransactions: isEn ? "No transactions found for this period." : "Nessuna transazione trovata per il periodo selezionato.",
-    date: isEn ? "Date" : "Data",
-    type: isEn ? "Type" : "Tipo",
-    description: isEn ? "Description" : "Descrizione",
-    category: isEn ? "Category" : "Categoria",
-    amount: isEn ? "Amount" : "Importo",
-    incomeLabel: isEn ? "Income" : "Entrata",
-    expenseLabel: isEn ? "Expense" : "Uscita",
+    reportTitle: i18n.t("pdf.reportTitle", { lng: lang }),
+    generatedOn: i18n.t("pdf.generatedOn", { lng: lang }),
+    userLabel: i18n.t("pdf.user", { lng: lang }),
+    periodLabel: i18n.t("pdf.period", { lng: lang }),
+    summaryTitle: i18n.t("pdf.summaryTitle", { lng: lang }),
+    totalIncome: i18n.t("pdf.totalIncome", { lng: lang }),
+    totalExpense: i18n.t("pdf.totalExpense", { lng: lang }),
+    balance: i18n.t("pdf.balance", { lng: lang }),
+    avgDailyIncome: i18n.t("pdf.avgDailyIncome", { lng: lang }),
+    avgDailyExpense: i18n.t("pdf.avgDailyExpense", { lng: lang }),
+    expenseDistribution: i18n.t("pdf.expenseDistribution", { lng: lang }),
+    topExpenses: i18n.t("pdf.topExpenses", { lng: lang }),
+    topIncomes: i18n.t("pdf.topIncomes", { lng: lang }),
+    fullList: i18n.t("pdf.fullList", { lng: lang }),
+    noTransactions: i18n.t("pdf.noTransactions", { lng: lang }),
+    date: i18n.t("pdf.date", { lng: lang }),
+    type: i18n.t("pdf.type", { lng: lang }),
+    description: i18n.t("pdf.description", { lng: lang }),
+    category: i18n.t("pdf.category", { lng: lang }),
+    amount: i18n.t("pdf.amount", { lng: lang }),
+    incomeLabel: i18n.t("pdf.income", { lng: lang }),
+    expenseLabel: i18n.t("pdf.expense", { lng: lang }),
   };
 };
 
-// Funzione helper per determinare le opzioni del periodo
-const periodOptions = (periodText, startDate, endDate) => {
+// Helper function to determine period options
+const periodOptions = (periodText, startDate, endDate, lang) => {
+  // We might want to translate "Custom Period" etc.
   switch (periodText) {
     case "daily":
       return `${format(new Date(), "yyyy/MM/dd")}`;
@@ -64,36 +72,9 @@ const periodOptions = (periodText, startDate, endDate) => {
           "yyyy/MM/dd"
         )}`;
       }
-      return "Periodo personalizzato";
+      return i18n.t("pdf.customPeriod", { lng: lang });
     default:
-      return "Periodo non specificato";
-  }
-};
-
-const generateFileName = (periodText, startDate, endDate) => {
-  const today = new Date();
-  switch (periodText) {
-    case "daily":
-      return `report-soldisotto-${format(today, "yyyy-MM-dd")}.pdf`;
-    case "weekly":
-      return `report-soldisotto-${format(
-        startOfWeek(today),
-        "yyyy-MM-dd"
-      )}-${format(endOfWeek(today), "yyyy-MM-dd")}.pdf`;
-    case "monthly":
-      return `report-soldisotto-${format(today, "yyyy-MM")}.pdf`;
-    case "annually":
-      return `report-soldisotto-${format(today, "yyyy")}.pdf`;
-    case "custom":
-      if (startDate && endDate) {
-        return `report-soldisotto-${format(startDate, "yyyy-MM-dd")}-${format(
-          endDate,
-          "yyyy-MM-dd"
-        )}.pdf`;
-      }
-      return `report-soldisotto-custom.pdf`;
-    default:
-      return `report-soldisotto.pdf`;
+      return i18n.t("pdf.unspecifiedPeriod", { lng: lang });
   }
 };
 
@@ -115,7 +96,7 @@ export const generatePDF = async (
   const now = new Date();
   const centerX = 105;
 
-  // Header e dettagli
+  // Header and details
   if (logoUrl) {
     doc.addImage(logoUrl, "PNG", centerX - 15, 10, 30, 30);
     doc.link(centerX - 15, 10, 30, 30, { url: appUrl });
@@ -131,21 +112,21 @@ export const generatePDF = async (
   );
   doc.text(`${strings.userLabel}: ${currentUser.email}`, centerX, 64, { align: "center" });
 
-  // Usa la funzione periodOptions per ottenere il testo del periodo
-  const periodName = periodOptions(periodText, startDate, endDate);
+  // Use periodOptions helper to get period text
+  const periodName = periodOptions(periodText, startDate, endDate, lang);
   doc.text(`${strings.periodLabel}: ${periodName}`, centerX, 70, {
     align: "center",
   });
 
-  // Calcola il numero di giorni tra startDate ed endDate
+  // Calculate number of days between startDate and endDate
   const daysCount =
     differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1;
 
-  // Calcola la media giornaliera delle entrate e delle uscite
+  // Calculate daily average income and expense
   const avgDailyIncome = daysCount > 0 ? stats.totalIncome / daysCount : 0;
   const avgDailyExpense = daysCount > 0 ? stats.totalExpense / daysCount : 0;
 
-  // Tabella delle spese totali, entrate totali, saldo e media giornaliera
+  // Total expenses, total income, balance and daily average table
   autoTable(doc, {
     startY: 80,
     head: [[strings.totalIncome, strings.totalExpense, strings.balance, strings.avgDailyIncome, strings.avgDailyExpense]],
@@ -161,11 +142,12 @@ export const generatePDF = async (
     margin: { bottom: 20 },
   });
 
-  // Distribuzione delle spese per categoria
+  // Expense distribution by category
   doc.text(strings.expenseDistribution, 14, doc.lastAutoTable.finalY + 10);
   const totalExpense = stats.totalExpense;
   const categoryDistribution = stats.topCategories.map((c) => [
-    `${c.category.charAt(0).toUpperCase() + c.category.slice(1)}`,
+    // Translate category name if possible
+    i18n.t(`categories.${c.category}`, { lng: lang, defaultValue: c.category }),
     `${((c.amount / totalExpense) * 100).toFixed(2)}%`,
     formatCurrency(
       c.amount / transactions.filter((tx) => tx.category === c.category).length
@@ -178,88 +160,82 @@ export const generatePDF = async (
     margin: { bottom: 20 },
   });
 
-  // Filtra le spese nel periodo di riferimento e seleziona le top 3 maggiori
+  // Filter expenses in the reference period and select top 3 largest
   const topExpenses = transactions
     .filter(
       (tx) =>
         tx.type === "expense" &&
-        (isAfter(tx.date.toDate(), startDate) ||
-          isEqual(tx.date.toDate(), startDate)) &&
-        (isBefore(tx.date.toDate(), endDate) ||
-          isEqual(tx.date.toDate(), endDate))
+        (isAfter(tx.date, startDate) || isEqual(tx.date, startDate)) &&
+        (isBefore(tx.date, endDate) || isEqual(tx.date, endDate))
     )
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 3);
 
-  // Filtra le entrate nel periodo di riferimento e seleziona le top 3 maggiori
+  // Filter incomes in the reference period and select top 3 largest
   const topIncomes = transactions
     .filter(
       (tx) =>
         tx.type === "income" &&
-        (isAfter(tx.date.toDate(), startDate) ||
-          isEqual(tx.date.toDate(), startDate)) &&
-        (isBefore(tx.date.toDate(), endDate) ||
-          isEqual(tx.date.toDate(), endDate))
+        (isAfter(tx.date, startDate) || isEqual(tx.date, startDate)) &&
+        (isBefore(tx.date, endDate) || isEqual(tx.date, endDate))
     )
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 3);
 
-  // Filtra tutte le transazioni per l'elenco completo
+  // Filter all transactions for the full list
   const allTransactions = transactions
     .filter(
       (tx) =>
-        (isAfter(tx.date.toDate(), startDate) ||
-          isEqual(tx.date.toDate(), startDate)) &&
-        (isBefore(tx.date.toDate(), endDate) ||
-          isEqual(tx.date.toDate(), endDate))
+        (isAfter(tx.date, startDate) || isEqual(tx.date, startDate)) &&
+        (isBefore(tx.date, endDate) || isEqual(tx.date, endDate))
     )
-    .sort((a, b) => a.date.seconds - b.date.seconds); // Ordina dalla meno recente alla più recente
+    .sort((a, b) => a.date.getTime() - b.date.getTime()); // Sort oldest to newest
 
-  // Generazione della tabella per le top 3 spese maggiori
+  // Generate table for top 3 largest expenses
   doc.text(strings.topExpenses, 14, doc.lastAutoTable.finalY + 10);
   autoTable(doc, {
     startY: doc.lastAutoTable.finalY + 15,
     head: [[strings.date, strings.description, strings.amount, strings.category]],
     body: topExpenses.map((tx) => [
-      format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy", { locale }),
+      format(tx.date, "dd/MM/yyyy", { locale }),
       tx.description,
       formatCurrency(tx.amount),
-      tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
+      i18n.t(`categories.${tx.category}`, { lng: lang, defaultValue: tx.category }),
     ]),
     margin: { bottom: 20 },
   });
 
-  // Generazione della tabella per le top 3 entrate maggiori
+  // Generate table for top 3 largest incomes
   doc.text(strings.topIncomes, 14, doc.lastAutoTable.finalY + 10);
   autoTable(doc, {
     startY: doc.lastAutoTable.finalY + 15,
     head: [[strings.date, strings.description, strings.amount, strings.category]],
     body: topIncomes.map((tx) => [
-      format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy", { locale }),
+      format(tx.date, "dd/MM/yyyy", { locale }),
       tx.description,
       formatCurrency(tx.amount),
-      tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
+      i18n.t(`categories.${tx.category}`, { lng: lang, defaultValue: tx.category }),
     ]),
     margin: { bottom: 20 },
   });
 
-  doc.addPage(); // Aggiungi una nuova pagina
+  doc.addPage(); // Add a new page
 
   doc.text(strings.fullList, 14, 20);
   autoTable(doc, {
     startY: 25,
     head: [[strings.date, strings.description, strings.amount, strings.category, strings.type]],
     body: allTransactions.map((tx) => [
-      format(new Date(tx.date.seconds * 1000), "dd/MM/yyyy", { locale }),
+      format(tx.date, "dd/MM/yyyy", { locale }),
       tx.description,
       formatCurrency(tx.amount),
-      tx.category.charAt(0).toUpperCase() + tx.category.slice(1),
+      i18n.t(`categories.${tx.category}`, { lng: lang, defaultValue: tx.category }),
       tx.type === "income" ? strings.incomeLabel : strings.expenseLabel,
     ]),
     margin: { bottom: 20 },
   });
 
-  // Aggiungi il piè di pagina solo all'ultima pagina
+  // Add footer only to the last page
   const pageCount = doc.internal.getNumberOfPages();
   doc.setFontSize(10);
   for (let i = 1; i <= pageCount; i++) {
@@ -283,17 +259,21 @@ export const generatePDF = async (
     }
   }
 
-  // Salva il file PDF
-  const filename = generateFileName(periodText, startDate, endDate);
+  // Save PDF file using generateExportFileName
+  const filename = generateExportFileName(periodText, startDate, endDate, currentUser, "pdf");
   doc.save(filename);
 };
 
-export const generatePDFReport = async (transactions = [], lang = "it") => {
+export const generatePDFReport = async (transactions = [], lang = "it", user = "user", filenameOverride = null) => {
   try {
     const strings = getPdfStrings(lang);
     const locale = lang?.startsWith("en") ? enUS : it;
     const doc = new jsPDF();
     const currentDate = new Date();
+    
+    // Generate filename with current date and username if not overridden
+    // Default to "daily" snapshot logic if no override is provided
+    const filename = filenameOverride || generateExportFileName("daily", currentDate, currentDate, user, "pdf");
     
     // Header
     doc.setFontSize(20);
@@ -303,7 +283,7 @@ export const generatePDFReport = async (transactions = [], lang = "it") => {
     // Date
     doc.setFontSize(12);
     doc.setTextColor(100, 116, 139);
-    doc.text(`${strings.generatedOn}: ${format(currentDate, "dd MMMM yyyy 'alle' HH:mm", { locale })}`, 20, 30);
+    doc.text(`${strings.generatedOn}: ${format(currentDate, "dd MMMM yyyy 'at' HH:mm", { locale })}`, 20, 30);
     
     // Summary statistics
     const totalIncome = transactions
@@ -349,21 +329,13 @@ export const generatePDFReport = async (transactions = [], lang = "it") => {
     
     // Prepare table data
     const tableData = transactions
-      .sort((a, b) => {
-        const dateA = a.date.toDate ? a.date.toDate() : new Date(a.date);
-        const dateB = b.date.toDate ? b.date.toDate() : new Date(b.date);
-        return dateB - dateA; // Most recent first
-      })
+      .sort((a, b) => b.date.getTime() - a.date.getTime()) // Most recent first
       .map(transaction => {
-        const transactionDate = transaction.date.toDate 
-          ? transaction.date.toDate() 
-          : new Date(transaction.date);
-        
         return [
-          format(transactionDate, "dd/MM/yyyy", { locale }),
+          format(transaction.date, "dd/MM/yyyy", { locale }),
           transaction.type === "income" ? strings.incomeLabel : strings.expenseLabel,
           transaction.description || "N/A",
-          transaction.category || "N/A",
+          i18n.t(`categories.${transaction.category}`, { lng: lang, defaultValue: transaction.category }),
           (transaction.type === "income" ? "+" : "-") + formatCurrency(transaction.amount).replace('€', '').trim()
         ];
       });
@@ -390,11 +362,11 @@ export const generatePDFReport = async (transactions = [], lang = "it") => {
         fillColor: [248, 250, 252],
       },
       columnStyles: {
-        0: { halign: 'center', cellWidth: 25 }, // Data
-        1: { halign: 'center', cellWidth: 20 }, // Tipo
-        2: { halign: 'left', cellWidth: 60 },   // Descrizione
-        3: { halign: 'left', cellWidth: 35 },   // Categoria
-        4: { halign: 'right', cellWidth: 30 },  // Importo
+        0: { halign: 'center', cellWidth: 25 }, // Date
+        1: { halign: 'center', cellWidth: 20 }, // Type
+        2: { halign: 'left', cellWidth: 60 },   // Description
+        3: { halign: 'left', cellWidth: 35 },   // Category
+        4: { halign: 'right', cellWidth: 30 },  // Amount
       },
       didParseCell: function(data) {
         // Color coding for amounts
@@ -410,7 +382,7 @@ export const generatePDFReport = async (transactions = [], lang = "it") => {
         // Color coding for transaction type
         if (data.column.index === 1) { // Type column
           const cellText = data.cell.text[0];
-          if (cellText === 'Entrata') {
+          if (cellText === strings.incomeLabel) {
             data.cell.styles.textColor = [34, 197, 94]; // Green
           } else {
             data.cell.styles.textColor = [239, 68, 68]; // Red
@@ -429,41 +401,39 @@ export const generatePDFReport = async (transactions = [], lang = "it") => {
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
       doc.text(
-        `Pagina ${i} di ${pageCount} - Generato da Soldi Sotto`,
+        `Page ${i} of ${pageCount} - Generated by Soldi Sotto`,
         doc.internal.pageSize.width / 2,
         doc.internal.pageSize.height - 10,
         { align: 'center' }
       );
     }
     
-    // Generate filename with current date
-    const filename = `soldi-sotto-report-${format(currentDate, "yyyy-MM-dd-HHmm")}.pdf`;
-    
     // Save the PDF
     doc.save(filename);
     
     return { success: true, filename };
   } catch (error) {
-    console.error("Errore nella generazione del PDF:", error);
-    throw new Error("Impossibile generare il PDF");
+    console.error("Error generating PDF:", error);
+    throw new Error("Unable to generate PDF");
   }
 };
 
-// Funzione per generare un report per periodo specifico
-export const generatePeriodPDFReport = async (transactions = [], startDate, endDate, periodLabel = "Periodo Personalizzato", lang = "it") => {
+// Function to generate a report for a specific period
+export const generatePeriodPDFReport = async (transactions = [], startDate, endDate, periodLabel = "Custom Period", lang = "it", user = "user") => {
   try {
     const strings = getPdfStrings(lang);
     const locale = lang?.startsWith("en") ? enUS : it;
-    // Filter transactions by period
+    // Filter transactions by period (assuming date objects)
     const filteredTransactions = transactions.filter(transaction => {
-      const transactionDate = transaction.date.toDate 
-        ? transaction.date.toDate() 
-        : new Date(transaction.date);
-      return transactionDate >= startDate && transactionDate <= endDate;
+      return transaction.date >= startDate && transaction.date <= endDate;
     });
     
     const doc = new jsPDF();
     const currentDate = new Date();
+    
+    // Generate correct filename for custom period using the new utility
+    // We pass "custom" as periodText so it uses startDate and endDate for the name
+    const filename = generateExportFileName("custom", startDate, endDate, user, "pdf");
     
     // Header
     doc.setFontSize(20);
@@ -475,20 +445,30 @@ export const generatePeriodPDFReport = async (transactions = [], startDate, endD
     doc.setTextColor(100, 116, 139);
     doc.text(`${strings.periodLabel}: ${periodLabel}`, 20, 30);
     doc.text(`${strings.date}: ${format(startDate, "dd/MM/yyyy", { locale })} - ${format(endDate, "dd/MM/yyyy", { locale })}`, 20, 37);
-    doc.text(`${strings.generatedOn}: ${format(currentDate, "dd MMMM yyyy 'alle' HH:mm", { locale })}`, 20, 44);
+    doc.text(`${strings.generatedOn}: ${format(currentDate, "dd MMMM yyyy 'at' HH:mm", { locale })}`, 20, 44);
     
     if (filteredTransactions.length === 0) {
       doc.setFontSize(14);
       doc.setTextColor(107, 114, 128);
       doc.text(strings.noTransactions, 20, 60);
-      doc.save(`soldi-sotto-periodo-${format(currentDate, "yyyy-MM-dd-HHmm")}.pdf`);
+      doc.save(filename); // Use consistent filename even for empty reports
       return { success: true, transactionCount: 0 };
     }
     
-    // Usa il report standard con il sottoinsieme filtrato
-    return await generatePDFReport(filteredTransactions, lang);
+    // For now, re-use generic report logic but we need to override the save behavior or just copy the table generation.
+    // Since generatePDFReport enforces its own filename generation and save, passing control is tricky without refactoring it to accept a filename override.
+    // Ideally, I should have refactored generatePDFReport to return the doc instead of saving, or accept a filename.
+    // BUT I can't change everything perfectly in one step without breaking things.
+    // HACK: Let's rely on generatePDFReport's internal logic which I just updated to use generateExportFileName("daily", ...)
+    // WAIT, "daily" is not correct for a period report.
+    
+    // Better fix: Copy table generation here or refactor generatePDFReport to accept a filename.
+    // I will assume generatePDFReport is mainly used for "Current View" snapshot.
+    // Since I am rewriting the file, I will add an optional 'filenameOverride' to generatePDFReport.
+    
+    return await generatePDFReport(filteredTransactions, lang, user, filename);
   } catch (error) {
-    console.error("Errore nella generazione del PDF per periodo:", error);
-    throw new Error("Impossibile generare il PDF per il periodo");
+    console.error("Error generating PDF for period:", error);
+    throw new Error("Unable to generate PDF for period");
   }
 };

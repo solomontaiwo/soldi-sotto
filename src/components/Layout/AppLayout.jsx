@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useAuth } from "../../context/AuthProvider";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider";
 import Navbar from "../Navbar/Navbar";
 import BottomNavigation from "./BottomNavigation";
 import { useMediaQuery } from "react-responsive";
@@ -16,13 +16,13 @@ const AppLayout = ({ children }) => {
   const { isDemo } = useUnifiedTransactions();
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
-  // Definisce le rotte pubbliche dove non mostrare la navigazione
+  // Define public routes where navigation is not shown
   const publicRoutes = ["/", "/login", "/register"];
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
-  // Mostra la navigazione se:
-  // 1. Non è una route pubblica E
-  // 2. (L'utente è autenticato O è in modalità demo)
+  // Show navigation if:
+  // 1. It is not a public route AND
+  // 2. (User is authenticated OR is in demo mode)
   const showNavigation = !isPublicRoute && (currentUser || isDemo);
 
   return (
@@ -44,4 +44,4 @@ const AppLayout = ({ children }) => {
   );
 };
 
-export default AppLayout; 
+export default AppLayout;

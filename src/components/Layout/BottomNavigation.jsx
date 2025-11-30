@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useAuth } from "../../context/AuthProvider";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider";
 import { FiHome, FiList, FiBarChart, FiUser, FiLogIn, FiUserPlus } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";

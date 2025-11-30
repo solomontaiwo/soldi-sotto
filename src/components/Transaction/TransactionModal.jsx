@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { useUnifiedTransactions } from "./UnifiedTransactionProvider";
-import { useCategories } from "../../utils/categories";
-import { useNotification } from "../../utils/notificationUtils";
-import { useMediaQuery } from "react-responsive";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
+import { useCategories } from "../../utils/categories.jsx";
+import { useNotification } from "../../utils/notificationUtils.jsx";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
@@ -31,7 +30,6 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
   const { addTransaction, updateTransaction } = useUnifiedTransactions();
   const { expenseCategories, incomeCategories } = useCategories();
   const notification = useNotification();
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const { t } = useTranslation();
 
   const [categories, setCategories] = useState([]);
@@ -92,7 +90,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
     const normalizedAmount = formData.amount.replace(",", ".");
     const amountValue = parseFloat(normalizedAmount);
     if (isNaN(amountValue) || amountValue <= 0) {
-      notification.error("Inserisci un importo valido");
+      notification.error(t("transaction.invalidAmount"));
       return;
     }
 
@@ -158,7 +156,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
             </Button>
           </div>
 
-          <div className={`grid gap-4 ${isMobile ? "" : "grid-cols-2"}`}>
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
             <div className="space-y-2">
               <Label>{t("transactionModal.amount")}</Label>
               <Input
@@ -188,6 +186,7 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                 value={formData.date}
                 onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
                 required
+                className="block w-full"
               />
             </div>
           </div>

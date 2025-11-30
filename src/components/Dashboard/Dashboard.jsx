@@ -1,16 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
-import TransactionModal from "../Transaction/TransactionModal";
+import { useAuth } from "../../context/AuthProvider.jsx";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
+import TransactionModal from "../Transaction/TransactionModal.jsx";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FiBarChart2, FiList, FiPlus, FiPieChart } from "react-icons/fi";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import RecentTransactions from "./RecentTransactions";
-import formatCurrency from "../../utils/formatCurrency";
-import { calculateStats, getPeriodRange } from "../../utils/statsUtils";
+import formatCurrency from "../../utils/formatCurrency.jsx";
+import { calculateStats, getPeriodRange } from "../../utils/statsUtils.jsx";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,10 +22,24 @@ const Dashboard = () => {
     isDemo,
     canAddMoreTransactions,
     loading: transactionsLoading,
+    fetchAllTransactions,
   } = useUnifiedTransactions();
 
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [dashboardData, setDashboardData] = useState([]);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const load = async () => {
+      if (isDemo) {
+        setDashboardData(transactions);
+      } else if (currentUser) {
+        const data = await fetchAllTransactions();
+        setDashboardData(data);
+      }
+    };
+    load();
+  }, [isDemo, transactions, currentUser, fetchAllTransactions]);
 
   const periodPref = useMemo(() => {
     const saved = localStorage.getItem("analytics-period");
@@ -38,16 +54,20 @@ const Dashboard = () => {
   }, []);
 
   const { start: periodStart, end: periodEnd } = getPeriodRange(periodPref.period || "monthly", periodPref.customRange);
+  
   const filtered = useMemo(
     () =>
-      transactions.filter((t) => {
-        const date = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+      dashboardData.filter((t) => {
+        const date = t.date;
         return date >= periodStart && date <= periodEnd;
       }),
-    [transactions, periodStart, periodEnd]
+    [dashboardData, periodStart, periodEnd]
   );
 
-  const stats = filtered.length ? calculateStats(filtered, periodStart, periodEnd) : { totalIncome: 0, totalExpense: 0, balance: 0 };
+  const stats = useMemo(() => {
+    if (transactionsLoading) return null;
+    return filtered.length ? calculateStats(filtered, periodStart, periodEnd) : { totalIncome: 0, totalExpense: 0, balance: 0 };
+  }, [filtered, periodStart, periodEnd, transactionsLoading]);
 
   const quickActions = useMemo(
     () => [
@@ -105,13 +125,23 @@ const Dashboard = () => {
             <CardDescription>{t("financialOverview.totalTransactions")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-primary">{formatCurrency(stats.balance || 0)}</p>
-            <p className="text-sm text-muted-foreground">
-              {t("financialOverview.totalIncome")}: {formatCurrency(stats.totalIncome || 0)}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("financialOverview.totalExpense")}: {formatCurrency(stats.totalExpense || 0)}
-            </p>
+            {transactionsLoading || !stats ? (
+              <div className="space-y-2">
+                <Skeleton height={36} width="60%" />
+                <Skeleton height={20} width="40%" />
+                <Skeleton height={20} width="40%" />
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-bold text-primary">{formatCurrency(stats.balance || 0)}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("financialOverview.totalIncome")}: {formatCurrency(stats.totalIncome || 0)}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t("financialOverview.totalExpense")}: {formatCurrency(stats.totalExpense || 0)}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card className="glass">
@@ -120,8 +150,17 @@ const Dashboard = () => {
             <CardDescription>{periodPref.period}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-emerald-600">{formatCurrency(stats.totalIncome || 0)}</p>
-            <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+            {transactionsLoading || !stats ? (
+              <div className="space-y-2">
+                <Skeleton height={36} width="50%" />
+                <Skeleton height={20} width="30%" />
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-bold text-emerald-600">{formatCurrency(stats.totalIncome || 0)}</p>
+                <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card className="glass">
@@ -130,8 +169,17 @@ const Dashboard = () => {
             <CardDescription>{periodPref.period}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-rose-600">{formatCurrency(stats.totalExpense || 0)}</p>
-            <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+            {transactionsLoading || !stats ? (
+              <div className="space-y-2">
+                <Skeleton height={36} width="50%" />
+                <Skeleton height={20} width="30%" />
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-bold text-rose-600">{formatCurrency(stats.totalExpense || 0)}</p>
+                <p className="text-sm text-muted-foreground">{t("recentTransactions.title")}</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

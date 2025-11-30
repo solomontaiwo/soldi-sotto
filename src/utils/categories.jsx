@@ -1,13 +1,13 @@
-// Questo file contiene le categorie per le spese e gli introiti in un'applicazione React.
-// Importiamo il hook `useMemo` da React per ottimizzare il calcolo delle categorie.
+// This file contains categories for expenses and incomes in a React application.
+// We import the `useMemo` hook from React to optimize category calculation.
 import { useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 
-// Creiamo un custom hook chiamato `useCategories` che restituisce le categorie di spesa e introito.
+// Create a custom hook called `useCategories` that returns expense and income categories.
 export const useCategories = () => {
   const { t } = useTranslation();
 
-  // Categorie spese: priorità quotidiana
+  // Expense categories: daily priority
   const expenseCategories = useMemo(
     () => [
       { value: "supermercato", label: `🛒 ${t('categories.supermercato')}` },
@@ -24,7 +24,7 @@ export const useCategories = () => {
     [t]
   );
 
-  // Categorie introiti: priorità stipendio/freelance
+  // Income categories: salary/freelance priority
   const incomeCategories = useMemo(
     () => [
       { value: "stipendio", label: `💼 ${t('categories.stipendio')}` },
@@ -39,7 +39,7 @@ export const useCategories = () => {
     [t]
   );
 
-  // Il custom hook restituisce un oggetto contenente le categorie di spesa e introito.
-  // Questo permette ad altri componenti di accedere facilmente ai dati.
+  // The custom hook returns an object containing expense and income categories.
+  // This allows other components to easily access the data.
   return { expenseCategories, incomeCategories };
 };

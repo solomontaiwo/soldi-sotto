@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../../utils/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+  var _s = $RefreshSig$(), _s2 = $RefreshSig$();
+  import { createContext, useContext, useEffect, useState } from "react";
+  import { auth } from "../utils/firebase.jsx";
+  import { onAuthStateChanged, signOut } from "firebase/auth";
 import PropTypes from "prop-types";
 
 const AuthContext = createContext();

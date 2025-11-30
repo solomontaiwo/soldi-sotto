@@ -34,6 +34,7 @@
     "user": "User",
     "registeredOn": "Registered on",
     "dateNotAvailable": "Date not available",
+    "emailAddress": "Email Address",
     "account": "Account",
     "accountInfo": "Your settings are saved automatically. Your data is protected with end-to-end encryption.",
     "backToDashboard": "Back to Dashboard",
@@ -49,7 +50,8 @@
     "usernameSuccess": "Username updated successfully!",
     "usernameError": "Error updating username",
     "usernamePermissionError": "Insufficient permissions to update username",
-    "usernameNetworkError": "Connection error. Please try again later"
+    "usernameNetworkError": "Connection error. Please try again later",
+    "newUsernamePlaceholder": "Insert new username"
   },
   "logout": "Logout",
   "navLogin": "Login",
@@ -109,7 +111,8 @@
     "addIncome": "Add Income",
     "addExpense": "Add Expense",
     "saveChanges": "Save Changes",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "invalidAmount": "Please enter a valid amount"
   },
   "navbar": {
     "dashboard": "Dashboard",
@@ -125,7 +128,7 @@
     "heroTitle": "Soldi Sotto",
     "heroSubtitle": "Your personal finance under control. Manage income and expenses, view detailed statistics and make informed decisions for your financial future.",
     "tryDemo": "Try Free Demo",
-    "register": "Register Free",
+    "register": "Register for Free",
     "login": "Login",
     "mainFeatures": "Main Features",
     "mainFeaturesDescription": "Everything you need to manage your finances professionally",
@@ -260,6 +263,7 @@
     "demoMode": "Demo Mode",
     "transactions": "transactions",
     "deleteConfirm": "Delete Permanently",
+    "loadMore": "Load full history",
     "filters": {
       "label": "Filters",
       "show": "Show Filters",
@@ -276,6 +280,32 @@
       "tryFilters": "Try modifying your search filters",
       "addFirst": "Start by adding your first transaction"
     }
+  },
+  "pdf": {
+    "reportTitle": "Financial Statistics Report",
+    "generatedOn": "Generated on",
+    "user": "User",
+    "period": "Reference period",
+    "summaryTitle": "Financial Summary",
+    "totalIncome": "Total Income",
+    "totalExpense": "Total Expense",
+    "balance": "Balance",
+    "avgDailyIncome": "Avg Daily Income",
+    "avgDailyExpense": "Avg Daily Expense",
+    "expenseDistribution": "Expense distribution and average by category",
+    "topExpenses": "Top 3 Expenses",
+    "topIncomes": "Top 3 Incomes",
+    "fullList": "All Transactions",
+    "noTransactions": "No transactions found for this period.",
+    "date": "Date",
+    "type": "Type",
+    "description": "Description",
+    "category": "Category",
+    "amount": "Amount",
+    "income": "Income",
+    "expense": "Expense",
+    "customPeriod": "Custom Period",
+    "unspecifiedPeriod": "Unspecified Period"
   },
   "categories": {
     "alimentazione": "Food",

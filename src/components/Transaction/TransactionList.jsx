@@ -1,63 +1,153 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useUnifiedTransactions } from "./UnifiedTransactionProvider";
-import { useAuth } from "../Auth/AuthProvider";
-import TransactionModal from "./TransactionModal";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
+import { useAuth } from "../../context/AuthProvider.jsx";
+import TransactionModal from "./TransactionModal.jsx";
 import {
-  format,
-  isToday,
-  isYesterday,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  startOfDay,
-  endOfDay,
-  startOfYear,
-  endOfYear,
-} from "date-fns";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { format, isToday, isYesterday } from "date-fns";
+import { it, enUS } from "date-fns/locale";
 import { useMediaQuery } from "react-responsive";
-import formatCurrency from "../../utils/formatCurrency";
+import formatCurrency from "../../utils/formatCurrency.jsx";
 import { FiPlus, FiTrash2, FiFilter, FiSearch, FiEdit2 } from "react-icons/fi";
-import { useCategories } from "../../utils/categories";
+import { useCategories } from "../../utils/categories.jsx";
 import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
-import "dayjs/locale/it";
-import "dayjs/locale/en";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select } from "../ui/select";
 import { Badge } from "../ui/badge";
+import { useDateRange } from "../../hooks/useDateRange.jsx";
+import { useTransactionFilter } from "../../hooks/useTransactionFilter.jsx";
 
 const TransactionList = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const {
-    transactions,
+    transactions, // This is the limited recent stream
     loading: transactionsLoading,
     deleteTransaction,
     isDemo,
     canAddMoreTransactions,
     maxTransactions,
+    fetchAllTransactions, // New method to fetch more history
+    getTotalTransactionCount, // New method to get total count
   } = useUnifiedTransactions();
 
   const { expenseCategories, incomeCategories } = useCategories();
 
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [editTransaction, setEditTransaction] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [period, setPeriod] = useState("monthly");
-  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedType, setSelectedType] = useState("all");
+  
+  // Local state for loaded transactions (for scalability)
+  const [allLoadedTransactions, setAllLoadedTransactions] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true); // Logic to determine if more exist could be improved
+  const [totalTransactionCount, setTotalTransactionCount] = useState(0); // For "X of Y" display
+
+  // Using custom hooks
+  const { period, setPeriod, startDate, endDate } = useDateRange("monthly");
+  
+  // Fetch total count on mount for authenticated users
+  useEffect(() => {
+    const fetchCount = async () => {
+      if (currentUser && !isDemo) {
+        const count = await getTotalTransactionCount();
+        setTotalTransactionCount(count);
+      } else if (isDemo) {
+        setTotalTransactionCount(transactions.length); // For demo, initial transactions are the total
+      }
+    };
+    fetchCount();
+  }, [currentUser, isDemo, getTotalTransactionCount, transactions]);
+
+  // Update loaded transactions when live transactions update (dashboard sync)
+  useEffect(() => {
+    if (transactions.length > 0) {
+      setAllLoadedTransactions(prev => {
+        // Merge fresh live transactions with existing loaded ones, avoiding duplicates
+        const existingIds = new Set(prev.map(t => t.id));
+        const newTransactions = transactions.filter(t => !existingIds.has(t.id));
+        
+        // Simpler: For now, just use 'transactions' as base. 
+        // If user wants "history", we fetchAll and replace? 
+        // Or better: Initialize 'allLoadedTransactions' with 'transactions' on mount.
+        // If full history is loaded, don't override with recent 50.
+        // If full history not loaded yet, just use recent.
+        if (allLoadedTransactions.length === 0 || allLoadedTransactions.length <= transactions.length) {
+            // If no full history loaded yet, or current full history is smaller than recent (unlikely),
+            // initialize with recent.
+            return transactions.sort((a, b) => b.date - a.date);
+        }
+        
+        // Otherwise, if full history is loaded, just prepend new transactions
+        return [...newTransactions, ...prev].sort((a, b) => b.date - a.date);
+      });
+    }
+  }, [transactions]); // Depend on transactions (recent stream)
+
+  // Load initial data or full history if needed
+  // For scalable solution: Dashboard loads recent (50). 
+  // List page *could* load more.
+  // Let's implement a manual "Load Full History" for now to solve the "search/filter" issue 
+  // or just rely on the 'recent' list for default view.
+  
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    // As a quick scalability fix without deep pagination cursors everywhere, 
+    // let's fetch ALL for the 'List' view if requested, or a larger chunk.
+    // Since we refactored service to 'fetchAll', let's use that but warn it might be heavy.
+    const fullHistory = await fetchAllTransactions();
+    setAllLoadedTransactions(fullHistory);
+    setTotalTransactionCount(fullHistory.length); // Update total count to actual fetched count
+    setHasMore(false); // Assumes we fetched everything
+    setIsLoadingMore(false);
+  };
+
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isDemo && allLoadedTransactions.length > 0 && totalTransactionCount > allLoadedTransactions.length) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+    
+    const currentRef = sentinelRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+    
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, [hasMore, isLoadingMore, isDemo, allLoadedTransactions.length, totalTransactionCount, handleLoadMore]);
+
+  const {
+    filteredTransactions,
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    selectedType,
+    setSelectedType,
+  } = useTransactionFilter(allLoadedTransactions.length > 0 ? allLoadedTransactions : transactions, { startDate, endDate });
 
   const { t, i18n } = useTranslation();
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const loading = authLoading || transactionsLoading;
+  const loading = authLoading || (transactionsLoading && allLoadedTransactions.length === 0);
 
   const motivationalQuotes = useMemo(() => t("dashboard.motivationalQuotes", { returnObjects: true }), [t]);
   const [quote, setQuote] = useState("");
@@ -67,29 +157,24 @@ const TransactionList = () => {
     }
   }, [motivationalQuotes]);
 
+  const getDateLocale = (lang) => {
+    return lang === "it" ? it : enUS;
+  };
+
   const formatGroupDate = (date) => {
     const lang = i18n.language || "it";
     if (isToday(date)) return t("transactions.today");
     if (isYesterday(date)) return t("transactions.yesterday");
-    return dayjs(date).locale(lang).format(lang === "it" ? "DD MMMM YYYY" : "MMM DD, YYYY");
-  };
-
-  const getTransactionDate = (transaction) => {
-    if (transaction.date?.toDate) {
-      return transaction.date.toDate();
-    } else if (transaction.date?.seconds) {
-      return new Date(transaction.date.seconds * 1000);
-    } else if (transaction.date instanceof Date) {
-      return transaction.date;
-    } else {
-      return new Date(transaction.date);
-    }
+    
+    const locale = getDateLocale(lang);
+    const pattern = lang === "it" ? "dd MMMM yyyy" : "MMM dd, yyyy";
+    return format(date, pattern, { locale });
   };
 
   const groupTransactionsByDate = (transactions) => {
     const groups = {};
     transactions.forEach((transaction) => {
-      const date = getTransactionDate(transaction);
+      const date = transaction.date;
       const dateKey = format(date, "yyyy-MM-dd");
       if (!groups[dateKey]) {
         groups[dateKey] = {
@@ -115,53 +200,6 @@ const TransactionList = () => {
     return categoryData ? categoryData.label : category;
   };
 
-  useEffect(() => {
-    const usableTransactions = transactions.filter((t) => !t.isSample);
-    if (usableTransactions.length > 0) {
-      const today = new Date();
-      let startDate, endDate;
-
-      switch (period) {
-        case "weekly":
-          startDate = startOfWeek(today, { weekStartsOn: 1 });
-          endDate = endOfWeek(today, { weekStartsOn: 1 });
-          break;
-        case "daily":
-          startDate = startOfDay(today);
-          endDate = endOfDay(today);
-          break;
-        case "annually":
-          startDate = startOfYear(today);
-          endDate = endOfYear(today);
-          break;
-        case "all":
-          startDate = new Date(0);
-          endDate = new Date();
-          break;
-        case "monthly":
-        default:
-          startDate = startOfMonth(today);
-          endDate = endOfMonth(today);
-          break;
-      }
-
-      let filtered = usableTransactions.filter((transaction) => {
-        const transactionDate = getTransactionDate(transaction);
-        const inDateRange = transactionDate >= startDate && transactionDate <= endDate;
-        const matchesSearch =
-          searchTerm === "" ||
-          transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory;
-        const matchesType = selectedType === "all" || transaction.type === selectedType;
-        return inDateRange && matchesSearch && matchesCategory && matchesType;
-      });
-
-      filtered.sort((a, b) => getTransactionDate(b) - getTransactionDate(a));
-      setFilteredTransactions(filtered);
-    }
-  }, [transactions, period, searchTerm, selectedCategory, selectedType]);
-
   const handleDeleteClick = useCallback(async (transactionId) => {
     setDeleteConfirm(transactionId);
   }, []);
@@ -170,10 +208,12 @@ const TransactionList = () => {
     if (deleteConfirm) {
       const success = await deleteTransaction(deleteConfirm);
       if (success) setDeleteConfirm(null);
+      // Update local state manually to avoid refetch wait
+      setAllLoadedTransactions(prev => prev.filter(t => t.id !== deleteConfirm));
     }
   }, [deleteConfirm, deleteTransaction]);
 
-  const categories = [...new Set(transactions.filter((t) => !t.isSample).map((t) => t.category))];
+  const categories = [...new Set(allLoadedTransactions.length > 0 ? allLoadedTransactions.map(t => t.category) : transactions.map(t => t.category))];
 
   const periodOptions = [
     { value: "daily", label: t("transactions.filters.today") },
@@ -222,9 +262,6 @@ const TransactionList = () => {
               💳 {t("transactions.title")}
             </h1>
             <div className="text-primary text-sm italic">{quote}</div>
-            <div className="text-sm text-muted-foreground">
-              {filteredTransactions.length} {t("of")} {transactions.length}
-            </div>
           </div>
           <Button
             onClick={() => setShowModal(true)}
@@ -267,7 +304,7 @@ const TransactionList = () => {
 
           {isDemo && (
             <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary flex items-center gap-2">
-              <Badge variant="secondary">{transactions.length}/{maxTransactions}</Badge>
+              <Badge variant="secondary">{transactions.filter(t => !t.isSample).length}/{maxTransactions}</Badge>
               <span>{t("transactions.demoMode")}</span>
             </div>
           )}
@@ -337,7 +374,9 @@ const TransactionList = () => {
                       <div className="space-y-1">
                         <div className="text-base font-semibold leading-tight">{transaction.description}</div>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          <span>{dayjs(getTransactionDate(transaction)).locale(i18n.language).format(i18n.language === "it" ? "DD MMM YYYY" : "MMM DD, YYYY")}</span>
+                          <span>
+                            {format(transaction.date, i18n.language === "it" ? "dd MMM yyyy" : "MMM dd, yyyy", { locale: getDateLocale(i18n.language) })}
+                          </span>
                           <span>•</span>
                           <span>{getCategoryLabel(transaction.category)}</span>
                         </div>
@@ -346,7 +385,8 @@ const TransactionList = () => {
                     <div className="flex items-center gap-2">
                       <div
                         className={`text-base font-bold ${
-                          transaction.type === "income" ? "text-emerald-600" : "text-rose-600"
+                          transaction.type === "income" ? "text-emerald-600"
+                            : "text-rose-600"
                         }`}
                       >
                         {transaction.type === "income" ? "+" : "-"}
@@ -403,6 +443,18 @@ const TransactionList = () => {
             </Button>
           </motion.div>
         )}
+        
+        {/* Infinite Scroll Sentinel */}
+        {hasMore && !isDemo && allLoadedTransactions.length > 0 && totalTransactionCount > allLoadedTransactions.length && (
+          <div ref={sentinelRef} className="flex justify-center py-6">
+            {isLoadingMore && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                {t("loading")}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <TransactionModal
@@ -414,42 +466,53 @@ const TransactionList = () => {
         transaction={editTransaction}
       />
 
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
-            <div className="mb-3 text-lg font-semibold">{t("confirmDelete")}</div>
-            <div className="mb-4 space-y-1">
-              <div className="font-bold text-foreground">
-                {transactions.find((t) => t.id === deleteConfirm)?.description}
-              </div>
-              <div className="text-muted-foreground text-sm">
-                {formatGroupDate(getTransactionDate(transactions.find((t) => t.id === deleteConfirm)))} •{" "}
-                {getCategoryLabel(transactions.find((t) => t.id === deleteConfirm)?.category)}
-              </div>
-              <div
-                className={`font-semibold ${
-                  transactions.find((t) => t.id === deleteConfirm)?.type === "income"
-                    ? "text-emerald-600"
-                    : "text-rose-600"
-                }`}
-              >
-                {transactions.find((t) => t.id === deleteConfirm)?.type === "income" ? "+" : "-"}
-                {formatCurrency(transactions.find((t) => t.id === deleteConfirm)?.amount)}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>
-                {t("cancel")}
-              </Button>
-              <Button variant="destructive" className="flex-1" onClick={confirmDelete}>
-                {t("transactions.deleteConfirm")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("confirmDelete")}</DialogTitle>
+            <DialogDescription>
+              {t("transactions.deleteConfirm")}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {(() => {
+             const transactionToDelete = allLoadedTransactions.find(t => t.id === deleteConfirm) || transactions.find((t) => t.id === deleteConfirm);
+             if (!transactionToDelete) return null;
+             return (
+               <div className="py-4 space-y-1">
+                  <div className="font-bold text-foreground">
+                    {transactionToDelete.description}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
+                    {formatGroupDate(transactionToDelete.date)} •{" "}
+                    {getCategoryLabel(transactionToDelete.category)}
+                  </div>
+                  <div
+                    className={`font-semibold ${
+                      transactionToDelete.type === "income"
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                    }`}
+                  >
+                    {transactionToDelete.type === "income" ? "+" : "-"}
+                    {formatCurrency(transactionToDelete.amount)}
+                  </div>
+               </div>
+             );
+          })()}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              {t("cancel")}
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              {t("transactions.deleteConfirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default TransactionList;
+export default React.memo(TransactionList);

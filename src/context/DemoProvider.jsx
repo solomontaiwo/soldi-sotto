@@ -4,18 +4,18 @@ import {
   useEffect,
   useState,
   useCallback,
-  useRef,
-} from "react";
-import { useNotification } from "../../utils/notificationUtils";
-import PropTypes from "prop-types";
-import { useTranslation } from 'react-i18next';
+      useRef,
+    } from "react";
+    import { useNotification } from "../utils/notificationUtils.jsx";
+    import PropTypes from "prop-types";
+    import { useTranslation } from 'react-i18next';
 
 const DemoContext = createContext();
 
 export const useDemo = () => useContext(DemoContext);
 
 const DEMO_STORAGE_KEY = "soldi-sotto-demo-transactions";
-const MAX_DEMO_TRANSACTIONS = 10;
+export const MAX_DEMO_TRANSACTIONS = 10;
 
 export const DemoProvider = ({ children, seedOnMount = false }) => {
   DemoProvider.propTypes = {
@@ -29,42 +29,43 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
   const notification = useNotification();
   const { t } = useTranslation();
 
-  // Carica le transazioni demo dal localStorage
+  // Load demo transactions from localStorage
   const loadDemoTransactions = useCallback(() => {
     try {
       const savedTransactions = localStorage.getItem(DEMO_STORAGE_KEY);
       if (savedTransactions) {
         const parsed = JSON.parse(savedTransactions);
-        // Converte le date da string a oggetti Date
+        // Convert date strings to Date objects
         const transactions = parsed.map(transaction => ({
           ...transaction,
           date: new Date(transaction.date),
           amount: parseFloat(transaction.amount) || 0,
         }));
-        // Ordina per data decrescente
+        // Sort by date descending
         transactions.sort((a, b) => b.date - a.date);
         setDemoTransactions(transactions);
       }
     } catch (error) {
-      console.error("Errore nel caricamento delle transazioni demo:", error);
+      console.error("Error loading demo transactions:", error);
       setDemoTransactions([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Salva le transazioni demo nel localStorage
+  // Save demo transactions to localStorage
   const saveDemoTransactions = useCallback((transactions) => {
     try {
       localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(transactions));
     } catch (error) {
-      console.error("Errore nel salvataggio delle transazioni demo:", error);
+      console.error("Error saving demo transactions:", error);
     }
   }, []);
 
-  // Aggiunge una nuova transazione demo
+  // Adds a new demo transaction
   const addDemoTransaction = useCallback(async (transactionData) => {
-    if (demoTransactions.length >= MAX_DEMO_TRANSACTIONS) {
+    const userTransactionCount = demoTransactions.filter(t => !t.isSample).length;
+    if (userTransactionCount >= MAX_DEMO_TRANSACTIONS) {
       notification.warning(t('demo.limitReached', { limit: MAX_DEMO_TRANSACTIONS }));
       return false;
     }
@@ -73,6 +74,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
       ...transactionData,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       createdAt: new Date(),
+      isSample: false, 
     };
 
     const updatedTransactions = [newTransaction, ...demoTransactions];
@@ -83,7 +85,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
     return true;
   }, [demoTransactions, saveDemoTransactions, notification, t]);
 
-  // Aggiorna una transazione demo esistente
+  // Updates an existing demo transaction
   const updateDemoTransaction = useCallback(async (transactionId, updatedData) => {
     const updatedTransactions = demoTransactions.map(transaction =>
       transaction.id === transactionId
@@ -96,7 +98,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
     return true;
   }, [demoTransactions, saveDemoTransactions, notification, t]);
 
-  // Elimina una transazione demo
+  // Deletes a demo transaction
   const deleteDemoTransaction = useCallback(async (transactionId) => {
     const updatedTransactions = demoTransactions.filter(
       transaction => transaction.id !== transactionId
@@ -107,46 +109,48 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
     return true;
   }, [demoTransactions, saveDemoTransactions, notification, t]);
 
-  // Pulisce tutte le transazioni demo
+  // Clears all demo transactions
   const clearDemoTransactions = useCallback(() => {
     setDemoTransactions([]);
     localStorage.removeItem(DEMO_STORAGE_KEY);
     notification.success(t('demo.allTransactionsCleared'));
   }, [notification, t]);
 
-  // Controlla se l'utente può aggiungere più transazioni
-  const canAddMoreTransactions = demoTransactions.length < MAX_DEMO_TRANSACTIONS;
+  // Checks if user can add more transactions (excluding samples)
+  const canAddMoreTransactions = demoTransactions.filter(t => !t.isSample).length < MAX_DEMO_TRANSACTIONS;
 
-  // Statistiche demo
+  // Demo statistics
   const getDemoStats = useCallback(() => {
-    const counted = demoTransactions.filter(t => !t.isSample);
-    const totalIncome = counted
+    const totalIncome = demoTransactions
       .filter(t => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
     
-    const totalExpense = counted
+    const totalExpense = demoTransactions
       .filter(t => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
+
+    const userTransactionCount = demoTransactions.filter(t => !t.isSample).length;
 
     return {
       totalIncome,
       totalExpense,
       balance: totalIncome - totalExpense,
-      transactionCount: counted.length,
+      transactionCount: userTransactionCount,
       maxTransactions: MAX_DEMO_TRANSACTIONS,
-      canAddMore: canAddMoreTransactions,
+      canAddMore: userTransactionCount < MAX_DEMO_TRANSACTIONS,
     };
-  }, [demoTransactions, canAddMoreTransactions]);
+  }, [demoTransactions]);
 
-  // Genera alcune transazioni demo se non ce ne sono
+  // Generate some sample transactions if none exist
   const generateSampleTransactions = useCallback(() => {
+    const today = new Date();
     const sampleTransactions = [
       {
         id: "demo-1",
         type: "income",
         amount: 2500,
         description: t('demo.sampleSalary'),
-        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        date: today,
         category: "stipendio",
         createdAt: new Date(),
         isSample: true,
@@ -156,7 +160,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
         type: "expense",
         amount: 50,
         description: t('demo.sampleGroceries'),
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        date: today,
         category: "supermercato",
         createdAt: new Date(),
         isSample: true,
@@ -166,7 +170,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
         type: "expense",
         amount: 25,
         description: t('demo.sampleFuel'),
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        date: today,
         category: "trasporti",
         createdAt: new Date(),
         isSample: true,
@@ -182,7 +186,7 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
     loadDemoTransactions();
   }, [loadDemoTransactions]);
 
-  // Se la demo è stata appena attivata e non ci sono transazioni, genera sample
+  // If demo was just activated and no transactions exist, generate samples
   useEffect(() => {
     if (seedOnMount && !hasSeededRef.current) {
       if (demoTransactions.length === 0) {
@@ -220,4 +224,4 @@ export const DemoProvider = ({ children, seedOnMount = false }) => {
   );
 };
 
-export default DemoProvider; 
+export default DemoProvider;

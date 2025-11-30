@@ -1,4 +1,4 @@
-import { differenceInDays, endOfDay, startOfDay } from "date-fns";
+import { differenceInDays, endOfDay, startOfDay, subMonths, isWithinInterval } from "date-fns";
 import {
   startOfMonth,
   endOfMonth,
@@ -17,7 +17,14 @@ export const getPeriodRange = (period, customRange) => {
       return { start: startOfDay(today), end: endOfDay(today) };
     case "annually":
     case "year":
+    case "thisYear":
       return { start: startOfYear(today), end: endOfYear(today) };
+    case "lastMonth": {
+      const lastMonth = subMonths(today, 1);
+      return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth) };
+    }
+    case "last3Months":
+      return { start: startOfMonth(subMonths(today, 2)), end: endOfMonth(today) };
     case "all":
       return { start: new Date(0), end: new Date() };
     case "custom":
@@ -27,36 +34,16 @@ export const getPeriodRange = (period, customRange) => {
       return { start: startOfMonth(today), end: endOfMonth(today) };
     case "monthly":
     case "month":
+    case "thisMonth":
     default:
       return { start: startOfMonth(today), end: endOfMonth(today) };
   }
 };
 
-const getSafeDate = (dateInput) => {
-  if (!dateInput) return null;
-  if (dateInput.toDate) return dateInput.toDate();
-  if (dateInput.seconds) return new Date(dateInput.seconds * 1000);
-  const parsed = new Date(dateInput);
-  return isNaN(parsed.getTime()) ? null : parsed;
-};
-
 export const calculateStats = (transactions = [], startDate, endDate) => {
-  const safeStart = startDate ? startOfDay(startDate) : null;
-  const safeEnd = endDate ? endOfDay(endDate) : null;
-
-  if (!safeStart || !safeEnd) {
-    return {
-      totalIncome: 0,
-      totalExpense: 0,
-      balance: 0,
-      dailyAverageExpense: 0,
-      transactionCount: 0,
-      categoryBreakdown: {},
-      topCategories: [],
-      incomeTrend: [],
-      expenseTrend: [],
-    };
-  }
+  // Safe fallbacks if ranges are missing
+  const safeStart = startDate ? startOfDay(startDate) : new Date(0);
+  const safeEnd = endDate ? endOfDay(endDate) : new Date();
 
   let totalIncome = 0;
   let totalExpense = 0;
@@ -64,12 +51,10 @@ export const calculateStats = (transactions = [], startDate, endDate) => {
   const incomeTrend = [];
   const expenseTrend = [];
 
-  const normalizedTransactions = transactions
-    .map((tx) => ({
-      ...tx,
-      date: getSafeDate(tx.date),
-    }))
-    .filter((tx) => tx.date);
+  // Filter transactions within range (assuming dates are normalized)
+  const normalizedTransactions = transactions.filter((tx) => 
+    tx.date && isWithinInterval(tx.date, { start: safeStart, end: safeEnd })
+  );
 
   normalizedTransactions.forEach((tx) => {
     if (tx.type === "income") {

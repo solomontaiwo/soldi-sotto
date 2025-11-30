@@ -1,94 +1,98 @@
-import { useState, useEffect, useMemo } from "react";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import React, { useState, useEffect, useMemo } from "react";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
+import { useAuth } from "../../context/AuthProvider.jsx";
 import { motion } from "framer-motion";
-import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subMonths } from "date-fns";
-import formatCurrency from "../../utils/formatCurrency";
-import { useCategories } from "../../utils/categories";
-import React from "react";
+import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
+import formatCurrency from "../../utils/formatCurrency.jsx";
+import { useCategories } from "../../utils/categories.jsx";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Select } from "../ui/select";
 import { Badge } from "../ui/badge";
 import { FiBarChart, FiTrendingUp, FiTrendingDown, FiActivity, FiArrowUp, FiArrowDown } from "react-icons/fi";
-import { generatePeriodPDFReport } from "../../utils/pdfUtils";
+import { generatePeriodPDFReport } from "../../utils/pdfUtils.jsx";
+import { generateExportFileName } from "../../utils/downloadUtils.jsx"; // Using unified filename generator
+import { useDateRange } from "../../hooks/useDateRange.jsx";
+import { calculateStats } from "../../utils/statsUtils.jsx";
 
 const TransactionAnalytics = () => {
-  const { isDemo, transactions, maxTransactions, loading } = useUnifiedTransactions();
+  const { isDemo, transactions: recentTransactions, maxTransactions, loading: contextLoading, fetchAllTransactions } = useUnifiedTransactions();
+  const { currentUser } = useAuth();
   const { expenseCategories, incomeCategories } = useCategories();
-  const periodPref = useMemo(() => {
-    const saved = localStorage.getItem("analytics-period");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return { period: "month" };
-      }
-    }
-    return { period: "month" };
-  }, []);
-
-  const [selectedPeriod, setSelectedPeriod] = useState(periodPref.period || "month");
-  const [customRange, setCustomRange] = useState(periodPref.customRange || { from: "", to: "" });
-  const [stats, setStats] = useState({});
   const { t, i18n } = useTranslation();
 
-  const calculateAdvancedStats = useMemo(() => {
-    if (!transactions.length) return {};
-    const now = new Date();
-    let startDate, endDate;
+  // Use custom hook for date range management
+  const { period, setPeriod, customRange, setCustomRange, startDate, endDate } = useDateRange(
+    localStorage.getItem("analytics-period") ? JSON.parse(localStorage.getItem("analytics-period")).period : "month",
+    localStorage.getItem("analytics-period") ? JSON.parse(localStorage.getItem("analytics-period")).customRange : null
+  );
 
-    switch (selectedPeriod) {
-      case "thisMonth":
-      case "month":
-        startDate = startOfMonth(now);
-        endDate = endOfMonth(now);
-        break;
-      case "lastMonth": {
-        const lastMonth = subMonths(now, 1);
-        startDate = startOfMonth(lastMonth);
-        endDate = endOfMonth(lastMonth);
-        break;
+  const [analyticsData, setAnalyticsData] = useState([]);
+  const [isLoadingAnalyticsData, setIsLoadingAnalyticsData] = useState(true);
+
+  // Fetch full transaction history for analytics when component mounts or dependencies change
+  useEffect(() => {
+    const loadData = async () => {
+      if (isDemo) {
+        setAnalyticsData(recentTransactions);
+        setIsLoadingAnalyticsData(false);
+      } else if (currentUser) {
+        setIsLoadingAnalyticsData(true);
+        // This uses the cached service method
+        const data = await fetchAllTransactions();
+        setAnalyticsData(data);
+        setIsLoadingAnalyticsData(false);
+      } else {
+        // Not demo and not logged in
+        setAnalyticsData([]);
+        setIsLoadingAnalyticsData(false);
       }
-      case "thisYear":
-      case "year":
-        startDate = startOfYear(now);
-        endDate = endOfYear(now);
-        break;
-      case "last3Months":
-        startDate = startOfMonth(subMonths(now, 2));
-        endDate = endOfMonth(now);
-        break;
-      case "custom":
-        if (customRange?.from && customRange?.to) {
-          startDate = new Date(customRange.from);
-          endDate = new Date(customRange.to);
-        } else {
-          startDate = startOfMonth(now);
-          endDate = endOfMonth(now);
-        }
-        break;
-      default:
-        startDate = startOfMonth(now);
-        endDate = endOfMonth(now);
-    }
+    };
+    loadData();
+  }, [isDemo, recentTransactions, currentUser, fetchAllTransactions]);
 
-    const filteredTransactions = transactions.filter((transaction) => {
-      const transactionDate = transaction.date.toDate ? transaction.date.toDate() : new Date(transaction.date);
-      return isWithinInterval(transactionDate, { start: startDate, end: endDate });
+  // Persist preferences
+  useEffect(() => {
+    localStorage.setItem(
+      "analytics-period",
+      JSON.stringify({
+        period,
+        customRange,
+      })
+    );
+  }, [period, customRange]);
+
+  const stats = useMemo(() => {
+    return calculateStats(analyticsData, startDate, endDate);
+  }, [analyticsData, startDate, endDate]);
+
+  // Extended stats logic specific to this view (Categories with percentages, Monthly Trend)
+  const extendedStats = useMemo(() => {
+    if (!analyticsData.length) return {};
+
+    // 1. Categories with emojis and percentages
+    const processCategories = (categoryMap, totalAmount, categoryList, defaultEmoji) => {
+      return Object.entries(categoryMap)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([category, amount]) => {
+          const categoryData = categoryList.find((c) => c.value === category);
+          return {
+            category,
+            amount,
+            percentage: totalAmount > 0 ? (amount / totalAmount) * 100 : 0,
+            label: t(`categories.${category}`, { defaultValue: category }).replace(/^[^\p{L}\p{N}]+/u, "").trim(),
+            emoji: categoryData ? categoryData.label.split(" ")[0] : defaultEmoji,
+          };
+        });
+    };
+    
+    const filteredTransactions = analyticsData.filter((transaction) => {
+       return transaction.date && isWithinInterval(transaction.date, { start: startDate, end: endDate });
     });
-
-    const totalIncome = filteredTransactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const totalExpense = filteredTransactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const balance = totalIncome - totalExpense;
 
     const expenseByCategory = {};
     const incomeByCategory = {};
@@ -101,50 +105,22 @@ const TransactionAnalytics = () => {
       }
     });
 
-    const translateCategory = (category) => t(`categories.${category}`, { defaultValue: category });
-    const cleanLabel = (label, category) => {
-      const translated = translateCategory(category);
-      return translated.replace(/^[^\p{L}\p{N}]+/u, "").trim();
-    };
+    const topExpenseCategories = processCategories(expenseByCategory, stats.totalExpense, expenseCategories, "💰");
+    const topIncomeCategories = processCategories(incomeByCategory, stats.totalIncome, incomeCategories, "👕");
 
-    const topExpenseCategories = Object.entries(expenseByCategory)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([category, amount]) => {
-        const categoryData = expenseCategories.find((c) => c.value === category);
-        return {
-          category,
-          amount,
-          percentage: totalExpense > 0 ? (amount / totalExpense) * 100 : 0,
-          label: cleanLabel(categoryData?.label || category, category),
-          emoji: categoryData ? categoryData.label.split(" ")[0] : "💸",
-        };
-      });
-
-    const topIncomeCategories = Object.entries(incomeByCategory)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([category, amount]) => {
-        const categoryData = incomeCategories.find((c) => c.value === category);
-        return {
-          category,
-          amount,
-          percentage: totalIncome > 0 ? (amount / totalIncome) * 100 : 0,
-          label: cleanLabel(categoryData?.label || category, category),
-          emoji: categoryData ? categoryData.label.split(" ")[0] : "💰",
-        };
-      });
-
+    // 2. Monthly Trend (Last 6 months)
+    const now = new Date();
     const monthlyTrend = [];
     for (let i = 5; i >= 0; i--) {
       const monthStart = startOfMonth(subMonths(now, i));
       const monthEnd = endOfMonth(subMonths(now, i));
-      const monthTransactions = transactions.filter((t) => {
-        const transactionDate = t.date.toDate ? t.date.toDate() : new Date(t.date);
-        return isWithinInterval(transactionDate, { start: monthStart, end: monthEnd });
-      });
+      const monthTransactions = analyticsData.filter((t) => 
+        t.date && isWithinInterval(t.date, { start: monthStart, end: monthEnd })
+      );
+      
       const monthIncome = monthTransactions.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
       const monthExpense = monthTransactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
+      
       monthlyTrend.push({
         month: format(monthStart, "MMM yyyy"),
         income: monthIncome,
@@ -153,54 +129,33 @@ const TransactionAnalytics = () => {
       });
     }
 
-    const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
-    const avgDailyExpense = totalExpense / Math.max(1, (endDate - startDate) / (1000 * 60 * 60 * 24));
-    const avgTransactionAmount =
-      filteredTransactions.length > 0
+    // 3. Averages
+    const avgTransactionAmount = filteredTransactions.length > 0
         ? filteredTransactions.reduce((sum, t) => sum + t.amount, 0) / filteredTransactions.length
         : 0;
+    
+    // Savings Rate
+    const savingsRate = stats.totalIncome > 0 ? ((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100 : 0;
 
     return {
-      totalIncome,
-      totalExpense,
-      balance,
-      savingsRate,
-      avgDailyExpense,
-      avgTransactionAmount,
       topExpenseCategories,
       topIncomeCategories,
       monthlyTrend,
-      transactionCount: filteredTransactions.length,
-      periodLabel: selectedPeriod,
-      startDate,
-      endDate,
-      filteredTransactions,
+      avgTransactionAmount,
+      savingsRate,
+      filteredTransactions // Needed for export
     };
-  }, [transactions, selectedPeriod, customRange, expenseCategories, incomeCategories, t]);
+  }, [analyticsData, startDate, endDate, stats, expenseCategories, incomeCategories, t]);
 
-  useEffect(() => {
-    setStats(calculateAdvancedStats);
-  }, [calculateAdvancedStats]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "analytics-period",
-      JSON.stringify({
-        period: selectedPeriod,
-        customRange,
-      })
-    );
-  }, [selectedPeriod, customRange]);
 
   const exportCsv = () => {
-    if (!stats?.filteredTransactions?.length) return;
+    if (!extendedStats?.filteredTransactions?.length) return;
     const headers = ["Data", "Tipo", "Descrizione", "Categoria", "Importo"];
-    const rows = stats.filteredTransactions.map((t) => {
-      const date = t.date.toDate ? t.date.toDate() : new Date(t.date);
+    const rows = extendedStats.filteredTransactions.map((t) => {
       return [
-        format(date, "yyyy-MM-dd"),
+        format(t.date, "yyyy-MM-dd"),
         t.type,
-        `"${(t.description || "").replace(/"/g, '""')}"`,
+        `"${(t.description || "").replace(/"/g, '""')}"`, // Corrected escaping for description
         t.category || "",
         t.amount,
       ];
@@ -210,7 +165,8 @@ const TransactionAnalytics = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `analytics-${selectedPeriod}.csv`);
+    const filename = generateExportFileName(period, startDate, endDate, currentUser, "csv");
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -218,19 +174,20 @@ const TransactionAnalytics = () => {
   };
 
   const exportPdf = async () => {
-    if (!stats?.filteredTransactions?.length || !stats.startDate || !stats.endDate) return;
+    if (!extendedStats?.filteredTransactions?.length || !startDate || !endDate) return;
     await generatePeriodPDFReport(
-      stats.filteredTransactions,
-      stats.startDate,
-      stats.endDate,
-      selectedPeriod === "custom"
+      extendedStats.filteredTransactions,
+      startDate,
+      endDate,
+      period === "custom"
         ? `${t("analytics.custom")} (${customRange.from} - ${customRange.to})`
-        : selectedPeriod,
-      i18n.language
+        : period,
+      i18n.language,
+      currentUser // Pass current user for filename generation
     );
   };
 
-  if (loading) {
+  if (contextLoading || isLoadingAnalyticsData) { // Use local loading state
     return (
       <div className="space-y-4">
         <Skeleton height={48} />
@@ -255,14 +212,14 @@ const TransactionAnalytics = () => {
             <p className="text-muted-foreground">{t("analytics.subtitle")}</p>
           </div>
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4 md:flex-wrap">
-            <Select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="md:w-48 h-11 self-center">
+            <Select value={period} onChange={(e) => setPeriod(e.target.value)} className="md:w-48 h-11 self-center">
               <option value="month">{t("analytics.thisMonth")}</option>
               <option value="lastMonth">{t("analytics.lastMonth")}</option>
               <option value="last3Months">{t("analytics.last3Months")}</option>
               <option value="year">{t("analytics.thisYear")}</option>
               <option value="custom">{t("analytics.custom")}</option>
             </Select>
-            {selectedPeriod === "custom" && (
+            {period === "custom" && (
               <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm md:items-center md:pl-1">
                 <label className="text-muted-foreground text-xs md:text-sm leading-none">{t("analytics.from")}</label>
                 <input
@@ -281,10 +238,10 @@ const TransactionAnalytics = () => {
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={exportCsv} disabled={!stats?.filteredTransactions?.length}>
+              <Button variant="outline" onClick={exportCsv} disabled={!extendedStats?.filteredTransactions?.length}>
                 {t("analytics.exportCsv")}
               </Button>
-              <Button variant="outline" onClick={exportPdf} disabled={!stats?.filteredTransactions?.length}>
+              <Button variant="outline" onClick={exportPdf} disabled={!extendedStats?.filteredTransactions?.length}>
                 {t("analytics.exportPdf")}
               </Button>
             </div>
@@ -292,15 +249,15 @@ const TransactionAnalytics = () => {
         </div>
         {isDemo && (
           <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary flex items-center gap-2">
-            <Badge variant="secondary">{transactions.length}/{maxTransactions}</Badge>
-            <span>{t("analytics.demoDescription", { current: transactions.length, max: maxTransactions })}</span>
-          </div>
+            <Badge variant="secondary">{recentTransactions.filter(t => !t.isSample).length}/{maxTransactions}</Badge>
+            <span>{t("analytics.demoDescription", { current: recentTransactions.filter(t => !t.isSample).length, max: maxTransactions })}
+          </span></div>
         )}
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[
+          {[ 
             { title: t("analytics.totalIncome"), value: stats.totalIncome, icon: <FiTrendingUp />, color: "text-emerald-600" },
             { title: t("analytics.totalExpense"), value: stats.totalExpense, icon: <FiTrendingDown />, color: "text-rose-600" },
             { title: t("analytics.balance"), value: stats.balance, icon: <FiBarChart />, color: "text-primary" },
@@ -327,11 +284,10 @@ const TransactionAnalytics = () => {
         <Card>
           <CardHeader>
             <CardTitle>{t("analytics.topExpenseCategories")}</CardTitle>
-            <CardDescription>{t("analytics.ofTotal")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {stats.topExpenseCategories?.length ? (
-              stats.topExpenseCategories.map((cat, idx) => (
+            {extendedStats.topExpenseCategories?.length ? (
+              extendedStats.topExpenseCategories.map((cat, idx) => (
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
@@ -353,11 +309,10 @@ const TransactionAnalytics = () => {
         <Card>
           <CardHeader>
             <CardTitle>{t("analytics.topIncomeCategories")}</CardTitle>
-            <CardDescription>{t("analytics.ofTotal")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {stats.topIncomeCategories?.length ? (
-              stats.topIncomeCategories.map((cat, idx) => (
+            {extendedStats.topIncomeCategories?.length ? (
+              extendedStats.topIncomeCategories.map((cat, idx) => (
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
@@ -383,11 +338,11 @@ const TransactionAnalytics = () => {
           <CardTitle>{t("analytics.monthlyTrend")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-          {stats.monthlyTrend?.length ? (
-            stats.monthlyTrend.map((month, idx) => (
+          {extendedStats.monthlyTrend?.length ? (
+            extendedStats.monthlyTrend.map((month, idx) => (
               <div
                 key={idx}
-                className={`rounded-xl border border-border p-3 ${
+                className={`rounded-xl border border-border p-3 ${ 
                   month.balance >= 0 ? "bg-emerald-500/5" : "bg-rose-500/5"
                 }`}
               >
@@ -415,7 +370,7 @@ const TransactionAnalytics = () => {
             <CardTitle>{t("analytics.avgDailyExpense")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-primary">{formatCurrency(stats.avgDailyExpense || 0)}</p>
+            <p className="text-2xl font-semibold text-primary">{formatCurrency(stats.dailyAverageExpense || 0)}</p>
             <p className="text-xs text-muted-foreground">{t("analytics.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
@@ -424,7 +379,7 @@ const TransactionAnalytics = () => {
             <CardTitle>{t("analytics.avgTransaction")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-primary">{formatCurrency(stats.avgTransactionAmount || 0)}</p>
+            <p className="text-2xl font-semibold text-primary">{formatCurrency(extendedStats.avgTransactionAmount || 0)}</p>
             <p className="text-xs text-muted-foreground">{t("analytics.avgTransactionDescription")}</p>
           </CardContent>
         </Card>

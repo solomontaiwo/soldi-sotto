@@ -1,7 +1,7 @@
 {
   "name": "soldi-sotto",
   "private": true,
-  "version": "3.2.2",
+  "version": "4.0.0",
   "type": "module",
   "homepage": "https://solomontaiwo.github.io/soldi-sotto",
   "scripts": {
@@ -28,7 +28,8 @@
     "react-icons": "^5.3.0",
     "react-loading-skeleton": "^3.5.0",
     "react-responsive": "^10.0.0",
-    "react-router-dom": "^6.29.0"
+    "react-router-dom": "^6.29.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

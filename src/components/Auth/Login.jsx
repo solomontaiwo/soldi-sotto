@@ -58,10 +58,10 @@ const Login = () => {
       }
 
       await signInWithEmailAndPassword(auth, emailToUse, password);
-      notification.success("Accesso effettuato con successo!");
+      notification.success(t("login.title"));
       navigate("/dashboard");
     } catch (err) {
-      console.error("Errore durante il login:", err);
+      console.error(t("errors.loginError"), err);
       let errorMessage = t("errors.loginError");
       switch (err.code) {
         case "auth/user-not-found":

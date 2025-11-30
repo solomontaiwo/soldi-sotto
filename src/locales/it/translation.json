@@ -34,22 +34,8 @@
     "user": "Utente",
     "registeredOn": "Registrato il",
     "dateNotAvailable": "Data non disponibile",
-    "account": "Account",
-    "accountInfo": "Le tue impostazioni vengono salvate automaticamente. I tuoi dati sono protetti con crittografia end-to-end.",
-    "backToDashboard": "Torna alla Dashboard",
-    "editUsername": "Modifica Username",
-    "newUsername": "Nuovo Username",
-    "usernamePlaceholder": "Inserisci il nuovo username",
-    "usernameHelp": "L'username deve essere di almeno 3 caratteri e sarà verificata la disponibilità",
-    "updating": "Aggiornamento...",
-    "usernameMinLength": "L'username deve essere di almeno 3 caratteri",
-    "usernameSame": "L'username è uguale a quello attuale",
-    "usernameConfirm": "Sei sicuro di voler cambiare il tuo username da \"{{currentUsername}}\" a \"{{newUsername}}\"?\n\nQuesta azione non può essere annullata.",
-    "usernameUnavailable": "Username già in uso",
-    "usernameSuccess": "Username aggiornato con successo!",
-    "usernameError": "Errore nell'aggiornamento dell'username",
-    "usernamePermissionError": "Permessi insufficienti per aggiornare l'username",
-    "usernameNetworkError": "Errore di connessione. Riprova più tardi"
+    "emailAddress": "Indirizzo Email",
+    "newUsernamePlaceholder": "Inserisci nuovo username"
   },
   "logout": "Logout",
   "navLogin": "Accedi",
@@ -109,7 +95,8 @@
     "addIncome": "Aggiungi Entrata",
     "addExpense": "Aggiungi Spesa",
     "saveChanges": "Salva Modifiche",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "invalidAmount": "Inserisci un importo valido"
   },
   "navbar": {
     "dashboard": "Dashboard",
@@ -222,12 +209,6 @@
     "emptyTitle": "Nessuna transazione trovata",
     "emptySubtitle": "Non ci sono transazioni per il periodo selezionato. Prova a cambiare periodo o aggiungi nuove transazioni."
   },
-  "notifications": {
-    "success": "Operazione riuscita",
-    "error": "Errore",
-    "warning": "Attenzione",
-    "info": "Info"
-  },
   "transactionModal": {
     "editTitle": "Modifica Transazione",
     "newTitle": "Nuova Transazione",
@@ -260,6 +241,7 @@
     "demoMode": "Modalità Demo",
     "transactions": "transazioni",
     "deleteConfirm": "Elimina Definitivamente",
+    "loadMore": "Carica cronologia completa",
     "filters": {
       "label": "Filtri",
       "show": "Mostra Filtri",
@@ -276,6 +258,32 @@
       "tryFilters": "Prova a modificare i filtri di ricerca",
       "addFirst": "Inizia aggiungendo la tua prima transazione"
     }
+  },
+  "pdf": {
+    "reportTitle": "Report Statistiche Finanziarie",
+    "generatedOn": "Data di generazione",
+    "user": "Utente",
+    "period": "Periodo di riferimento",
+    "summaryTitle": "Riepilogo Finanziario",
+    "totalIncome": "Entrate Totali",
+    "totalExpense": "Spese Totali",
+    "balance": "Saldo",
+    "avgDailyIncome": "Media Giornaliera Entrate",
+    "avgDailyExpense": "Media Giornaliera Uscite",
+    "expenseDistribution": "Distribuzione delle spese e importo medio per categoria",
+    "topExpenses": "Top 3 Spese Maggiori",
+    "topIncomes": "Top 3 Entrate Maggiori",
+    "fullList": "Elenco Completo delle Transazioni",
+    "noTransactions": "Nessuna transazione trovata per il periodo selezionato.",
+    "date": "Data",
+    "type": "Tipo",
+    "description": "Descrizione",
+    "category": "Categoria",
+    "amount": "Importo",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "customPeriod": "Periodo personalizzato",
+    "unspecifiedPeriod": "Periodo non specificato"
   },
   "categories": {
     "alimentazione": "Alimentazione",
@@ -317,9 +325,10 @@
     "updateError": "Errore nell'aggiornamento della transazione",
     "deleteSuccess": "Transazione eliminata con successo!",
     "deleteError": "Errore nell'eliminazione della transazione",
-    "success": "Successo",
     "warning": "Attenzione",
-    "info": "Informazione"
+    "success": "Operazione riuscita",
+    "error": "Errore",
+    "info": "Info"
   },
   "login": {
     "title": "Bentornato!",

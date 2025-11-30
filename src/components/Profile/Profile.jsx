@@ -1,14 +1,13 @@
-import { useEffect, useState, useMemo } from "react";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthProvider.jsx";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
 import { useTheme } from "../../utils/ThemeProvider";
 import { useNotification } from "../../utils/notificationUtils";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
-import { firestore } from "../../utils/firebase";
-import formatCurrency from "../../utils/formatCurrency";
+import { firestore } from "../../utils/firebase.jsx";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
@@ -18,22 +17,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui
 
 const Profile = () => {
   const { currentUser, loading: userLoading, logout } = useAuth();
-  const { transactions, getStats, loading: transactionsLoading } = useUnifiedTransactions();
+  const { loading: transactionsLoading } = useUnifiedTransactions();
   const loading = userLoading || transactionsLoading;
   const { theme, toggleTheme } = useTheme();
   const notification = useNotification();
   const navigate = useNavigate();
-  const [userStats, setUserStats] = useState({});
   const [newUsername, setNewUsername] = useState("");
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [currentUsername, setCurrentUsername] = useState("");
   const { t, i18n } = useTranslation();
-
-  useEffect(() => {
-    if (getStats) {
-      setUserStats(getStats());
-    }
-  }, [transactions, getStats]);
 
   useEffect(() => {
     const loadCurrentUsername = async () => {
@@ -136,27 +128,6 @@ const Profile = () => {
     ? new Date(currentUser.metadata.creationTime).toLocaleDateString("it-IT")
     : t("profile.dateNotAvailable");
 
-  const profileStats = useMemo(
-    () => [
-      {
-        title: t("profile.totalTransactions"),
-        value: transactions.length,
-      },
-      {
-        title: t("profile.currentBalance"),
-        value: formatCurrency(userStats.balance || 0),
-      },
-      {
-        title: t("profile.daysActive"),
-        value: currentUser?.metadata?.creationTime
-          ? Math.floor((Date.now() - new Date(currentUser.metadata.creationTime)) / (1000 * 60 * 60 * 24))
-          : 0,
-        suffix: ` ${t("profile.days")}`,
-      },
-    ],
-    [transactions.length, userStats.balance, currentUser?.metadata?.creationTime, t]
-  );
-
   const themeOptions = [
     { value: "light", label: t("profile.themeLight") },
     { value: "dark", label: t("profile.themeDark") },
@@ -197,6 +168,11 @@ const Profile = () => {
               </div>
               <div>
                 <CardTitle className="text-2xl">{currentUsername || currentUser?.email}</CardTitle>
+                {currentUser?.email && (
+                    <CardDescription className="text-sm text-muted-foreground">
+                        {t("profile.emailAddress")}: {currentUser.email}
+                    </CardDescription>
+                )}
                 <CardDescription>
                   {t("profile.registeredOn")}: {registrationDate}
                 </CardDescription>
@@ -208,20 +184,6 @@ const Profile = () => {
           </CardHeader>
         </Card>
       </motion.div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {profileStats.map((stat, idx) => (
-          <Card key={idx} className="glass">
-            <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">{stat.title}</CardTitle>
-              <CardDescription className="text-2xl font-semibold text-foreground">
-                {stat.value}
-                {stat.suffix}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -240,7 +202,7 @@ const Profile = () => {
                 id="newUsername"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="nuovo-username"
+                placeholder={t("profile.newUsernamePlaceholder")}
               />
             </div>
             <Button onClick={handleUsernameChange} disabled={usernameLoading}>

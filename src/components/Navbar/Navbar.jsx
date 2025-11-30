@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useAuth } from "../../context/AuthProvider";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider";
 import { useMediaQuery } from "react-responsive";
 import { motion } from "framer-motion";
 import { FiBarChart, FiHome, FiList, FiLogOut, FiZap } from "react-icons/fi";
@@ -50,7 +50,7 @@ const Navbar = () => {
         </Link>
         {isDemo && (
           <Badge variant="secondary" className="hidden sm:inline-flex">
-            {transactions.length}/{maxTransactions} demo
+            {transactions.filter(t => !t.isSample).length}/{maxTransactions} demo
           </Badge>
         )}
 

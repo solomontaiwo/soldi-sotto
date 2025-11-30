@@ -5,73 +5,80 @@ import {
   useState,
   useCallback,
 } from "react";
-import { useAuth } from "../Auth/AuthProvider";
-import { TransactionProvider, useTransactions } from "./TransactionProvider";
-import { DemoProvider, useDemo } from "./DemoProvider";
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { firestore } from "../../utils/firebase";
-import { useNotification } from "../../utils/notificationUtils";
+import { useAuth } from "./AuthProvider.jsx";
+import { TransactionProvider, useTransactions } from "./TransactionProvider.jsx";
+import { DemoProvider, useDemo, MAX_DEMO_TRANSACTIONS } from "./DemoProvider.jsx";
+import { useNotification } from "../utils/notificationUtils.jsx";
 import PropTypes from "prop-types";
 import { useTranslation } from 'react-i18next';
+import { TransactionService } from "../services/transactionService.jsx";
 
-const UnifiedTransactionContext = createContext();
+const UnifiedTransactionContext = createContext({
+  transactions: [],
+  loading: true,
+  addTransaction: async () => false,
+  updateTransaction: async () => false,
+  deleteTransaction: async () => false,
+  fetchAllTransactions: async () => [],
+  getTotalTransactionCount: async () => 0,
+  canAddMoreTransactions: false,
+  maxTransactions: 0,
+  getStats: () => ({}),
+  isDemo: false,
+  isAuthenticated: false,
+  startDemo: () => false,
+  stopDemo: () => {},
+});
 
 export const useUnifiedTransactions = () => useContext(UnifiedTransactionContext);
 const DEMO_FLAG_KEY = "soldi-sotto-demo-enabled";
 
-// Wrapper per provider Firebase
+// Wrapper for Firebase provider
 const FirebaseTransactionWrapper = ({ children }) => {
   FirebaseTransactionWrapper.propTypes = {
     children: PropTypes.node.isRequired,
   };
   
   const { currentUser } = useAuth();
-  const { transactions, loading } = useTransactions();
+  const { transactions, loading, fetchAllTransactions, getTotalTransactionCount } = useTransactions();
   const [isProcessing, setIsProcessing] = useState(false);
   const notification = useNotification();
   const { t } = useTranslation();
 
-  // Aggiunge transazione Firebase
+  // Adds Firebase transaction
   const addTransaction = useCallback(async (transactionData) => {
     if (!currentUser) return false;
     
     setIsProcessing(true);
     try {
-      await addDoc(collection(firestore, "transactions"), {
-        userId: currentUser.uid,
-        ...transactionData,
-        createdAt: serverTimestamp(), // Salva timestamp di creazione
-      });
+      await TransactionService.add(currentUser.uid, transactionData);
       notification.success(t('notifications.addSuccess'));
       return true;
     } catch (error) {
-      console.error("Errore nell'aggiunta della transazione:", error);
-      notification.error(t('notifications.addError'));
+      console.error("Error adding transaction:", error);
+      // Check for Zod validation errors
+      if (error.issues) {
+         notification.error(error.issues[0].message);
+      } else {
+         notification.error(t('notifications.addError'));
+      }
       return false;
     } finally {
       setIsProcessing(false);
     }
   }, [currentUser, t]);
 
-  // Aggiorna transazione Firebase
+  // Updates Firebase transaction
   const updateTransaction = useCallback(async (transactionId, updatedData) => {
     if (!currentUser) return false;
     
     setIsProcessing(true);
     try {
-      const transactionRef = doc(firestore, "transactions", transactionId);
-      await updateDoc(transactionRef, updatedData);
+      await TransactionService.update(transactionId, updatedData);
       notification.success(t('notifications.updateSuccess'));
       return true;
     } catch (error) {
-      console.error("Errore nell'aggiornamento della transazione:", error);
+      console.error("Error updating transaction:", error);
       notification.error(t('notifications.updateError'));
       return false;
     } finally {
@@ -79,18 +86,17 @@ const FirebaseTransactionWrapper = ({ children }) => {
     }
   }, [currentUser, t]);
 
-  // Elimina transazione Firebase
+  // Deletes Firebase transaction
   const deleteTransaction = useCallback(async (transactionId) => {
     if (!currentUser) return false;
     
     setIsProcessing(true);
     try {
-      const transactionRef = doc(firestore, "transactions", transactionId);
-      await deleteDoc(transactionRef);
+      await TransactionService.delete(transactionId);
       notification.success(t('notifications.deleteSuccess'));
       return true;
     } catch (error) {
-      console.error("Errore nell'eliminazione della transazione:", error);
+      console.error("Error deleting transaction:", error);
       notification.error(t('notifications.deleteError'));
       return false;
     } finally {
@@ -98,7 +104,7 @@ const FirebaseTransactionWrapper = ({ children }) => {
     }
   }, [currentUser, t]);
 
-  // Statistiche Firebase
+  // Firebase Statistics
   const getStats = useCallback(() => {
     const totalIncome = transactions
       .filter(t => t.type === "income")
@@ -113,26 +119,28 @@ const FirebaseTransactionWrapper = ({ children }) => {
       totalExpense,
       balance: totalIncome - totalExpense,
       transactionCount: transactions.length,
-      canAddMore: true, // Nessun limite per utenti registrati
+      canAddMore: true, // No limit for registered users
     };
   }, [transactions]);
 
   return (
     <UnifiedTransactionContext.Provider
       value={{
-        // Dati
+        // Data
         transactions,
         loading: loading || isProcessing,
         
-        // Azioni
+        // Actions
         addTransaction,
         updateTransaction,
         deleteTransaction,
+        fetchAllTransactions, // Expose specifically for analytics
         
         // Utilities
         canAddMoreTransactions: true,
         maxTransactions: Infinity,
         getStats,
+        getTotalTransactionCount,
         
         // Flags
         isDemo: false,
@@ -146,7 +154,7 @@ const FirebaseTransactionWrapper = ({ children }) => {
   );
 };
 
-// Wrapper per provider Demo
+// Wrapper for Demo provider
 const DemoTransactionWrapper = ({ children, startDemo, seedDemo, stopDemo }) => {
   DemoTransactionWrapper.propTypes = {
     children: PropTypes.node.isRequired,
@@ -168,24 +176,36 @@ const DemoTransactionWrapper = ({ children, startDemo, seedDemo, stopDemo }) => 
     clearTransactions,
   } = useDemo();
 
+  // Mock fetchAllTransactions for demo (just returns what we have)
+  const fetchAllTransactions = useCallback(async () => {
+    return transactions;
+  }, [transactions]);
+
+  // Mock getTotalTransactionCount for demo
+  const getTotalTransactionCount = useCallback(async () => {
+    return transactions.length;
+  }, [transactions]);
+
   return (
     <UnifiedTransactionContext.Provider
       value={{
-        // Dati
+        // Data
         transactions,
         loading,
         
-        // Azioni
+        // Actions
         addTransaction,
         updateTransaction,
         deleteTransaction,
         generateSampleTransactions,
         clearTransactions,
+        fetchAllTransactions,
         
         // Utilities
         canAddMoreTransactions,
-        maxTransactions,
+        maxTransactions: MAX_DEMO_TRANSACTIONS, // Corrected to use the actual demo max
         getStats: getDemoStats,
+        getTotalTransactionCount,
         
         // Flags
         isDemo: true,
@@ -200,7 +220,7 @@ const DemoTransactionWrapper = ({ children, startDemo, seedDemo, stopDemo }) => 
   );
 };
 
-// Provider principale unificato
+// Main unified provider
 export const UnifiedTransactionProvider = ({ children }) => {
   UnifiedTransactionProvider.propTypes = {
     children: PropTypes.node.isRequired,
@@ -227,7 +247,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Aspetta che l'autenticazione sia completata
+    // Wait for authentication to complete
     if (!authLoading) {
       setIsReady(true);
     }
@@ -249,6 +269,8 @@ export const UnifiedTransactionProvider = ({ children }) => {
           isAuthenticated: false,
           startDemo,
           stopDemo,
+          fetchAllTransactions: async () => [],
+          getTotalTransactionCount: async () => 0,
         }}
       >
         {children}
@@ -256,7 +278,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
     );
   }
 
-  // Se l'utente è autenticato, usa Firebase
+  // If user is authenticated, use Firebase
   if (currentUser) {
     return (
       <TransactionProvider>
@@ -267,7 +289,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
     );
   }
 
-  // Se l'utente non è autenticato ma ha attivato la demo, usa Demo
+  // If user is not authenticated but demo is enabled, use Demo
   if (demoEnabled) {
     return (
       <DemoProvider seedOnMount={seedDemo}>
@@ -278,7 +300,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
     );
   }
 
-  // Nessun utente e demo non attivata: fornisce contesto neutro con azioni disabilitate
+  // No user and demo not enabled: provides neutral context with disabled actions
   return (
     <UnifiedTransactionContext.Provider
       value={{
@@ -303,6 +325,8 @@ export const UnifiedTransactionProvider = ({ children }) => {
         startDemo,
         seedOnMount: false,
         stopDemo,
+        fetchAllTransactions: async () => [],
+        getTotalTransactionCount: async () => 0,
       }}
     >
       {children}
@@ -310,4 +334,4 @@ export const UnifiedTransactionProvider = ({ children }) => {
   );
 };
 
-export default UnifiedTransactionProvider; 
+export default UnifiedTransactionProvider;
