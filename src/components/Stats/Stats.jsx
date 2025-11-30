@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import React from "react";
 import PropTypes from "prop-types";
-import { useAuth } from "../Auth/AuthProvider";
-import { useUnifiedTransactions } from "../Transaction/UnifiedTransactionProvider";
+import { useAuth } from "../../context/AuthProvider.jsx";
+import { useUnifiedTransactions } from "../../context/UnifiedTransactionProvider.jsx";
 import {
   startOfMonth,
   endOfMonth,
