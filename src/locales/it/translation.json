@@ -376,5 +376,13 @@
     "usernameTaken": "Username già in uso, scegline un altro",
     "accountCreatedSuccess": "Account creato con successo!"
   },
-  "of": "di"
-} 
+      "of": "di",
+      "periods": {
+      "daily": "Giornaliero",
+      "weekly": "Settimanale",
+      "monthly": "Mensile",
+      "annually": "Annuale",
+      "all": "Tutto",
+      "custom": "Periodo personalizzato"
+    }
+  }

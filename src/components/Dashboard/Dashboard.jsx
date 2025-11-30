@@ -147,7 +147,7 @@ const Dashboard = () => {
         <Card className="glass">
           <CardHeader>
             <CardTitle>{t("financialOverview.totalIncome")}</CardTitle>
-            <CardDescription>{periodPref.period}</CardDescription>
+            <CardDescription>{t(`periods.${periodPref.period}`)}</CardDescription>
           </CardHeader>
           <CardContent>
             {transactionsLoading || !stats ? (
@@ -166,7 +166,7 @@ const Dashboard = () => {
         <Card className="glass">
           <CardHeader>
             <CardTitle>{t("financialOverview.totalExpense")}</CardTitle>
-            <CardDescription>{periodPref.period}</CardDescription>
+            <CardDescription>{t(`periods.${periodPref.period}`)}</CardDescription>
           </CardHeader>
           <CardContent>
             {transactionsLoading || !stats ? (

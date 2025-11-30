@@ -26,13 +26,13 @@ const AppLayout = ({ children }) => {
   const showNavigation = !isPublicRoute && (currentUser || isDemo);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen text-foreground flex flex-col">
       {showNavigation && !isMobile && <Navbar />}
 
       <main
         className={`flex-1 relative overflow-x-hidden transition-all ${
           showNavigation
-            ? "pt-6 pb-20 md:pt-20 md:pb-6 px-4 md:px-8"
+            ? "pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-[calc(env(safe-area-inset-bottom)+5rem)] md:pt-20 md:pb-6 px-4 md:px-8"
             : "p-0"
         }`}
       >

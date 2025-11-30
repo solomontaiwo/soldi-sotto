@@ -125,7 +125,7 @@ const Profile = () => {
   };
 
   const registrationDate = currentUser?.metadata?.creationTime
-    ? new Date(currentUser.metadata.creationTime).toLocaleDateString("it-IT")
+    ? new Date(currentUser.metadata.creationTime).toLocaleDateString(i18n.language === 'it' ? 'it-IT' : 'en-US')
     : t("profile.dateNotAvailable");
 
   const themeOptions = [

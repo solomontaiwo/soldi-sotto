@@ -167,7 +167,9 @@ const TransactionList = () => {
     if (isYesterday(date)) return t("transactions.yesterday");
     
     const locale = getDateLocale(lang);
-    const pattern = lang === "it" ? "dd MMMM yyyy" : "MMM dd, yyyy";
+    // Use a format that works well for both languages, or keep the conditional
+    // 'd MMMM yyyy' is standard for Italian, 'MMM d, yyyy' for English
+    const pattern = lang === "it" ? "d MMMM yyyy" : "MMMM d, yyyy";
     return format(date, pattern, { locale });
   };
 
