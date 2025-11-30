@@ -25,6 +25,12 @@
 
   <title>Soldi Sotto</title>
 
+  <!-- Fix for potential React Refresh error in production -->
+  <script>
+    window.$RefreshReg$ = function () {};
+    window.$RefreshSig$ = function () { return function (type) { return type; }; };
+  </script>
+
   <!-- Script per applicare il tema salvato prima del caricamento di React -->
   <script>
     (function () {
