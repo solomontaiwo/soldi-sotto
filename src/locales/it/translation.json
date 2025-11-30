@@ -400,9 +400,12 @@
     "daily": "Giornaliero",
     "weekly": "Settimanale",
     "monthly": "Mensile",
+    "month": "Questo mese",
+    "lastMonth": "Mese scorso",
+    "last3Months": "Ultimi 3 mesi",
     "annually": "Annuale",
+    "year": "Quest'anno",
     "all": "Tutto",
-    "month": "Mese",
     "custom": "Periodo personalizzato"
   }
 }

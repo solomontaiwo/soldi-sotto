@@ -169,7 +169,7 @@
     "totalIncome": "Total Income",
     "totalExpense": "Total Expense",
     "balance": "Balance",
-    "totalTransactions": "total transactions"
+    "totalTransactions": "Total transactions"
   },
   "analytics": {
     "title": "Analytics & Insights",
@@ -397,13 +397,17 @@
     "usernameTaken": "Username already taken, choose another one",
     "accountCreatedSuccess": "Account created successfully!"
   },
-      "of": "of",
-      "periods": {
-      "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly",
-      "annually": "Annually",
-      "all": "All time",
-      "custom": "Custom period"
-    }
+  "of": "of",
+  "periods": {
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "all": "All time",
+    "month": "This month",
+    "custom": "Custom period",
+    "lastMonth": "Last month",
+    "last3Months": "Last 3 months",
+    "year": "This year"
   }
+}
