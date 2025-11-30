@@ -177,17 +177,21 @@ const TransactionModal = ({ show, onClose, onSubmit, transaction }) => {
                   }
                 }}
                 required
+                className="w-full"
               />
             </div>
             <div className="space-y-2">
               <Label>{t("transactionModal.date")}</Label>
-              <Input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-                required
-                className="block w-full"
-              />
+              <div className="relative">
+                <Input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+                  required
+                  className="block w-full appearance-none"
+                  style={{ minHeight: "2.75rem" }} 
+                />
+              </div>
             </div>
           </div>
 
