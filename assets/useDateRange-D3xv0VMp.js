@@ -1,1 +1,0 @@
-import{r as o}from"./index-DDDRuhU4.js";import{g as m}from"./statsUtils-DwYTtLhi.js";const d=(s="monthly",a=null)=>{const[t,n]=o.useState(s),[e,u]=o.useState(a||{from:"",to:""}),r=o.useMemo(()=>m(t,e),[t,e]);return{period:t,setPeriod:n,customRange:e,setCustomRange:u,startDate:r.start,endDate:r.end}};export{d as u};
