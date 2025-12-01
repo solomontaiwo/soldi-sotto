@@ -33,6 +33,8 @@ const TransactionList = () => {
     transactions, // This is the limited recent stream
     loading: transactionsLoading,
     deleteTransaction,
+    addTransaction,
+    updateTransaction,
     isDemo,
     canAddMoreTransactions,
     maxTransactions,
@@ -74,22 +76,17 @@ const TransactionList = () => {
     if (transactions.length > 0) {
       setAllLoadedTransactions(prev => {
         // Merge fresh live transactions with existing loaded ones, avoiding duplicates
-        const existingIds = new Set(prev.map(t => t.id));
-        const newTransactions = transactions.filter(t => !existingIds.has(t.id));
-        
-        // Simpler: For now, just use 'transactions' as base. 
-        // If user wants "history", we fetchAll and replace? 
-        // Or better: Initialize 'allLoadedTransactions' with 'transactions' on mount.
-        // If full history is loaded, don't override with recent 50.
-        // If full history not loaded yet, just use recent.
-        if (allLoadedTransactions.length === 0 || allLoadedTransactions.length <= transactions.length) {
-            // If no full history loaded yet, or current full history is smaller than recent (unlikely),
-            // initialize with recent.
-            return transactions.sort((a, b) => b.date - a.date);
+        const merged = new Map(prev.map((t) => [t.id, t]));
+        transactions.forEach((t) => {
+          merged.set(t.id, t);
+        });
+
+        // If we never loaded history, prioritize the fresh stream
+        if (prev.length === 0 || prev.length <= transactions.length) {
+          return [...transactions].sort((a, b) => b.date - a.date);
         }
-        
-        // Otherwise, if full history is loaded, just prepend new transactions
-        return [...newTransactions, ...prev].sort((a, b) => b.date - a.date);
+
+        return Array.from(merged.values()).sort((a, b) => b.date - a.date);
       });
     }
   }, [transactions]); // Depend on transactions (recent stream)
@@ -190,16 +187,11 @@ const TransactionList = () => {
     return Object.values(groups).sort((a, b) => b.date - a.date);
   };
 
-  const getCategoryEmoji = (category) => {
-    const allCategories = [...expenseCategories, ...incomeCategories];
-    const categoryData = allCategories.find((c) => c.value === category);
-    return categoryData ? categoryData.label.split(" ")[0] : "💸";
-  };
-
   const getCategoryLabel = (category) => {
     const allCategories = [...expenseCategories, ...incomeCategories];
     const categoryData = allCategories.find((c) => c.value === category);
-    return categoryData ? categoryData.label : category;
+    if (categoryData) return categoryData.label;
+    return t(`categories.${category}`, { defaultValue: category });
   };
 
   const handleDeleteClick = useCallback(async (transactionId) => {
@@ -224,6 +216,32 @@ const TransactionList = () => {
     { value: "annually", label: t("transactions.filters.year") },
     { value: "all", label: t("transactions.filters.all") },
   ];
+
+  const handleModalSubmit = useCallback(async (formData) => {
+    const normalizedAmount = formData.amount?.toString().replace(",", ".") || "";
+    const amountValue = parseFloat(normalizedAmount);
+    if (Number.isNaN(amountValue) || amountValue <= 0) return false;
+
+    const payload = {
+      type: formData.type,
+      amount: amountValue,
+      description: formData.description,
+      date: new Date(formData.date),
+      category: formData.category,
+    };
+
+    if (editTransaction) {
+      const success = await updateTransaction(editTransaction.id, payload);
+      if (success) {
+        setAllLoadedTransactions((prev) =>
+          prev.map((t) => (t.id === editTransaction.id ? { ...t, ...payload } : t))
+        );
+      }
+      return success;
+    }
+
+    return addTransaction(payload);
+  }, [addTransaction, updateTransaction, editTransaction]);
 
   if (loading) {
     return (
@@ -364,15 +382,6 @@ const TransactionList = () => {
                     className="flex items-center justify-between rounded-2xl border border-border bg-card/80 p-4 shadow-sm"
                   >
                     <div className="flex items-start gap-3">
-                      <div
-                        className={`flex h-11 w-11 items-center justify-center rounded-full ${
-                          transaction.type === "income"
-                            ? "bg-emerald-500/10 text-emerald-600"
-                            : "bg-rose-500/10 text-rose-600"
-                        }`}
-                      >
-                        {transaction.type === "income" ? "💰" : getCategoryEmoji(transaction.category)}
-                      </div>
                       <div className="space-y-1">
                         <div className="text-base font-semibold leading-tight">{transaction.description}</div>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -426,9 +435,6 @@ const TransactionList = () => {
           ))
         ) : (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center py-10">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-2xl">
-              💳
-            </div>
             <h3 className="text-xl font-semibold text-foreground">{t("transactions.empty.title")}</h3>
             <p className="text-muted-foreground">
               {searchTerm || selectedCategory !== "all" || selectedType !== "all"
@@ -465,6 +471,7 @@ const TransactionList = () => {
           setShowModal(false);
           setEditTransaction(null);
         }}
+        onSubmit={handleModalSubmit}
         transaction={editTransaction}
       />
 

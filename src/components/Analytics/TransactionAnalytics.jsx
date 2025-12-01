@@ -73,19 +73,19 @@ const TransactionAnalytics = () => {
   const extendedStats = useMemo(() => {
     if (!analyticsData.length) return {};
 
-    // 1. Categories with emojis and percentages
-    const processCategories = (categoryMap, totalAmount, categoryList, defaultEmoji) => {
+    // 1. Categories with percentages
+    const processCategories = (categoryMap, totalAmount, categoryList) => {
       return Object.entries(categoryMap)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 5)
         .map(([category, amount]) => {
           const categoryData = categoryList.find((c) => c.value === category);
+          const rawLabel = categoryData?.label || t(`categories.${category}`, { defaultValue: category });
           return {
             category,
             amount,
             percentage: totalAmount > 0 ? (amount / totalAmount) * 100 : 0,
-            label: t(`categories.${category}`, { defaultValue: category }).replace(/^[^\p{L}\p{N}]+/u, "").trim(),
-            emoji: categoryData ? categoryData.label.split(" ")[0] : defaultEmoji,
+            label: rawLabel.replace(/^[^\p{L}\p{N}]+/u, "").trim(),
           };
         });
     };
@@ -105,8 +105,8 @@ const TransactionAnalytics = () => {
       }
     });
 
-    const topExpenseCategories = processCategories(expenseByCategory, stats.totalExpense, expenseCategories, "💰");
-    const topIncomeCategories = processCategories(incomeByCategory, stats.totalIncome, incomeCategories, "👕");
+    const topExpenseCategories = processCategories(expenseByCategory, stats.totalExpense, expenseCategories);
+    const topIncomeCategories = processCategories(incomeByCategory, stats.totalIncome, incomeCategories);
 
     // 2. Monthly Trend (Last 6 months)
     const now = new Date();
@@ -291,7 +291,6 @@ const TransactionAnalytics = () => {
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <span>{cat.emoji}</span>
                       <span className="font-semibold">{cat.label}</span>
                     </div>
                     <span className="text-rose-600 font-semibold">{formatCurrency(cat.amount)}</span>
@@ -316,7 +315,6 @@ const TransactionAnalytics = () => {
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <span>{cat.emoji}</span>
                       <span className="font-semibold">{cat.label}</span>
                     </div>
                     <span className="text-emerald-600 font-semibold">{formatCurrency(cat.amount)}</span>

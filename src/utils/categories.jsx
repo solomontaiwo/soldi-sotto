@@ -10,16 +10,16 @@ export const useCategories = () => {
   // Expense categories: daily priority
   const expenseCategories = useMemo(
     () => [
-      { value: "supermercato", label: `🛒 ${t('categories.supermercato')}` },
-      { value: "alimentazione", label: `🍕 ${t('categories.alimentazione')}` },
-      { value: "trasporti", label: `🚗 ${t('categories.trasporti')}` },
-      { value: "casa", label: `🏠 ${t('categories.casa')}` },
-      { value: "abbonamenti", label: `📱 ${t('categories.abbonamenti')}` },
-      { value: "shopping", label: `🛍️ ${t('categories.shopping')}` },
-      { value: "salute", label: `⚕️ ${t('categories.salute')}` },
-      { value: "intrattenimento", label: `🎬 ${t('categories.intrattenimento')}` },
-      { value: "viaggi", label: `✈️ ${t('categories.viaggi')}` },
-      { value: "altro", label: `📋 ${t('categories.altro')}` },
+      { value: "supermercato", label: t('categories.supermercato') },
+      { value: "alimentazione", label: t('categories.alimentazione') },
+      { value: "trasporti", label: t('categories.trasporti') },
+      { value: "casa", label: t('categories.casa') },
+      { value: "abbonamenti", label: t('categories.abbonamenti') },
+      { value: "shopping", label: t('categories.shopping') },
+      { value: "salute", label: t('categories.salute') },
+      { value: "intrattenimento", label: t('categories.intrattenimento') },
+      { value: "viaggi", label: t('categories.viaggi') },
+      { value: "altro", label: t('categories.altro') },
     ],
     [t]
   );
@@ -27,14 +27,14 @@ export const useCategories = () => {
   // Income categories: salary/freelance priority
   const incomeCategories = useMemo(
     () => [
-      { value: "stipendio", label: `💼 ${t('categories.stipendio')}` },
-      { value: "freelance", label: `💻 ${t('categories.freelance')}` },
-      { value: "bonus", label: `🎯 ${t('categories.bonus')}` },
-      { value: "vendite", label: `💰 ${t('categories.vendite')}` },
-      { value: "rimborso", label: `↩️ ${t('categories.rimborso')}` },
-      { value: "investimenti", label: `📈 ${t('categories.investimenti')}` },
-      { value: "regalo", label: `🎁 ${t('categories.regalo')}` },
-      { value: "altro", label: `📋 ${t('categories.altro')}` },
+      { value: "stipendio", label: t('categories.stipendio') },
+      { value: "freelance", label: t('categories.freelance') },
+      { value: "bonus", label: t('categories.bonus') },
+      { value: "vendite", label: t('categories.vendite') },
+      { value: "rimborso", label: t('categories.rimborso') },
+      { value: "investimenti", label: t('categories.investimenti') },
+      { value: "regalo", label: t('categories.regalo') },
+      { value: "altro", label: t('categories.altro') },
     ],
     [t]
   );

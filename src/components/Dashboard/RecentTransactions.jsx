@@ -1,4 +1,4 @@
-import { FiArrowRight, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { FiArrowRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import formatCurrency from "../../utils/formatCurrency";
@@ -44,8 +44,6 @@ const RecentTransactions = ({ transactions = [], loading = false }) => {
     });
   };
 
-  const getTransactionIcon = (type) => (type === "income" ? <FiTrendingUp className="text-emerald-600" /> : <FiTrendingDown className="text-rose-600" />);
-
   const getCategoryLabel = (category) => {
     if (!category) return "";
     return t("categories." + category) || category;
@@ -71,7 +69,6 @@ const RecentTransactions = ({ transactions = [], loading = false }) => {
   if (recentTransactions.length === 0) {
     return (
       <div className="text-center space-y-3">
-        <div className="text-4xl">📋</div>
         <p className="text-muted-foreground">{t("recentTransactions.emptyDescription")}</p>
         <Button onClick={() => navigate("/transactions")} size={isMobile ? "sm" : "default"}>
           {t("recentTransactions.addFirst")}
@@ -89,13 +86,6 @@ const RecentTransactions = ({ transactions = [], loading = false }) => {
           onClick={() => navigate("/transactions")}
         >
           <div className="flex items-center gap-3">
-            <div
-              className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                transaction.type === "income" ? "bg-emerald-500/10" : "bg-rose-500/10"
-              }`}
-            >
-              {getTransactionIcon(transaction.type)}
-            </div>
             <div className="space-y-1">
               <div className="font-semibold text-sm">{transaction.description}</div>
               <div className="text-xs text-muted-foreground flex items-center gap-1">
