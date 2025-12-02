@@ -177,12 +177,12 @@ const DemoTransactionWrapper = ({ children, startDemo, seedDemo, stopDemo }) => 
   } = useDemo();
 
   // Mock fetchAllTransactions for demo (just returns what we have)
-  const fetchAllTransactions = useCallback(async () => {
+  const fetchAllTransactions = useCallback(async (_options = {}) => {
     return transactions;
   }, [transactions]);
 
   // Mock getTotalTransactionCount for demo
-  const getTotalTransactionCount = useCallback(async () => {
+  const getTotalTransactionCount = useCallback(async (_options = {}) => {
     return transactions.length;
   }, [transactions]);
 
@@ -269,7 +269,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
           isAuthenticated: false,
           startDemo,
           stopDemo,
-          fetchAllTransactions: async () => [],
+          fetchAllTransactions: async (_options = {}) => [],
           getTotalTransactionCount: async () => 0,
         }}
       >
@@ -325,7 +325,7 @@ export const UnifiedTransactionProvider = ({ children }) => {
         startDemo,
         seedOnMount: false,
         stopDemo,
-        fetchAllTransactions: async () => [],
+        fetchAllTransactions: async (_options = {}) => [],
         getTotalTransactionCount: async () => 0,
       }}
     >

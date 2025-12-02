@@ -34,8 +34,10 @@ const Dashboard = () => {
       if (isDemo) {
         setDashboardData(transactions);
       } else if (currentUser) {
-        const data = await fetchAllTransactions();
+        const data = await fetchAllTransactions({ onRevalidated: setDashboardData });
         setDashboardData(data);
+      } else {
+        setDashboardData([]);
       }
     };
     load();

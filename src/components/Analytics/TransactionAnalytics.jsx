@@ -41,8 +41,8 @@ const TransactionAnalytics = () => {
         setIsLoadingAnalyticsData(false);
       } else if (currentUser) {
         setIsLoadingAnalyticsData(true);
-        // This uses the cached service method
-        const data = await fetchAllTransactions();
+        // Stale-while-revalidate: immediate cached data, then background refresh
+        const data = await fetchAllTransactions({ onRevalidated: setAnalyticsData });
         setAnalyticsData(data);
         setIsLoadingAnalyticsData(false);
       } else {

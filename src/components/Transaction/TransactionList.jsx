@@ -62,7 +62,7 @@ const TransactionList = () => {
   useEffect(() => {
     const fetchCount = async () => {
       if (currentUser && !isDemo) {
-        const count = await getTotalTransactionCount();
+        const count = await getTotalTransactionCount({ onRevalidated: setTotalTransactionCount });
         setTotalTransactionCount(count);
       } else if (isDemo) {
         setTotalTransactionCount(transactions.length); // For demo, initial transactions are the total
@@ -99,10 +99,8 @@ const TransactionList = () => {
   
   const handleLoadMore = async () => {
     setIsLoadingMore(true);
-    // As a quick scalability fix without deep pagination cursors everywhere, 
-    // let's fetch ALL for the 'List' view if requested, or a larger chunk.
-    // Since we refactored service to 'fetchAll', let's use that but warn it might be heavy.
-    const fullHistory = await fetchAllTransactions();
+    // Fetch full history with stale-while-revalidate; update state when fresh data arrives
+    const fullHistory = await fetchAllTransactions({ onRevalidated: setAllLoadedTransactions });
     setAllLoadedTransactions(fullHistory);
     setTotalTransactionCount(fullHistory.length); // Update total count to actual fetched count
     setHasMore(false); // Assumes we fetched everything

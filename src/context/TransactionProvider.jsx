@@ -48,14 +48,14 @@ export const TransactionProvider = ({ children }) => {
   }, [currentUser]);
 
   // Expose a way to fetch all transactions for analytics if needed
-  const fetchAllTransactions = useCallback(async () => {
+  const fetchAllTransactions = useCallback(async (options = {}) => {
     if (!currentUser) return [];
-    return await TransactionService.fetchAll(currentUser.uid);
+    return await TransactionService.fetchAll(currentUser.uid, options);
   }, [currentUser]);
 
-  const getTotalTransactionCount = useCallback(async () => {
+  const getTotalTransactionCount = useCallback(async (options = {}) => {
     if (!currentUser) return 0;
-    return await TransactionService.getTotalCount(currentUser.uid);
+    return await TransactionService.getTotalCount(currentUser.uid, options);
   }, [currentUser]);
 
   return (
